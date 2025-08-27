@@ -10,6 +10,15 @@ import { apiFetch } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL!;
 
+type TgWebApp = {
+    MainButton: { setText: (s: string) => void; show: () => void; hide: () => void; onClick: (fn: () => void) => void; offClick: (fn: () => void) => void };
+    showAlert?: (msg: string) => void;
+};
+
+function getTg(): TgWebApp | undefined {
+    return (window as unknown as { Telegram?: { WebApp?: TgWebApp } })?.Telegram?.WebApp;
+}
+
 type IterationDto = {
     id: string;
     name: string;
@@ -58,7 +67,7 @@ export default function IterationPage() {
 
     // Управление Telegram MainButton под подтверждение выбора (пример)
     useEffect(() => {
-        const tg = (window as any).Telegram?.WebApp;
+        const tg = getTg();
         if (!tg) return;
 
         if (pendingCandidateId) {
@@ -70,7 +79,8 @@ export default function IterationPage() {
         } else {
             tg.MainButton.hide();
         }
-    }, [pendingCandidateId, vote]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pendingCandidateId]);
 
     async function vote(candidateId: string) {
         // оптимистичное UI: показываем ваш выбор сразу
@@ -100,13 +110,15 @@ export default function IterationPage() {
             const t = await res.text();
             console.warn('[VOTE] failed', res.status, t);
             hapticError();
-            (window as any).Telegram?.WebApp?.showAlert?.(`Ошибка: ${t}`) ?? alert(`Ошибка: ${t}`);
+            const tg = getTg();
+            if (tg?.showAlert) tg.showAlert(`Ошибка: ${t}`); else alert(`Ошибка: ${t}`);
             // откат
             await load();
         } else {
             console.log('[VOTE] ok');
             hapticSuccess();
-            (window as any).Telegram?.WebApp?.showAlert?.('Голос учтён') ?? alert('Голос учтён');
+            const tg = getTg();
+            if (tg?.showAlert) tg.showAlert('Голос учтён'); else alert('Голос учтён');
             await load();
         }
         setPendingCandidateId(null);
@@ -180,16 +192,7 @@ function formatDateTime(iso?: string) {
     } catch { return ''; }
 }
 
-function renderCountdown(iso?: string) {
-    if (!iso) return '';
-    const target = new Date(iso).getTime();
-    const now = Date.now();
-    const diff = target - now;
-    if (diff <= 0) return ' (идёт/прошла)';
-    const days = Math.floor(diff / (24*60*60*1000));
-    const hours = Math.floor((diff % (24*60*60*1000)) / (60*60*1000));
-    return ` (через ${days}д ${hours}ч)`;
-}
+//
 
 function renderCountdownI18n(iso: string, t: (k: string) => string) {
     const target = new Date(iso).getTime();

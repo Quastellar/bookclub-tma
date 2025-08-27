@@ -15,7 +15,8 @@ const API = process.env.NEXT_PUBLIC_API_URL!;
 export default function SearchPage() {
     const { t } = useI18n();
     const [q, setQ] = useState('');
-    const [items, setItems] = useState<Array<{ title: string; authors: string[]; year?: number; isbn13?: string; isbn10?: string; coverUrl?: string; source?: string }>>([]);
+    type SearchItem = { title: string; authors: string[]; year?: number; isbn13?: string; isbn10?: string; coverUrl?: string; source?: string };
+    const [items, setItems] = useState<SearchItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [ready, setReady] = useState(false);
     const user = getUser();

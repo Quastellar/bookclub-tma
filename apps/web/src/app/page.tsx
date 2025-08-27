@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { tmaLogin, getUser } from '@/lib/auth';
+import { tmaLogin } from '@/lib/auth';
 
 export default function HomePage() {
     const [ready, setReady] = useState(false);

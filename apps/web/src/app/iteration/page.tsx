@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { tmaLogin, authHeaders, getUser, getToken } from '@/lib/auth';
+import { tmaLogin, getUser, getToken } from '@/lib/auth';
 import { hapticError, hapticSuccess } from '@/lib/tg';
 import AppBar from '../_components/AppBar';
 import { useI18n } from '../_i18n/I18nProvider';
@@ -10,9 +10,19 @@ import { apiFetch } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL!;
 
+type IterationDto = {
+    id: string;
+    name: string;
+    status: 'PLANNED' | 'OPEN' | 'CLOSED';
+    meetingDate?: string | null;
+    Candidates?: Array<{ id: string; Book?: { titleNorm?: string; authorsNorm?: string[] }; AddedBy?: { id: string; username?: string; name?: string } }>;
+    voteCounts?: Record<string, number>;
+    myVoteCandidateId?: string | null;
+};
+
 export default function IterationPage() {
     const { t } = useI18n();
-    const [iter, setIter] = useState<any | null>(null);
+    const [iter, setIter] = useState<IterationDto | null>(null);
     const [ready, setReady] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -25,14 +35,15 @@ export default function IterationPage() {
         try {
             const token = getToken();
             const url = token ? `${API}/iterations/current/full` : `${API}/iterations/current`;
-            const headers: any = token ? { Authorization: `Bearer ${token}` } : {};
+            const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
             const res = await apiFetch(url, { headers, label: 'iterations.current' });
             if (!res.ok) throw new Error(await res.text());
             const data = await res.json();
             setIter(data);
-        } catch (e: any) {
+        } catch (e) {
             setIter(null);
-            setError(e?.message || 'Не удалось загрузить');
+            const msg = e instanceof Error ? e.message : String(e);
+            setError(msg || 'Не удалось загрузить');
         } finally {
             setLoading(false);
         }
@@ -59,11 +70,11 @@ export default function IterationPage() {
         } else {
             tg.MainButton.hide();
         }
-    }, [pendingCandidateId]);
+    }, [pendingCandidateId, vote]);
 
-    const vote = async (candidateId: string) => {
+    async function vote(candidateId: string) {
         // оптимистичное UI: показываем ваш выбор сразу
-        setIter((prev: any) => prev ? { ...prev, myVoteCandidateId: candidateId } : prev);
+        setIter((prev) => prev ? { ...prev, myVoteCandidateId: candidateId } : prev);
         setPendingCandidateId(candidateId);
         // гарантируем наличие токена
         let token = getToken();
@@ -99,7 +110,7 @@ export default function IterationPage() {
             await load();
         }
         setPendingCandidateId(null);
-    };
+    }
 
     return (
         <div style={{ padding: 16 }}>

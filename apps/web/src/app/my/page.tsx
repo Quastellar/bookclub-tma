@@ -9,13 +9,15 @@ import { apiFetch } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL!;
 
+type CandidateDto = { id: string; Book?: { titleNorm?: string; authorsNorm?: string[] }; AddedBy?: { id: string; tgUserId?: string } };
+
 export default function MyProposalsPage() {
     const { t } = useI18n();
-    const [items, setItems] = useState<any[]>([]);
+    const [items, setItems] = useState<CandidateDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [ready, setReady] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [me, setMe] = useState<any | null>(getUser());
+    const [me, setMe] = useState<import('@/lib/auth').TmaUser>(getUser());
 
     const load = async () => {
         setLoading(true);
@@ -25,13 +27,14 @@ export default function MyProposalsPage() {
             if (!res.ok) throw new Error(await res.text());
             const data = await res.json();
             const currentUser = me || getUser();
-            const mine = (data?.Candidates || []).filter((c: any) => {
+            const mine = (data?.Candidates || []).filter((c: CandidateDto) => {
                 const added = c?.AddedBy;
                 return added?.id === currentUser?.id || (added?.tgUserId && added?.tgUserId === currentUser?.tgUserId);
             });
             setItems(mine);
-        } catch (e: any) {
-            setError(e?.message || 'Не удалось загрузить');
+        } catch (e) {
+            const msg = e instanceof Error ? e.message : String(e);
+            setError(msg || 'Не удалось загрузить');
         } finally {
             setLoading(false);
         }
@@ -53,9 +56,10 @@ export default function MyProposalsPage() {
             if (!res.ok) throw new Error(await res.text());
             hapticSuccess();
             await load();
-        } catch (e: any) {
+        } catch (e) {
             hapticError();
-            alert(e?.message || `${t('common.error')}`);
+            const msg = e instanceof Error ? e.message : String(e);
+            alert(msg || `${t('common.error')}`);
         }
     };
 

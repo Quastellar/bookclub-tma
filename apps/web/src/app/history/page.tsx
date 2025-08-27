@@ -6,9 +6,18 @@ import { useI18n } from '../_i18n/I18nProvider';
 
 const API = process.env.NEXT_PUBLIC_API_URL!;
 
+type HistoryItem = {
+    id: string;
+    name: string;
+    closedAt?: string;
+    winnerCandidateId?: string | null;
+    voteCounts?: Record<string, number>;
+    Candidates?: Array<{ id: string; Book?: { titleNorm?: string; authorsNorm?: string[] } }>;
+};
+
 export default function HistoryPage() {
     const { t } = useI18n();
-    const [items, setItems] = useState<any[]>([]);
+    const [items, setItems] = useState<HistoryItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -21,8 +30,9 @@ export default function HistoryPage() {
                 if (!res.ok) throw new Error(await res.text());
                 const data = await res.json();
                 setItems(data);
-            } catch (e: any) {
-                setError(e?.message || 'Не удалось загрузить');
+            } catch (e) {
+                const msg = e instanceof Error ? e.message : String(e);
+                setError(msg || 'Не удалось загрузить');
             } finally {
                 setLoading(false);
             }
@@ -37,9 +47,9 @@ export default function HistoryPage() {
             {error && <div style={{ marginTop: 8, color: 'crimson' }}>{t('common.error')}: {error}</div>}
 
             <ul style={{ listStyle: 'none', marginTop: 12 }}>
-                {items.map((it: any) => {
+                {items.map((it) => {
                     const winnerId = it.winnerCandidateId;
-                    const winner = (it.Candidates || []).find((c: any) => c.id === winnerId);
+                    const winner = (it.Candidates || []).find((c) => c.id === winnerId);
                     const votes = it.voteCounts?.[winnerId] ?? 0;
                     return (
                         <li key={it.id} style={{ marginBottom: 12, padding: 12, borderRadius: 8, background: 'var(--tg-theme-secondary-bg-color, #f1f1f1)' }}>

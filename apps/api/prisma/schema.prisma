@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum IterStatus {
+  PLANNED
+  OPEN
+  CLOSED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  tgUserId  String   @unique
+  name      String?
+  username  String?
+  roles     String[] @default([])
+  createdAt DateTime @default(now())
+
+  Votes      Vote[]
+  Candidates Candidate[]
+}
+
+model Book {
+  id          String   @id @default(cuid())
+  titleNorm   String
+  authorsNorm String[]
+  year        Int?
+  isbn10      String?
+  isbn13      String?  @unique
+  coverUrl    String?
+  source      String?
+  meta        Json?
+  createdAt   DateTime @default(now())
+
+  Candidates Candidate[]
+}
+
+model Iteration {
+  id            String     @id @default(cuid())
+  name          String
+  status        IterStatus @default(PLANNED)
+  isPublicVotes Boolean    @default(false)
+  openedAt      DateTime?
+  closedAt      DateTime?
+  meetingDate   DateTime?
+
+  Candidates Candidate[]
+  Votes      Vote[]
+}
+
+model Candidate {
+  id            String   @id @default(cuid())
+  bookId        String
+  addedByUserId String
+  iterationId   String
+  reason        String?
+  createdAt     DateTime @default(now())
+
+  Book      Book      @relation(fields: [bookId], references: [id])
+  AddedBy   User      @relation(fields: [addedByUserId], references: [id])
+  Iteration Iteration @relation(fields: [iterationId], references: [id])
+  Votes     Vote[] // обратная сторона связи Vote.Candidate
+
+  @@unique([bookId, iterationId])
+  @@index([iterationId])
+}
+
+model Vote {
+  id          String   @id @default(cuid())
+  iterationId String
+  candidateId String
+  userId      String
+  createdAt   DateTime @default(now())
+
+  Iteration Iteration @relation(fields: [iterationId], references: [id])
+  Candidate Candidate @relation(fields: [candidateId], references: [id])
+  User      User      @relation(fields: [userId], references: [id])
+
+  @@unique([userId, iterationId])
+  @@index([candidateId])
+}

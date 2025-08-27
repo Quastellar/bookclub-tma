@@ -45,7 +45,8 @@ export default function MyProposalsPage() {
             .then((d) => { setMe(d.user ?? getUser()); setReady(true); })
             .catch(() => setReady(true))
             .finally(load);
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [load]);
 
     const remove = async (id: string) => {
         if (!confirm(t('my.confirmDelete'))) return;
@@ -72,7 +73,7 @@ export default function MyProposalsPage() {
             {!loading && items.length === 0 && <div style={{ marginTop: 8 }}>{t('my.none')}</div>}
 
             <ul style={{ listStyle: 'none', marginTop: 12 }}>
-                {items.map((c: any) => (
+                {items.map((c) => (
                     <li key={c.id} style={{ marginBottom: 12, padding: 12, borderRadius: 8, background: 'var(--tg-theme-secondary-bg-color, #f1f1f1)' }}>
                         <div><b>{c.Book?.titleNorm}</b></div>
                         <div style={{ opacity: 0.8 }}>{(c.Book?.authorsNorm || []).join(', ')}</div>

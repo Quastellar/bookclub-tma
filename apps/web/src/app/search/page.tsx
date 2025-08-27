@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 // import Link from 'next/link';
 import Image from 'next/image';
 import { normalizeForCandidate } from '@/lib/book';
-import { tmaLogin, authHeaders, getUser, ensureAuth, getToken } from '@/lib/auth';
+import { tmaLogin, getUser, ensureAuth, getToken } from '@/lib/auth';
 import AppBar from '../_components/AppBar';
 import { useI18n } from '../_i18n/I18nProvider';
 import { hapticError, hapticSuccess } from '@/lib/tg';
@@ -133,8 +133,8 @@ export default function SearchPage() {
                 tg?.MainButton?.onClick?.(handler);
                 setTimeout(() => tg?.MainButton?.offClick?.(handler), 4000);
             } catch {}
-        } catch (e: any) {
-            const msg = e?.message || 'Не удалось отправить запрос';
+        } catch (e) {
+            const msg = e instanceof Error ? e.message : 'Не удалось отправить запрос';
             hapticError();
             (window as any).Telegram?.WebApp?.showAlert?.(`Ошибка сети: ${msg}`) ?? alert(`Ошибка сети: ${msg}`);
         }

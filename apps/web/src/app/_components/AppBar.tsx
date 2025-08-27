@@ -5,7 +5,7 @@ import { useI18n } from '../_i18n/I18nProvider';
 
 export default function AppBar({ title, right, withBack }: { title: string; right?: React.ReactNode; withBack?: boolean }) {
   const { lang, setLang } = useI18n();
-  const isTg = typeof window !== 'undefined' && (window as any).Telegram?.WebApp;
+  const isTg = typeof window !== 'undefined' && (window as unknown as { Telegram?: { WebApp?: unknown } })?.Telegram?.WebApp;
 
   return (
     <div style={{

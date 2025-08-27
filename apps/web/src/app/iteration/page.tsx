@@ -126,8 +126,8 @@ export default function IterationPage() {
 
             {iter && (
                 <ul style={{ listStyle: 'none', marginTop: 12 }}>
-                    {(iter.Candidates || []).map((c: any) => {
-                        const by = c.AddedBy;
+                    {(iter.Candidates || []).map((c) => {
+                        const by = c.AddedBy as { id?: string; username?: string; name?: string } | undefined;
                         const isSelf = user && by && (user.id === by.id);
                         const count = iter.voteCounts?.[c.id] ?? 0;
                         const isMine = iter.myVoteCandidateId === c.id;

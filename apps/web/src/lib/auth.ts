@@ -6,10 +6,10 @@ const API = process.env.NEXT_PUBLIC_API_URL!;
 const IS_DEV = process.env.NODE_ENV !== 'production';
 
 export function initWebApp(): void {
-    if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp) {
+    if (typeof window !== 'undefined' && (window as unknown as { Telegram?: { WebApp?: unknown } }).Telegram?.WebApp) {
         try {
-            (window as any).Telegram.WebApp.ready();
-            (window as any).Telegram.WebApp.expand();
+            (window as unknown as { Telegram: { WebApp: { ready: () => void; expand: () => void } } }).Telegram.WebApp.ready();
+            (window as unknown as { Telegram: { WebApp: { ready: () => void; expand: () => void } } }).Telegram.WebApp.expand();
         } catch {}
     }
 }

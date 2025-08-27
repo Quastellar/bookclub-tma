@@ -5,7 +5,7 @@ import { retrieveLaunchParams } from '@telegram-apps/sdk';
 const API = process.env.NEXT_PUBLIC_API_URL!;
 const IS_DEV = process.env.NODE_ENV !== 'production';
 
-export function initWebApp() {
+export function initWebApp(): void {
     if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp) {
         try {
             (window as any).Telegram.WebApp.ready();
@@ -19,10 +19,12 @@ export function getToken(): string | null {
     return localStorage.getItem('token');
 }
 
-export function getUser(): any | null {
+export type TmaUser = { id: string; tgUserId: string; username?: string; name?: string; createdAt?: string; roles?: string[] } | null;
+
+export function getUser(): TmaUser {
     if (typeof window === 'undefined') return null;
     const raw = localStorage.getItem('user');
-    return raw ? JSON.parse(raw) : null;
+    try { return raw ? JSON.parse(raw) : null; } catch { return null; }
 }
 
 export function isAuthed(): boolean {
@@ -34,7 +36,7 @@ export function authHeaders(): Record<string, string> {
     return t ? { Authorization: `Bearer ${t}` } : {};
 }
 
-export async function tmaLogin(): Promise<{ token: string | null; user: any | null }> {
+export async function tmaLogin(): Promise<{ token: string | null; user: TmaUser }> {
     initWebApp();
 
     let initDataRaw: string | null = null;
@@ -48,7 +50,7 @@ export async function tmaLogin(): Promise<{ token: string | null; user: any | nu
     // Фоллбэк: берём сырую строку из Telegram WebApp API, если SDK не вернул
     if (!initDataRaw) {
         try {
-            const raw = (window as any)?.Telegram?.WebApp?.initData;
+            const raw = (window as unknown as { Telegram?: { WebApp?: { initData?: string } } })?.Telegram?.WebApp?.initData;
             if (typeof raw === 'string' && raw.length > 0) {
                 initDataRaw = raw;
             }
@@ -77,7 +79,7 @@ export async function tmaLogin(): Promise<{ token: string | null; user: any | nu
     const data = await res.json();
     localStorage.setItem('token', data.token);
     localStorage.setItem('user', JSON.stringify(data.user));
-    return data;
+    return data as { token: string; user: TmaUser };
 }
 
 export async function ensureAuth(): Promise<string | null> {

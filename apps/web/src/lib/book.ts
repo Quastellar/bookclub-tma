@@ -6,7 +6,7 @@ export type LookupItem = {
     isbn10?: string;
     coverUrl?: string;
     source?: string;
-    meta?: any;
+    meta?: Record<string, unknown>;
 };
 
 export function normalizeForCandidate(b: LookupItem) {

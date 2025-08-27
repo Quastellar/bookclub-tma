@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+// import Link from 'next/link';
 import Image from 'next/image';
 import { normalizeForCandidate } from '@/lib/book';
 import { tmaLogin, authHeaders, getUser, ensureAuth, getToken } from '@/lib/auth';
@@ -15,7 +15,7 @@ const API = process.env.NEXT_PUBLIC_API_URL!;
 export default function SearchPage() {
     const { t } = useI18n();
     const [q, setQ] = useState('');
-    const [items, setItems] = useState<any[]>([]);
+    const [items, setItems] = useState<Array<{ title: string; authors: string[]; year?: number; isbn13?: string; isbn10?: string; coverUrl?: string; source?: string }>>([]);
     const [loading, setLoading] = useState(false);
     const [ready, setReady] = useState(false);
     const user = getUser();
@@ -78,7 +78,7 @@ export default function SearchPage() {
         } catch {}
     }, [q]);
 
-    const normalizeCover = (url?: string | null) => {
+    const normalizeCover = (url?: string | null): string | null => {
         if (!url) return null;
         let u = url.trim();
         if (!u) return null;
@@ -88,7 +88,7 @@ export default function SearchPage() {
         return u;
     };
 
-    const addCandidate = async (it: any) => {
+    const addCandidate = async (it: { title: string; authors?: string[]; year?: number; isbn13?: string; isbn10?: string; coverUrl?: string; source?: string }) => {
         const book = normalizeForCandidate({
             title: it.title,
             authors: it.authors || [],
@@ -164,7 +164,7 @@ export default function SearchPage() {
                     marginBottom: 20,
                     fontSize: 14
                 }}>
-                    {t('common.user')}: {user.username || user.first_name || user.id}
+                    {t('common.user')}: {user.username || user.name || user.id}
                 </div>
             )}
 

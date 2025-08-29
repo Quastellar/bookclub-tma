@@ -18,7 +18,7 @@ export async function apiFetch(input: RequestInfo | URL, init?: FetchInit): Prom
     const ms = Date.now() - startedAt;
     const err = e instanceof Error ? e.message : String(e);
     console.error('[API]', label, { url: String(input), method: (init?.method || 'GET'), error: err, ms });
-    throw e as unknown;
+    throw e;
   }
 }
 

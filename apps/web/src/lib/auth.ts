@@ -42,7 +42,7 @@ export async function tmaLogin(): Promise<{ token: string | null; user: TmaUser 
     let initDataRaw: string | null = null;
     try {
         const lp = retrieveLaunchParams();
-        initDataRaw = lp.initDataRaw || null;
+        initDataRaw = (typeof lp.initDataRaw === 'string' && lp.initDataRaw) ? lp.initDataRaw : null;
     } catch (e) {
         if (!IS_DEV) throw e;
     }

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, NotFoundException, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Param, Patch, Post, Req, UseGuards, ForbiddenException } from '@nestjs/common';
 import { IterationsService } from './iterations.service';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 
@@ -6,19 +6,41 @@ import { JwtAuthGuard } from '../auth/jwt.guard';
 export class IterationsController {
   constructor(private readonly svc: IterationsService) {}
 
+  private checkAdmin(user: any) {
+    if (!user?.roles?.includes('admin')) {
+      throw new ForbiddenException('Требуются права администратора');
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Body() dto: { name: string; isPublicVotes?: boolean; meetingDate?: string }) {
+  async create(@Body() dto: { name: string; isPublicVotes?: boolean; meetingDate?: string }, @Req() req: any) {
+    this.checkAdmin(req.user);
     return this.svc.create(dto.name, dto.isPublicVotes ?? false, dto.meetingDate ? new Date(dto.meetingDate) : undefined);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id/open')
-  open(@Param('id') id: string) {
+  async open(@Param('id') id: string, @Req() req: any) {
+    this.checkAdmin(req.user);
     return this.svc.open(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id/close')
-  close(@Param('id') id: string) {
-    return this.svc.close(id);
+  async close(@Param('id') id: string, @Req() req: any) {
+    this.checkAdmin(req.user);
+    const result = await this.svc.close(id);
+    // Запускаем аннонс в канал
+    await this.svc.announceWinner(id);
+    return result;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/deadline')
+  async setDeadline(@Param('id') id: string, @Body() dto: { meetingDate: string }, @Req() req: any) {
+    this.checkAdmin(req.user);
+    return this.svc.setDeadline(id, new Date(dto.meetingDate));
   }
 
   @Get('current')

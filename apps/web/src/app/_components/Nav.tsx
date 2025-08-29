@@ -2,9 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { getUser } from '@/lib/auth';
 
 export default function Nav() {
   const pathname = usePathname();
+  const user = getUser();
+  const isAdmin = user?.roles?.includes('admin') ?? false;
 
   const isActive = (href: string) => pathname === href;
 
@@ -29,6 +32,7 @@ export default function Nav() {
       <NavLink href="/search" label="Поиск" active={isActive('/search')} />
       <NavLink href="/iteration" label="Голос" active={isActive('/iteration')} />
       <NavLink href="/my" label="Мои" active={isActive('/my')} />
+      {isAdmin && <NavLink href="/admin" label="Админ" active={isActive('/admin')} />}
       <NavLink href="/history" label="История" active={isActive('/history')} />
     </nav>
   );

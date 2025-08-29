@@ -315,7 +315,6 @@ export default function HistoryPage() {
                                                         title={winner.Book?.titleNorm || 'Неизвестная книга'}
                                                         authors={winner.Book?.authorsNorm || []}
                                                         coverUrl={winner.Book?.coverUrl}
-                                                        showActions={false}
                                                     />
                                                 </div>
                                             ) : (

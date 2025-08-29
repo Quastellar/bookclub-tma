@@ -338,7 +338,6 @@ export default function MyProposalsPage() {
                                         title={candidate.Book?.titleNorm || 'Неизвестная книга'}
                                         authors={candidate.Book?.authorsNorm || []}
                                         coverUrl={candidate.Book?.coverUrl}
-                                        showActions={false}
                                     />
                                     
                                     <div style={{

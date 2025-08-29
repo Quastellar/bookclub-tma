@@ -72,7 +72,8 @@ export class IterationsService implements OnModuleInit, OnModuleDestroy {
     if (!iter || !iter.Candidates.length) return;
 
     // Находим победителя
-    let winner = null;
+    type CandidateWithRelations = typeof iter.Candidates[0];
+    let winner: CandidateWithRelations | null = null;
     let maxVotes = -1;
     for (const c of iter.Candidates) {
       const votes = (c.Votes || []).length;

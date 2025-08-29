@@ -50,7 +50,7 @@ export default function HistoryPage() {
                 {items.map((it) => {
                     const winnerId = it.winnerCandidateId;
                     const winner = (it.Candidates || []).find((c) => c.id === winnerId);
-                    const votes = it.voteCounts?.[winnerId] ?? 0;
+                    const votes = winnerId ? (it.voteCounts?.[winnerId] ?? 0) : 0;
                     return (
                         <li key={it.id} style={{ marginBottom: 12, padding: 12, borderRadius: 8, background: 'var(--tg-theme-secondary-bg-color, #f1f1f1)' }}>
                             <div style={{ fontWeight: 800 }}>{it.name}</div>

@@ -2,7 +2,16 @@
 
 import Link from 'next/link';
 import { useI18n } from '../_i18n/I18nProvider';
-import { getTg } from '../../lib/tg';
+
+type TgWebApp = {
+    BackButton?: { show?: () => void; hide?: () => void; onClick?: (fn: () => void) => void };
+    ready?: () => void;
+    expand?: () => void;
+};
+
+function getTg(): TgWebApp | undefined {
+    return (window as unknown as { Telegram?: { WebApp?: TgWebApp } })?.Telegram?.WebApp;
+}
 
 interface AppBarProps {
   title: string;

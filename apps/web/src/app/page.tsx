@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { tmaLogin } from '@/lib/auth';
 import AppBar from './_components/AppBar';
-import { useI18n } from './_i18n/I18nProvider';
 
 type TgWebApp = {
     ready?: () => void;

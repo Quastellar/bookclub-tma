@@ -17,7 +17,7 @@ export default function MyProposalsPage() {
     const [loading, setLoading] = useState(false);
     const [ready, setReady] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [me, setMe] = useState<import('@/lib/auth').TmaUser>(getUser());
+    const [me, setMe] = useState<import('@/lib/auth').TmaUser | null>(null);
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -26,7 +26,7 @@ export default function MyProposalsPage() {
             const res = await apiFetch(`${API}/iterations/current/full`, { headers: { ...authHeaders() }, label: 'iterations.current.full' });
             if (!res.ok) throw new Error(await res.text());
             const data = await res.json();
-            const currentUser = me || getUser();
+            const currentUser = me || (typeof window !== 'undefined' ? getUser() : null);
             const mine = (data?.Candidates || []).filter((c: CandidateDto) => {
                 const added = c?.AddedBy;
                 return added?.id === currentUser?.id || (added?.tgUserId && added?.tgUserId === currentUser?.tgUserId);
@@ -42,8 +42,17 @@ export default function MyProposalsPage() {
 
     useEffect(() => {
         tmaLogin()
-            .then((d) => { setMe(d.user ?? getUser()); setReady(true); })
-            .catch(() => setReady(true))
+            .then((d) => { 
+                setMe(d.user || null); 
+                setReady(true); 
+            })
+            .catch(() => {
+                // Безопасная инициализация пользователя на клиенте
+                if (typeof window !== 'undefined') {
+                    setMe(getUser());
+                }
+                setReady(true);
+            })
             .finally(load);
     }, [load]);
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { normalizeForCandidate } from '@/lib/book';
-import { tmaLogin, getUser, ensureAuth } from '@/lib/auth';
+import { tmaLogin, ensureAuth } from '@/lib/auth';
 import AppBar from '../_components/AppBar';
 import BookCover from '../_components/BookCover';
 import BookListSkeleton from '../_components/BookListSkeleton';

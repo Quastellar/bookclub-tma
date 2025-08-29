@@ -61,7 +61,7 @@ const navItems = [
 
 export default function Nav() {
   const pathname = usePathname();
-  const user = getUser();
+  const user = typeof window !== 'undefined' ? getUser() : null;
   const isAdmin = user?.roles?.includes('admin') ?? false;
 
   const isActive = (href: string) => pathname === href;

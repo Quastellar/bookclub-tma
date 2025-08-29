@@ -36,7 +36,7 @@ export default function IterationPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [pendingCandidateId, setPendingCandidateId] = useState<string | null>(null);
-    const user = getUser();
+    const user = typeof window !== 'undefined' ? getUser() : null;
 
     const load = async () => {
         setLoading(true);

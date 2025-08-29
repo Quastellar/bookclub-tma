@@ -26,7 +26,7 @@ export default function AdminPage() {
     const [currentIter, setCurrentIter] = useState<Iteration | null>(null);
     const [newIterName, setNewIterName] = useState('');
     const [newDeadline, setNewDeadline] = useState('');
-    const user = getUser();
+    const user = typeof window !== 'undefined' ? getUser() : null;
 
     // Проверяем права админа
     const isAdmin = user?.roles?.includes('admin') ?? false;

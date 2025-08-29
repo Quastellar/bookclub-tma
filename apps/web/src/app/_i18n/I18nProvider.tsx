@@ -162,14 +162,18 @@ export default function I18nProvider({ children }: { children: React.ReactNode }
   const [lang, setLang] = useState<Lang>('ru');
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('lang');
-      if (saved === 'ru' || saved === 'en') setLang(saved);
-    } catch {}
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('lang');
+        if (saved === 'ru' || saved === 'en') setLang(saved);
+      } catch {}
+    }
   }, []);
 
   useEffect(() => {
-    try { localStorage.setItem('lang', lang); } catch {}
+    if (typeof window !== 'undefined') {
+      try { localStorage.setItem('lang', lang); } catch {}
+    }
   }, [lang]);
 
   const t = useMemo(() => (key: string) => dicts[lang][key] ?? key, [lang]);

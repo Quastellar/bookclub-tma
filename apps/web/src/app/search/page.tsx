@@ -47,7 +47,11 @@ export default function SearchPage() {
             tg.ready?.();
             tg.expand?.();
             tg.BackButton?.show?.();
-            tg.BackButton?.onClick?.(() => window.history.back());
+            tg.BackButton?.onClick?.(() => {
+                if (typeof window !== 'undefined') {
+                    window.history.back();
+                }
+            });
         }
 
         tmaLogin()
@@ -55,9 +59,11 @@ export default function SearchPage() {
             .catch(() => setReady(true));
 
         // Восстановить последний поисковый запрос
-        const savedQuery = localStorage.getItem('lastSearchQuery');
-        if (savedQuery) {
-            setQ(savedQuery);
+        if (typeof window !== 'undefined') {
+            const savedQuery = localStorage.getItem('lastSearchQuery');
+            if (savedQuery) {
+                setQ(savedQuery);
+            }
         }
 
         return () => {
@@ -82,7 +88,7 @@ export default function SearchPage() {
 
     // Сохранение поискового запроса
     useEffect(() => {
-        if (q) {
+        if (q && typeof window !== 'undefined') {
             localStorage.setItem('lastSearchQuery', q);
         }
     }, [q]);
@@ -139,7 +145,9 @@ export default function SearchPage() {
                 tg.MainButton.show?.();
                 
                 const handleMainButtonClick = () => {
-                    window.location.href = '/my';
+                    if (typeof window !== 'undefined') {
+                        window.location.href = '/my';
+                    }
                 };
                 
                 tg.MainButton.offClick?.(handleMainButtonClick);

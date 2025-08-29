@@ -28,7 +28,9 @@ export default function AppBar({ title, right, withBack = false, subtitle }: App
     if (tg?.BackButton?.hide) {
       tg.BackButton.hide();
     }
-    window.history.back();
+    if (typeof window !== 'undefined') {
+      window.history.back();
+    }
   };
 
   return (

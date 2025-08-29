@@ -69,6 +69,7 @@ export default function IterationPage() {
 
     // Управление Telegram MainButton под подтверждение выбора (пример)
     useEffect(() => {
+        if (!isClient) return;
         const tg = getTg();
         if (!tg) return;
 
@@ -82,7 +83,7 @@ export default function IterationPage() {
             tg.MainButton.hide();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pendingCandidateId]);
+    }, [pendingCandidateId, isClient]);
 
     async function vote(candidateId: string) {
         // оптимистичное UI: показываем ваш выбор сразу
@@ -95,8 +96,10 @@ export default function IterationPage() {
             token = getToken();
             if (!token) {
                 hapticError();
-                const tg = getTg();
-                if (tg?.showAlert) tg.showAlert('Не авторизован. Откройте Mini App в Telegram.'); else alert('Не авторизован. Откройте Mini App в Telegram.');
+                if (typeof window !== 'undefined') {
+                    const tg = getTg();
+                    if (tg?.showAlert) tg.showAlert('Не авторизован. Откройте Mini App в Telegram.'); else alert('Не авторизован. Откройте Mini App в Telegram.');
+                }
                 setPendingCandidateId(null);
                 await load();
                 return;
@@ -113,15 +116,19 @@ export default function IterationPage() {
             const t = await res.text();
             console.warn('[VOTE] failed', res.status, t);
             hapticError();
-            const tg = getTg();
-            if (tg?.showAlert) tg.showAlert(`Ошибка: ${t}`); else alert(`Ошибка: ${t}`);
+            if (typeof window !== 'undefined') {
+                const tg = getTg();
+                if (tg?.showAlert) tg.showAlert(`Ошибка: ${t}`); else alert(`Ошибка: ${t}`);
+            }
             // откат
             await load();
         } else {
             console.log('[VOTE] ok');
             hapticSuccess();
-            const tg = getTg();
-            if (tg?.showAlert) tg.showAlert('Голос учтён'); else alert('Голос учтён');
+            if (typeof window !== 'undefined') {
+                const tg = getTg();
+                if (tg?.showAlert) tg.showAlert('Голос учтён'); else alert('Голос учтён');
+            }
             await load();
         }
         setPendingCandidateId(null);

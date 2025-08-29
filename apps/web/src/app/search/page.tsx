@@ -144,14 +144,24 @@ export default function SearchPage() {
 
     const addBook = async (item: SearchItem) => {
         try {
-            await ensureAuth();
+            console.log('[ADD_BOOK] Starting to add book:', item.title);
+            const token = await ensureAuth();
+            console.log('[ADD_BOOK] Token received:', token ? 'yes' : 'no');
+            if (!token) {
+                throw new Error('Не удалось получить токен авторизации');
+            }
             
             const candidateData = normalizeForCandidate(item);
+            console.log('[ADD_BOOK] Candidate data:', candidateData);
             
             const response = await apiFetch(`${API}/candidates`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify(candidateData),
+                label: 'candidates.create'
             });
 
             if (!response.ok) {

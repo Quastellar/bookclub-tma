@@ -21,7 +21,7 @@ export default function BookCard({
     <div style={{ display: 'flex', gap: 12, padding: 12, borderRadius: 12, background: 'var(--tg-theme-secondary-bg-color, #f1f1f1)' }}>
       <div style={{ flex: '0 0 auto' }}>
         <BookCover
-          src={coverUrl}
+          src={coverUrl ?? null}
           alt={title}
           width={56}
           height={84}

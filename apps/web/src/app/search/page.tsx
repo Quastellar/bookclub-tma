@@ -26,6 +26,7 @@ function getTg(): TgWebApp | undefined {
 const API = process.env.NEXT_PUBLIC_API_URL!;
 
 type SearchItem = { 
+    sourceId?: string;
     title: string; 
     authors: string[]; 
     year?: number; 

@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react';
 // import Link from 'next/link';
-import Image from 'next/image';
 import { normalizeForCandidate } from '@/lib/book';
 import { tmaLogin, getUser, ensureAuth, getToken } from '@/lib/auth';
 import AppBar from '../_components/AppBar';
+import BookCover from '../_components/BookCover';
+import BookListSkeleton from '../_components/BookListSkeleton';
 import { useI18n } from '../_i18n/I18nProvider';
 import { hapticError, hapticSuccess } from '@/lib/tg';
 import { apiFetch } from '@/lib/api';
@@ -200,11 +201,11 @@ export default function SearchPage() {
                 }}
             />
 
-            {loading && (
-                <div style={{ textAlign: 'center', padding: 20 }}>{t('common.loading')}</div>
+            {loading && q.trim() && (
+                <BookListSkeleton count={4} />
             )}
 
-            <div>
+            {!loading && <div>
                 {items.map((x, i) => {
                     const cover = normalizeCover(x.coverUrl);
 
@@ -220,28 +221,13 @@ export default function SearchPage() {
                             background: 'var(--tg-theme-secondary-bg-color, #f9f9f9)'
                         }}>
                             <div>
-                                {cover ? (
-                                    <div style={{ position: 'relative', width: 72, height: 108 }}>
-                                        <Image
-                                            src={cover}
-                                            alt={x.title || 'cover'}
-                                            fill
-                                            sizes="72px"
-                                            style={{ objectFit: 'cover', borderRadius: 6 }}
-                                            unoptimized
-                                        />
-                                    </div>
-                                ) : (
-                                    <div style={{
-                                        width: 72, height: 108,
-                                        background: 'var(--tg-theme-secondary-bg-color, #eee)',
-                                        borderRadius: 6, display: 'flex', alignItems: 'center',
-                                        justifyContent: 'center', color: 'var(--tg-theme-hint-color, #999)',
-                                        fontSize: 12
-                                    }}>
-                                        {t('search.noCover')}
-                                    </div>
-                                )}
+                                <BookCover
+                                    src={cover}
+                                    alt={x.title || 'cover'}
+                                    width={72}
+                                    height={108}
+                                    fallbackText={t('search.noCover')}
+                                />
                             </div>
 
                             <div>
@@ -277,7 +263,7 @@ export default function SearchPage() {
                         </div>
                     );
                 })}
-            </div>
+            </div>}
         </div>
     );
 }

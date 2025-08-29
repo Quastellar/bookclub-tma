@@ -1,5 +1,7 @@
 "use client";
 
+import BookCover from './BookCover';
+
 export default function BookCard({
   title,
   authors,
@@ -17,13 +19,14 @@ export default function BookCard({
 }) {
   return (
     <div style={{ display: 'flex', gap: 12, padding: 12, borderRadius: 12, background: 'var(--tg-theme-secondary-bg-color, #f1f1f1)' }}>
-      <div style={{ width: 56, height: 84, borderRadius: 6, background: '#ddd', overflow: 'hidden', flex: '0 0 auto' }}>
-        {coverUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={coverUrl} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        ) : (
-          <div style={{ width: '100%', height: '100%', background: '#e6e6e6' }} />
-        )}
+      <div style={{ flex: '0 0 auto' }}>
+        <BookCover
+          src={coverUrl}
+          alt={title}
+          width={56}
+          height={84}
+          fallbackText="no cover"
+        />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontWeight: 800 }}>

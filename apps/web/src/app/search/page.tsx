@@ -127,7 +127,9 @@ export default function SearchPage() {
             }
             
             const data = await response.json();
-            setItems(data.items || []);
+            console.log('[SEARCH] Response data:', data);
+            // API возвращает массив напрямую, не в объекте items
+            setItems(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Search error:', error);
             const tg = getTg();
@@ -197,21 +199,63 @@ export default function SearchPage() {
 
     if (!ready) {
         return (
-            <div className="loading-container">
-                <div className="loading-spinner" />
-                <p>Загрузка...</p>
+            <div style={{
+                minHeight: '100vh',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '16px',
+                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
+            }}>
+                <div style={{
+                    width: '32px',
+                    height: '32px',
+                    border: '3px solid #e5e7eb',
+                    borderTop: '3px solid #f26419',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                }} />
+                <p style={{ color: '#6b7280' }}>Загрузка...</p>
+                <style jsx>{`
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                `}</style>
             </div>
         );
     }
 
     return (
-        <div className="search-page">
+        <div style={{
+            minHeight: '100vh',
+            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+            paddingBottom: '80px'
+        }}>
             <AppBar title={t('search.title')} withBack />
             
-            <main className="search-main">
-                <div className="search-form">
-                    <div className="search-input-container">
-                        <div className="search-input-icon">
+            <main style={{
+                padding: '16px',
+                maxWidth: '600px',
+                margin: '0 auto'
+            }}>
+                {/* Поисковая форма */}
+                <div style={{ marginBottom: '24px' }}>
+                    <div style={{
+                        position: 'relative',
+                        display: 'flex',
+                        alignItems: 'center'
+                    }}>
+                        <div style={{
+                            position: 'absolute',
+                            left: '16px',
+                            color: '#6b7280',
+                            display: 'flex',
+                            alignItems: 'center',
+                            pointerEvents: 'none',
+                            zIndex: 1
+                        }}>
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <circle cx="11" cy="11" r="8"/>
                                 <path d="m21 21-4.35-4.35"/>
@@ -222,31 +266,143 @@ export default function SearchPage() {
                             placeholder={t('search.placeholder')}
                             value={q}
                             onChange={(e) => setQ(e.target.value)}
-                            className="search-input"
+                            style={{
+                                width: '100%',
+                                padding: '16px 48px 16px 48px',
+                                border: '1px solid #e5e7eb',
+                                borderRadius: '16px',
+                                fontSize: '16px',
+                                background: '#ffffff',
+                                color: '#1f2937',
+                                transition: 'all 0.25s ease',
+                                boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                            }}
+                            onFocus={(e) => {
+                                e.target.style.borderColor = '#f26419';
+                                e.target.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 0 0 3px rgba(242, 100, 25, 0.1)';
+                            }}
+                            onBlur={(e) => {
+                                e.target.style.borderColor = '#e5e7eb';
+                                e.target.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
+                            }}
                         />
                         {q && (
                             <button 
                                 onClick={() => setQ('')}
-                                className="search-clear-btn"
+                                style={{
+                                    position: 'absolute',
+                                    right: '12px',
+                                    width: '32px',
+                                    height: '32px',
+                                    borderRadius: '50%',
+                                    background: '#e5e7eb',
+                                    border: 'none',
+                                    color: '#6b7280',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    transition: 'all 0.15s ease'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = '#d1d5db';
+                                    e.currentTarget.style.color = '#374151';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = '#e5e7eb';
+                                    e.currentTarget.style.color = '#6b7280';
+                                }}
                                 aria-label="Очистить"
                             >
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <line x1="18" y1="6" x2="6" y2="18"/>
-                                    <line x1="6" y1="6" x2="18" y2="18"/>
-                                </svg>
+                                ×
                             </button>
                         )}
                     </div>
                 </div>
 
-                <div className="search-results">
+                {/* Результаты поиска */}
+                <div>
                     {loading ? (
-                        <BookListSkeleton count={5} />
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '16px'
+                        }}>
+                            {Array.from({ length: 3 }).map((_, i) => (
+                                <div key={i} style={{
+                                    display: 'flex',
+                                    gap: '16px',
+                                    padding: '20px',
+                                    background: '#ffffff',
+                                    borderRadius: '16px',
+                                    border: '1px solid #e5e7eb',
+                                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                                }}>
+                                    <div style={{
+                                        width: '72px',
+                                        height: '108px',
+                                        background: 'linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 50%, #f3f4f6 100%)',
+                                        backgroundSize: '200% 100%',
+                                        animation: 'shimmer 1.5s ease-in-out infinite',
+                                        borderRadius: '8px',
+                                        flexShrink: 0
+                                    }} />
+                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        <div style={{
+                                            height: '20px',
+                                            width: '80%',
+                                            background: 'linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 50%, #f3f4f6 100%)',
+                                            backgroundSize: '200% 100%',
+                                            animation: 'shimmer 1.5s ease-in-out infinite',
+                                            borderRadius: '4px'
+                                        }} />
+                                        <div style={{
+                                            height: '16px',
+                                            width: '60%',
+                                            background: 'linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 50%, #f3f4f6 100%)',
+                                            backgroundSize: '200% 100%',
+                                            animation: 'shimmer 1.5s ease-in-out infinite',
+                                            borderRadius: '4px'
+                                        }} />
+                                        <div style={{
+                                            height: '32px',
+                                            width: '120px',
+                                            background: 'linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 50%, #f3f4f6 100%)',
+                                            backgroundSize: '200% 100%',
+                                            animation: 'shimmer 1.5s ease-in-out infinite',
+                                            borderRadius: '8px',
+                                            marginTop: '8px'
+                                        }} />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     ) : items.length > 0 ? (
-                        <div className="search-results-list">
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '16px'
+                        }}>
                             {items.map((item, i) => (
-                                <div key={i} className="search-result-item">
-                                    <div className="search-result-cover">
+                                <div key={i} style={{
+                                    display: 'flex',
+                                    gap: '16px',
+                                    padding: '20px',
+                                    background: '#ffffff',
+                                    borderRadius: '16px',
+                                    border: '1px solid #e5e7eb',
+                                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                                    transition: 'all 0.25s ease'
+                                }} onMouseEnter={(e) => {
+                                    e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
+                                    e.currentTarget.style.transform = 'translateY(-2px)';
+                                    e.currentTarget.style.borderColor = '#d1d5db';
+                                }} onMouseLeave={(e) => {
+                                    e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
+                                    e.currentTarget.style.transform = 'translateY(0)';
+                                    e.currentTarget.style.borderColor = '#e5e7eb';
+                                }}>
+                                    <div style={{ flexShrink: 0 }}>
                                         <BookCover
                                             src={item.coverUrl || null}
                                             alt={item.title}
@@ -255,24 +411,76 @@ export default function SearchPage() {
                                             fallbackText="📚"
                                         />
                                     </div>
-                                    <div className="search-result-content">
-                                        <div className="search-result-header">
-                                            <h3 className="search-result-title">
+                                    <div style={{
+                                        flex: 1,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'space-between'
+                                    }}>
+                                        <div>
+                                            <h3 style={{
+                                                fontSize: '16px',
+                                                fontWeight: '600',
+                                                color: '#1f2937',
+                                                lineHeight: '1.25',
+                                                margin: '0 0 4px 0'
+                                            }}>
                                                 {item.title}
-                                                {item.year && <span className="search-result-year">({item.year})</span>}
+                                                {item.year && <span style={{
+                                                    color: '#6b7280',
+                                                    fontWeight: '400',
+                                                    marginLeft: '8px'
+                                                }}>({item.year})</span>}
                                             </h3>
-                                            <p className="search-result-authors">
+                                            <p style={{
+                                                fontSize: '14px',
+                                                color: '#6b7280',
+                                                margin: '4px 0',
+                                                lineHeight: '1.5'
+                                            }}>
                                                 {item.authors?.join(', ') || t('search.unknown_author')}
                                             </p>
                                             {(item.isbn13 || item.isbn10) && (
-                                                <p className="search-result-isbn">
+                                                <p style={{
+                                                    fontSize: '12px',
+                                                    color: '#9ca3af',
+                                                    fontFamily: 'monospace',
+                                                    letterSpacing: '0.5px',
+                                                    margin: '4px 0 12px 0'
+                                                }}>
                                                     {item.isbn13 || item.isbn10}
                                                 </p>
                                             )}
                                         </div>
                                         <button
                                             onClick={() => addBook(item)}
-                                            className="btn btn-primary search-add-btn"
+                                            style={{
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: '8px',
+                                                padding: '12px 20px',
+                                                borderRadius: '12px',
+                                                fontWeight: '500',
+                                                fontSize: '14px',
+                                                transition: 'all 0.25s ease',
+                                                cursor: 'pointer',
+                                                border: 'none',
+                                                background: 'linear-gradient(135deg, #f26419 0%, #e34a0f 100%)',
+                                                color: '#ffffff',
+                                                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                                                alignSelf: 'flex-start'
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.background = 'linear-gradient(135deg, #e34a0f 0%, #bc350f 100%)';
+                                                e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+                                                e.currentTarget.style.transform = 'translateY(-1px)';
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.background = 'linear-gradient(135deg, #f26419 0%, #e34a0f 100%)';
+                                                e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)';
+                                                e.currentTarget.style.transform = 'translateY(0)';
+                                            }}
                                         >
                                             <span>{t('search.add_button')}</span>
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -285,18 +493,52 @@ export default function SearchPage() {
                             ))}
                         </div>
                     ) : q && !loading ? (
-                        <div className="search-empty">
-                            <div className="search-empty-icon">🔍</div>
-                            <h3 className="search-empty-title">Ничего не найдено</h3>
-                            <p className="search-empty-text">
+                        <div style={{
+                            textAlign: 'center',
+                            padding: '48px 20px',
+                            background: '#ffffff',
+                            borderRadius: '16px',
+                            border: '1px solid #e5e7eb',
+                            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                        }}>
+                            <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🔍</div>
+                            <h3 style={{
+                                fontSize: '20px',
+                                fontWeight: '600',
+                                color: '#1f2937',
+                                margin: '0 0 12px 0'
+                            }}>Ничего не найдено</h3>
+                            <p style={{
+                                fontSize: '16px',
+                                color: '#6b7280',
+                                lineHeight: '1.6',
+                                margin: '0'
+                            }}>
                                 Попробуйте изменить поисковый запрос или проверьте правильность написания
                             </p>
                         </div>
                     ) : !q ? (
-                        <div className="search-placeholder">
-                            <div className="search-placeholder-icon">📖</div>
-                            <h3 className="search-placeholder-title">Найдите свою следующую книгу</h3>
-                            <p className="search-placeholder-text">
+                        <div style={{
+                            textAlign: 'center',
+                            padding: '48px 20px',
+                            background: '#ffffff',
+                            borderRadius: '16px',
+                            border: '1px solid #e5e7eb',
+                            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                        }}>
+                            <div style={{ fontSize: '3rem', marginBottom: '16px' }}>📖</div>
+                            <h3 style={{
+                                fontSize: '20px',
+                                fontWeight: '600',
+                                color: '#1f2937',
+                                margin: '0 0 12px 0'
+                            }}>Найдите свою следующую книгу</h3>
+                            <p style={{
+                                fontSize: '16px',
+                                color: '#6b7280',
+                                lineHeight: '1.6',
+                                margin: '0 0 16px 0'
+                            }}>
                                 Введите название книги или имя автора для поиска
                             </p>
                             <button 
@@ -318,13 +560,19 @@ export default function SearchPage() {
                                     }
                                 }}
                                 style={{
-                                    marginTop: '16px',
                                     padding: '8px 16px',
                                     backgroundColor: '#f26419',
                                     color: 'white',
                                     border: 'none',
                                     borderRadius: '8px',
-                                    cursor: 'pointer'
+                                    cursor: 'pointer',
+                                    transition: 'all 0.15s ease'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#e34a0f';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#f26419';
                                 }}
                             >
                                 Тест API
@@ -335,223 +583,9 @@ export default function SearchPage() {
             </main>
 
             <style jsx>{`
-                .loading-container {
-                    min-height: 100vh;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    gap: var(--space-lg);
-                }
-
-                .loading-spinner {
-                    width: 32px;
-                    height: 32px;
-                    border: 3px solid var(--neutral-200);
-                    border-top: 3px solid var(--primary-500);
-                    border-radius: 50%;
-                    animation: spin 1s linear infinite;
-                }
-
-                .search-page {
-                    min-height: 100vh;
-                    background: linear-gradient(135deg, var(--neutral-0) 0%, var(--neutral-50) 100%);
-                    padding-bottom: 80px;
-                }
-
-                .search-main {
-                    padding: var(--space-lg);
-                    max-width: 600px;
-                    margin: 0 auto;
-                }
-
-                .search-form {
-                    margin-bottom: var(--space-xl);
-                }
-
-                .search-input-container {
-                    position: relative;
-                    display: flex;
-                    align-items: center;
-                }
-
-                .search-input-icon {
-                    position: absolute;
-                    left: var(--space-lg);
-                    color: var(--neutral-500);
-                    display: flex;
-                    align-items: center;
-                    pointer-events: none;
-                    z-index: 1;
-                }
-
-                .search-input {
-                    width: 100%;
-                    padding: var(--space-lg) var(--space-4xl) var(--space-lg) 48px;
-                    border: 1px solid var(--neutral-200);
-                    border-radius: var(--radius-xl);
-                    font-size: var(--text-base);
-                    background: var(--neutral-0);
-                    color: var(--neutral-800);
-                    transition: all var(--duration-normal) var(--ease-in-out-smooth);
-                    box-shadow: var(--shadow-xs);
-                }
-
-                .search-input:focus {
-                    outline: none;
-                    border-color: var(--primary-400);
-                    box-shadow: var(--shadow-sm), 0 0 0 3px var(--primary-100);
-                }
-
-                .search-clear-btn {
-                    position: absolute;
-                    right: var(--space-md);
-                    width: 32px;
-                    height: 32px;
-                    border-radius: var(--radius-full);
-                    background: var(--neutral-200);
-                    border: none;
-                    color: var(--neutral-600);
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    transition: all var(--duration-fast) var(--ease-in-out-smooth);
-                }
-
-                .search-clear-btn:hover {
-                    background: var(--neutral-300);
-                    color: var(--neutral-700);
-                }
-
-                .search-results-list {
-                    display: flex;
-                    flex-direction: column;
-                    gap: var(--space-lg);
-                }
-
-                .search-result-item {
-                    display: flex;
-                    gap: var(--space-lg);
-                    padding: var(--space-xl);
-                    background: var(--neutral-0);
-                    border-radius: var(--radius-xl);
-                    border: 1px solid var(--neutral-200);
-                    box-shadow: var(--shadow-xs);
-                    transition: all var(--duration-normal) var(--ease-in-out-smooth);
-                    animation: slideIn var(--duration-normal) var(--ease-in-out-smooth);
-                }
-
-                .search-result-item:hover {
-                    box-shadow: var(--shadow-md);
-                    transform: translateY(-2px);
-                    border-color: var(--neutral-300);
-                }
-
-                .search-result-cover {
-                    flex-shrink: 0;
-                }
-
-                .search-result-content {
-                    flex: 1;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: space-between;
-                }
-
-                .search-result-header {
-                    flex: 1;
-                }
-
-                .search-result-title {
-                    font-size: var(--text-base);
-                    font-weight: 600;
-                    color: var(--neutral-900);
-                    line-height: var(--line-height-tight);
-                    margin: 0 0 var(--space-xs) 0;
-                }
-
-                .search-result-year {
-                    color: var(--neutral-600);
-                    font-weight: 400;
-                    margin-left: var(--space-xs);
-                }
-
-                .search-result-authors {
-                    font-size: var(--text-sm);
-                    color: var(--neutral-600);
-                    margin: var(--space-xs) 0;
-                    line-height: var(--line-height-normal);
-                }
-
-                .search-result-isbn {
-                    font-size: var(--text-xs);
-                    color: var(--neutral-500);
-                    font-family: monospace;
-                    letter-spacing: 0.5px;
-                    margin: var(--space-xs) 0 var(--space-md) 0;
-                }
-
-                .search-add-btn {
-                    align-self: flex-start;
-                    gap: var(--space-xs);
-                }
-
-                .search-empty,
-                .search-placeholder {
-                    text-align: center;
-                    padding: var(--space-4xl) var(--space-xl);
-                    background: var(--neutral-0);
-                    border-radius: var(--radius-xl);
-                    border: 1px solid var(--neutral-200);
-                    box-shadow: var(--shadow-xs);
-                }
-
-                .search-empty-icon,
-                .search-placeholder-icon {
-                    font-size: 3rem;
-                    margin-bottom: var(--space-lg);
-                }
-
-                .search-empty-title,
-                .search-placeholder-title {
-                    font-size: var(--text-xl);
-                    font-weight: 600;
-                    color: var(--neutral-900);
-                    margin: 0 0 var(--space-md) 0;
-                }
-
-                .search-empty-text,
-                .search-placeholder-text {
-                    font-size: var(--text-base);
-                    color: var(--neutral-600);
-                    line-height: var(--line-height-relaxed);
-                    margin: 0;
-                }
-
-                @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                }
-
-                @media (max-width: 480px) {
-                    .search-main {
-                        padding: var(--space-md);
-                    }
-
-                    .search-result-item {
-                        gap: var(--space-md);
-                        padding: var(--space-lg);
-                    }
-
-                    .search-result-title {
-                        font-size: var(--text-sm);
-                    }
-
-                    .search-empty,
-                    .search-placeholder {
-                        padding: var(--space-3xl) var(--space-lg);
-                    }
+                @keyframes shimmer {
+                    0% { background-position: -200% 0; }
+                    100% { background-position: 200% 0; }
                 }
             `}</style>
         </div>

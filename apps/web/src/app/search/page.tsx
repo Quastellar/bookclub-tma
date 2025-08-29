@@ -40,7 +40,6 @@ export default function SearchPage() {
     const [items, setItems] = useState<SearchItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [ready, setReady] = useState(false);
-    const user = getUser();
 
     useEffect(() => {
         const tg = getTg();

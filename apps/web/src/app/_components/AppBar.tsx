@@ -25,7 +25,7 @@ export default function AppBar({ title, right, withBack = false, subtitle }: App
   const tg = getTg();
 
   const handleBack = () => {
-    if (tg?.BackButton) {
+    if (tg?.BackButton?.hide) {
       tg.BackButton.hide();
     }
     window.history.back();

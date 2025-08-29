@@ -18,7 +18,6 @@ function getTg(): TgWebApp | undefined {
 export default function HomePage() {
     const [ready, setReady] = useState(false);
     const [user, setUser] = useState<import('@/lib/auth').TmaUser | null>(null);
-    const { t } = useI18n();
 
     useEffect(() => {
         // Telegram WebApp инициализация

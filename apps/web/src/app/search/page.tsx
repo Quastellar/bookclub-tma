@@ -129,6 +129,11 @@ export default function SearchPage() {
             
             const data = await response.json();
             console.log('[SEARCH] Response data:', data);
+            console.log('[SEARCH] Data type:', typeof data);
+            console.log('[SEARCH] Is array:', Array.isArray(data));
+            if (Array.isArray(data) && data.length > 0) {
+                console.log('[SEARCH] First item:', JSON.stringify(data[0], null, 2));
+            }
             // API возвращает массив напрямую, не в объекте items
             setItems(Array.isArray(data) ? data : []);
         } catch (error) {
@@ -146,6 +151,7 @@ export default function SearchPage() {
     const addBook = async (item: SearchItem) => {
         try {
             console.log('[ADD_BOOK] Starting to add book:', item.title);
+            console.log('[ADD_BOOK] Full item object:', JSON.stringify(item, null, 2));
             const token = await ensureAuth();
             console.log('[ADD_BOOK] Token received:', token ? 'yes' : 'no');
             if (!token) {

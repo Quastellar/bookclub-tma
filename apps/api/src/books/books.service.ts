@@ -38,7 +38,14 @@ export class BooksService {
   async lookup(q: string) {
     const key = `gbooks:${Buffer.from(q).toString('base64')}`;
     const cached = await this.redis.get(key);
-    if (cached) return JSON.parse(cached);
+    if (cached) {
+      console.log('[BOOKS][CACHE] Using cached data for query:', q);
+      const cachedData = JSON.parse(cached);
+      if (cachedData.length > 0) {
+        console.log('[BOOKS][CACHE] First cached item:', JSON.stringify(cachedData[0], null, 2));
+      }
+      return cachedData;
+    }
 
     const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=10&printType=books&projection=lite`;
     const res = await fetch(url as any);
@@ -71,8 +78,22 @@ export class BooksService {
       };
     });
 
+    console.log('[BOOKS][FRESH] Fresh data from Google Books:', items.length, 'items');
+    if (items.length > 0) {
+      console.log('[BOOKS][FRESH] First fresh item:', JSON.stringify(items[0], null, 2));
+    }
+    
     // кеш на 24 часа
     await this.redis.setex(key, 60 * 60 * 24, JSON.stringify(items));
     return items;
+  }
+
+  async clearCache() {
+    const keys = await this.redis.keys('gbooks:*');
+    if (keys.length > 0) {
+      await this.redis.del(...keys);
+      console.log('[BOOKS][CACHE] Cleared', keys.length, 'cache entries');
+    }
+    return keys.length;
   }
 }

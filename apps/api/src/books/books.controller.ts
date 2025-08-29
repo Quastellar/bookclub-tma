@@ -36,6 +36,9 @@ export class BooksController {
       });
 
       console.log('After deduplication:', dedup.length, 'items');
+      if (dedup.length > 0) {
+        console.log('First item structure:', JSON.stringify(dedup[0], null, 2));
+      }
       console.log('Final result:', dedup);
       return dedup;
     } catch (error) {
@@ -58,5 +61,15 @@ export class BooksController {
       timestamp: new Date(),
       status: 'OK',
     };
+  }
+
+  @Get('clear-cache')
+  async clearCache() {
+    try {
+      await this.books.clearCache();
+      return { message: 'Cache cleared successfully' };
+    } catch (error) {
+      return { message: 'Failed to clear cache', error: error.message };
+    }
   }
 }

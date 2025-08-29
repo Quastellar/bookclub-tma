@@ -21,6 +21,7 @@ export class CandidatesController {
     };
     reason?: string;
   }) {
+    console.log('[CANDIDATE][POST] Full DTO received:', JSON.stringify(dto, null, 2));
     console.log('[CANDIDATE][POST] user', req.user?.id, 'book', {
       titleNorm: dto?.book?.titleNorm,
       authorsNorm: dto?.book?.authorsNorm,

@@ -53,6 +53,17 @@ export class IterationsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('current/admin')
+  async currentForAdmin(@Req() req: any) {
+    this.checkAdmin(req.user);
+    try {
+      return await this.svc.latestIterationForAdmin();
+    } catch {
+      throw new NotFoundException('Нет итераций');
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('current/full')
   async currentFull(@Req() req: any) {
     try {

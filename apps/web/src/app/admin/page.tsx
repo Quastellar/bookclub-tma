@@ -39,14 +39,25 @@ export default function AdminPage() {
 
     const loadCurrent = async () => {
         try {
-            const res = await apiFetch(`${API}/iterations/current`, { label: 'admin.current' });
+            const token = await ensureAuth();
+            if (!token) {
+                setCurrentIter(null);
+                return;
+            }
+            
+            const res = await apiFetch(`${API}/iterations/current/admin`, { 
+                headers: { Authorization: `Bearer ${token}` },
+                label: 'admin.current' 
+            });
             if (res.ok) {
                 const data = await res.json();
                 setCurrentIter(data);
+                console.log('[ADMIN] Loaded current iteration:', data);
             } else {
                 setCurrentIter(null);
             }
-        } catch {
+        } catch (e) {
+            console.error('[ADMIN] Error loading current iteration:', e);
             setCurrentIter(null);
         }
     };

@@ -180,6 +180,24 @@ export class IterationsService implements OnModuleInit, OnModuleDestroy {
     return iter;
   }
 
+  async latestIterationForAdmin() {
+    const iter = await this.prisma.iteration.findFirst({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        Candidates: {
+          include: {
+            Book: true,
+            AddedBy: { select: { id: true, tgUserId: true, username: true, name: true } },
+          },
+        },
+      },
+    });
+    if (!iter) {
+      throw new NotFoundException('No iteration found');
+    }
+    return iter;
+  }
+
   async currentWithVotes(userId: string) {
     const iter = await this.prisma.iteration.findFirst({
       where: { status: 'OPEN' as IterStatus },

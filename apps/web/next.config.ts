@@ -2,6 +2,11 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    // Включаем styled-jsx
+    compiler: {
+        styledJsx: true,
+    },
+    
     // Разрешаем отдачу dev-ресурсов со страницы, открытой по домену туннеля (исправляет dev-предупреждение)
     // Замените на ваш фактический фронтовый URL из Cloudflare Tunnel
     allowedDevOrigins: [

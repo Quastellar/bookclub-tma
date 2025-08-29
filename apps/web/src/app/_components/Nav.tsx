@@ -81,145 +81,97 @@ export default function Nav() {
   }
 
   return (
-    <nav className="bottom-nav">
-      <div className="bottom-nav-content">
-        {items.map((item) => (
-          <NavLink
-            key={item.href}
-            href={item.href}
-            label={item.label}
-            icon={item.icon}
-            active={isActive(item.href)}
-          />
-        ))}
+    <nav style={{
+      position: 'fixed',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      zIndex: 1000,
+      background: 'rgba(255, 255, 255, 0.95)',
+      backdropFilter: 'blur(12px)',
+      borderTop: '1px solid #e5e7eb',
+      boxShadow: '0 -4px 6px -1px rgba(0, 0, 0, 0.1)',
+      paddingBottom: 'env(safe-area-inset-bottom)'
+    }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-around',
+        padding: '8px 4px',
+        maxWidth: '100%',
+        margin: '0 auto'
+      }}>
+        {items.map((item) => {
+          const active = isActive(item.href);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '8px 4px',
+                minWidth: '52px',
+                textDecoration: 'none',
+                color: active ? '#f26419' : '#6b7280',
+                transition: 'all 0.25s ease',
+                borderRadius: '12px',
+                position: 'relative',
+                overflow: 'hidden'
+              }}
+              onMouseEnter={(e) => {
+                if (!active) {
+                  e.currentTarget.style.color = '#374151';
+                  e.currentTarget.style.background = '#f3f4f6';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!active) {
+                  e.currentTarget.style.color = '#6b7280';
+                  e.currentTarget.style.background = 'transparent';
+                }
+              }}
+            >
+              {active && (
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '24px',
+                  height: '3px',
+                  background: '#f26419',
+                  borderRadius: '0 0 4px 4px'
+                }} />
+              )}
+              
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'transform 0.15s cubic-bezier(0.68, -0.55, 0.265, 1.55)'
+              }}>
+                {item.icon}
+              </div>
+              
+              <span style={{
+                fontSize: '12px',
+                fontWeight: '500',
+                lineHeight: 1,
+                textAlign: 'center',
+                whiteSpace: 'nowrap',
+                maxWidth: '60px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}>
+                {item.label}
+              </span>
+            </Link>
+          );
+        })}
       </div>
-      
-      <style jsx>{`
-        .bottom-nav {
-          position: fixed;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          z-index: 1000;
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(12px);
-          border-top: 1px solid var(--neutral-200);
-          box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
-          padding-bottom: env(safe-area-inset-bottom);
-        }
-
-        .bottom-nav-content {
-          display: flex;
-          align-items: center;
-          justify-content: space-around;
-          padding: var(--space-sm) var(--space-xs);
-          max-width: 100%;
-          margin: 0 auto;
-        }
-
-        @media (max-width: 480px) {
-          .bottom-nav-content {
-            padding: var(--space-xs);
-          }
-        }
-      `}</style>
     </nav>
-  );
-}
-
-interface NavLinkProps {
-  href: string;
-  label: string;
-  icon: React.ReactNode;
-  active?: boolean;
-}
-
-function NavLink({ href, label, icon, active = false }: NavLinkProps) {
-  return (
-    <Link href={href} className={`nav-link ${active ? 'nav-link-active' : ''}`}>
-      <div className="nav-link-icon">
-        {icon}
-      </div>
-      <span className="nav-link-label">{label}</span>
-      
-      <style jsx>{`
-        .nav-link {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: var(--space-xs);
-          padding: var(--space-sm) var(--space-xs);
-          min-width: 52px;
-          text-decoration: none;
-          color: var(--neutral-600);
-          transition: all var(--duration-normal) var(--ease-in-out-smooth);
-          border-radius: var(--radius-lg);
-          position: relative;
-          overflow: hidden;
-        }
-
-        .nav-link::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 24px;
-          height: 3px;
-          background: var(--primary-500);
-          border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-          opacity: 0;
-          transition: opacity var(--duration-normal) var(--ease-in-out-smooth);
-        }
-
-        .nav-link:hover {
-          color: var(--neutral-700);
-          background: var(--neutral-100);
-        }
-
-        .nav-link-active {
-          color: var(--primary-600);
-          background: var(--primary-50);
-        }
-
-        .nav-link-active::before {
-          opacity: 1;
-        }
-
-        .nav-link-icon {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: transform var(--duration-fast) var(--ease-bounce);
-        }
-
-        .nav-link:active .nav-link-icon {
-          transform: scale(0.9);
-        }
-
-        .nav-link-label {
-          font-size: var(--text-xs);
-          font-weight: 500;
-          line-height: 1;
-          text-align: center;
-          white-space: nowrap;
-          max-width: 60px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        @media (max-width: 480px) {
-          .nav-link {
-            padding: var(--space-xs);
-            min-width: 48px;
-          }
-
-          .nav-link-label {
-            font-size: 10px;
-            max-width: 48px;
-          }
-        }
-      `}</style>
-    </Link>
   );
 }

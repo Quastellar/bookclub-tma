@@ -41,43 +41,33 @@ export default function HomePage() {
 
     if (!ready) {
         return (
-            <div className="loading-container">
-                <div className="loading-content">
-                    <div className="loading-spinner" />
-                    <p className="loading-text">Загрузка Mini App...</p>
+            <div style={{
+                minHeight: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                padding: '20px'
+            }}>
+                <div style={{ textAlign: 'center' }}>
+                    <div style={{
+                        width: '48px',
+                        height: '48px',
+                        border: '4px solid #e5e7eb',
+                        borderTop: '4px solid #f26419',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite',
+                        margin: '0 auto 16px auto'
+                    }} />
+                    <p style={{
+                        color: '#6b7280',
+                        fontSize: '18px',
+                        fontWeight: '500',
+                        margin: '0'
+                    }}>Загрузка Mini App...</p>
                 </div>
                 
                 <style jsx>{`
-                    .loading-container {
-                        min-height: 100vh;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        background: linear-gradient(135deg, var(--neutral-0) 0%, var(--neutral-50) 100%);
-                    }
-
-                    .loading-content {
-                        text-align: center;
-                        padding: var(--space-4xl);
-                    }
-
-                    .loading-spinner {
-                        width: 48px;
-                        height: 48px;
-                        border: 4px solid var(--neutral-200);
-                        border-top: 4px solid var(--primary-500);
-                        border-radius: var(--radius-full);
-                        animation: spin 1s linear infinite;
-                        margin: 0 auto var(--space-lg) auto;
-                    }
-
-                    .loading-text {
-                        color: var(--neutral-600);
-                        font-size: var(--text-lg);
-                        font-weight: 500;
-                        margin: 0;
-                    }
-
                     @keyframes spin {
                         0% { transform: rotate(0deg); }
                         100% { transform: rotate(360deg); }
@@ -88,317 +78,318 @@ export default function HomePage() {
     }
 
     return (
-        <div className="home-page">
+        <div style={{
+            minHeight: '100vh',
+            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+            paddingBottom: '80px'
+        }}>
             <AppBar title="Книжный клуб" withBack={false} />
             
-            <main className="home-main">
-                <div className="home-hero">
-                    <div className="home-hero-icon">📚</div>
-                    <h1 className="home-hero-title">Добро пожаловать в книжный клуб!</h1>
-                    <p className="home-hero-subtitle">
+            <main style={{
+                padding: '24px 16px',
+                maxWidth: '600px',
+                margin: '0 auto'
+            }}>
+                {/* Hero секция */}
+                <div style={{
+                    textAlign: 'center',
+                    marginBottom: '48px',
+                    padding: '32px 0'
+                }}>
+                    <div style={{
+                        fontSize: '4rem',
+                        marginBottom: '16px'
+                    }}>📚</div>
+                    <h1 style={{
+                        fontSize: '30px',
+                        fontWeight: '700',
+                        color: '#1f2937',
+                        margin: '0 0 16px 0',
+                        lineHeight: '1.25'
+                    }}>Добро пожаловать в книжный клуб!</h1>
+                    <p style={{
+                        fontSize: '18px',
+                        color: '#6b7280',
+                        lineHeight: '1.6',
+                        margin: '0'
+                    }}>
                         Предлагайте книги, голосуйте за любимые произведения и открывайте новые литературные миры вместе
                     </p>
                 </div>
 
+                {/* Приветствие пользователя */}
                 {user && (
-                    <div className="welcome-card">
-                        <div className="welcome-avatar">👋</div>
-                        <div className="welcome-content">
-                            <h3 className="welcome-name">
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '16px',
+                        padding: '20px',
+                        background: 'linear-gradient(135deg, #fef7ee 0%, #feebd4 100%)',
+                        border: '1px solid #fcd2a9',
+                        borderRadius: '20px',
+                        marginBottom: '32px',
+                        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <div style={{ fontSize: '2.5rem', flexShrink: 0 }}>👋</div>
+                        <div style={{ flex: 1 }}>
+                            <h3 style={{
+                                fontSize: '20px',
+                                fontWeight: '600',
+                                color: '#792713',
+                                margin: '0 0 4px 0'
+                            }}>
                                 Привет, {user.username || user.name || 'участник'}!
                             </h3>
-                            <p className="welcome-text">
+                            <p style={{
+                                fontSize: '16px',
+                                color: '#bc350f',
+                                margin: '0'
+                            }}>
                                 Готовы к новым литературным приключениям?
                             </p>
                         </div>
                     </div>
                 )}
 
-                <div className="home-actions">
-                    <Link href="/search" className="action-card action-card-primary">
-                        <div className="action-icon">🔍</div>
-                        <div className="action-content">
-                            <h3 className="action-title">Найти книгу</h3>
-                            <p className="action-description">
+                {/* Карточки действий */}
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '16px',
+                    marginBottom: '48px'
+                }}>
+                    <Link href="/search" style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '16px',
+                        padding: '20px',
+                        borderRadius: '16px',
+                        textDecoration: 'none',
+                        color: 'inherit',
+                        transition: 'all 0.25s ease',
+                        border: '1px solid #e5e7eb',
+                        background: '#ffffff',
+                        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                    }} onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-4px)';
+                        e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
+                        e.currentTarget.style.borderColor = '#d1d5db';
+                        e.currentTarget.style.background = 'linear-gradient(135deg, #fef7ee 0%, #feebd4 100%)';
+                    }} onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
+                        e.currentTarget.style.borderColor = '#e5e7eb';
+                        e.currentTarget.style.background = '#ffffff';
+                    }}>
+                        <div style={{ fontSize: '2rem', flexShrink: 0 }}>🔍</div>
+                        <div style={{ flex: 1 }}>
+                            <h3 style={{
+                                fontSize: '18px',
+                                fontWeight: '600',
+                                color: '#1f2937',
+                                margin: '0 0 4px 0'
+                            }}>Найти книгу</h3>
+                            <p style={{
+                                fontSize: '14px',
+                                color: '#6b7280',
+                                margin: '0',
+                                lineHeight: '1.5'
+                            }}>
                                 Ищите и предлагайте интересные книги для чтения
                             </p>
                         </div>
-                        <div className="action-arrow">→</div>
+                        <div style={{
+                            fontSize: '20px',
+                            color: '#9ca3af',
+                            transition: 'transform 0.15s ease'
+                        }}>→</div>
                     </Link>
 
-                    <Link href="/iteration" className="action-card action-card-secondary">
-                        <div className="action-icon">🗳️</div>
-                        <div className="action-content">
-                            <h3 className="action-title">Голосование</h3>
-                            <p className="action-description">
+                    <Link href="/iteration" style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '16px',
+                        padding: '20px',
+                        borderRadius: '16px',
+                        textDecoration: 'none',
+                        color: 'inherit',
+                        transition: 'all 0.25s ease',
+                        border: '1px solid #e5e7eb',
+                        background: '#ffffff',
+                        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                    }} onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-4px)';
+                        e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
+                        e.currentTarget.style.borderColor = '#d1d5db';
+                        e.currentTarget.style.background = 'linear-gradient(135deg, #f0fdf4 0%, #f0fdf9 100%)';
+                    }} onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
+                        e.currentTarget.style.borderColor = '#e5e7eb';
+                        e.currentTarget.style.background = '#ffffff';
+                    }}>
+                        <div style={{ fontSize: '2rem', flexShrink: 0 }}>🗳️</div>
+                        <div style={{ flex: 1 }}>
+                            <h3 style={{
+                                fontSize: '18px',
+                                fontWeight: '600',
+                                color: '#1f2937',
+                                margin: '0 0 4px 0'
+                            }}>Голосование</h3>
+                            <p style={{
+                                fontSize: '14px',
+                                color: '#6b7280',
+                                margin: '0',
+                                lineHeight: '1.5'
+                            }}>
                                 Выберите книгу для следующего чтения
                             </p>
                         </div>
-                        <div className="action-arrow">→</div>
+                        <div style={{
+                            fontSize: '20px',
+                            color: '#9ca3af',
+                            transition: 'transform 0.15s ease'
+                        }}>→</div>
                     </Link>
 
-                    <Link href="/my" className="action-card action-card-tertiary">
-                        <div className="action-icon">📖</div>
-                        <div className="action-content">
-                            <h3 className="action-title">Мои предложения</h3>
-                            <p className="action-description">
+                    <Link href="/my" style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '16px',
+                        padding: '20px',
+                        borderRadius: '16px',
+                        textDecoration: 'none',
+                        color: 'inherit',
+                        transition: 'all 0.25s ease',
+                        border: '1px solid #e5e7eb',
+                        background: '#ffffff',
+                        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                    }} onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-4px)';
+                        e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
+                        e.currentTarget.style.borderColor = '#d1d5db';
+                        e.currentTarget.style.background = 'linear-gradient(135deg, #fffbeb 0%, #fffaeb 100%)';
+                    }} onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
+                        e.currentTarget.style.borderColor = '#e5e7eb';
+                        e.currentTarget.style.background = '#ffffff';
+                    }}>
+                        <div style={{ fontSize: '2rem', flexShrink: 0 }}>📖</div>
+                        <div style={{ flex: 1 }}>
+                            <h3 style={{
+                                fontSize: '18px',
+                                fontWeight: '600',
+                                color: '#1f2937',
+                                margin: '0 0 4px 0'
+                            }}>Мои предложения</h3>
+                            <p style={{
+                                fontSize: '14px',
+                                color: '#6b7280',
+                                margin: '0',
+                                lineHeight: '1.5'
+                            }}>
                                 Управляйте своими предложенными книгами
                             </p>
                         </div>
-                        <div className="action-arrow">→</div>
+                        <div style={{
+                            fontSize: '20px',
+                            color: '#9ca3af',
+                            transition: 'transform 0.15s ease'
+                        }}>→</div>
                     </Link>
 
-                    <Link href="/history" className="action-card action-card-quaternary">
-                        <div className="action-icon">🏆</div>
-                        <div className="action-content">
-                            <h3 className="action-title">История</h3>
-                            <p className="action-description">
+                    <Link href="/history" style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '16px',
+                        padding: '20px',
+                        borderRadius: '16px',
+                        textDecoration: 'none',
+                        color: 'inherit',
+                        transition: 'all 0.25s ease',
+                        border: '1px solid #e5e7eb',
+                        background: '#ffffff',
+                        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                    }} onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-4px)';
+                        e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
+                        e.currentTarget.style.borderColor = '#d1d5db';
+                        e.currentTarget.style.background = 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)';
+                    }} onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
+                        e.currentTarget.style.borderColor = '#e5e7eb';
+                        e.currentTarget.style.background = '#ffffff';
+                    }}>
+                        <div style={{ fontSize: '2rem', flexShrink: 0 }}>🏆</div>
+                        <div style={{ flex: 1 }}>
+                            <h3 style={{
+                                fontSize: '18px',
+                                fontWeight: '600',
+                                color: '#1f2937',
+                                margin: '0 0 4px 0'
+                            }}>История</h3>
+                            <p style={{
+                                fontSize: '14px',
+                                color: '#6b7280',
+                                margin: '0',
+                                lineHeight: '1.5'
+                            }}>
                                 Посмотрите результаты прошлых голосований
                             </p>
                         </div>
-                        <div className="action-arrow">→</div>
+                        <div style={{
+                            fontSize: '20px',
+                            color: '#9ca3af',
+                            transition: 'transform 0.15s ease'
+                        }}>→</div>
                     </Link>
                 </div>
 
-                <div className="home-tips">
-                    <h3 className="tips-title">💡 Как это работает?</h3>
-                    <ul className="tips-list">
-                        <li>Найдите и предложите интересную книгу</li>
-                        <li>Участвуйте в голосовании за следующую книгу</li>
-                        <li>Читайте и обсуждайте выбранные произведения</li>
-                        <li>Открывайте новых авторов и жанры</li>
+                {/* Советы */}
+                <div style={{
+                    background: '#ffffff',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '16px',
+                    padding: '20px',
+                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                }}>
+                    <h3 style={{
+                        fontSize: '20px',
+                        fontWeight: '600',
+                        color: '#1f2937',
+                        margin: '0 0 16px 0'
+                    }}>💡 Как это работает?</h3>
+                    <ul style={{
+                        listStyle: 'none',
+                        padding: '0',
+                        margin: '0'
+                    }}>
+                        {[
+                            'Найдите и предложите интересную книгу',
+                            'Участвуйте в голосовании за следующую книгу',
+                            'Читайте и обсуждайте выбранные произведения',
+                            'Открывайте новых авторов и жанры'
+                        ].map((item, index) => (
+                            <li key={index} style={{
+                                padding: '8px 0',
+                                color: '#374151',
+                                position: 'relative',
+                                paddingLeft: '20px'
+                            }}>
+                                <span style={{
+                                    position: 'absolute',
+                                    left: '0',
+                                    color: '#f26419',
+                                    fontWeight: '600'
+                                }}>✓</span>
+                                {item}
+                            </li>
+                        ))}
                     </ul>
                 </div>
             </main>
-
-            <style jsx>{`
-                .home-page {
-                    min-height: 100vh;
-                    background: linear-gradient(135deg, var(--neutral-0) 0%, var(--neutral-50) 100%);
-                    padding-bottom: 80px; /* Space for bottom nav */
-                }
-
-                .home-main {
-                    padding: var(--space-xl) var(--space-lg);
-                    max-width: 600px;
-                    margin: 0 auto;
-                }
-
-                .home-hero {
-                    text-align: center;
-                    margin-bottom: var(--space-4xl);
-                    padding: var(--space-3xl) 0;
-                }
-
-                .home-hero-icon {
-                    font-size: 4rem;
-                    margin-bottom: var(--space-lg);
-                    animation: fadeIn var(--duration-slow) var(--ease-in-out-smooth);
-                }
-
-                .home-hero-title {
-                    font-size: var(--text-3xl);
-                    font-weight: 700;
-                    color: var(--neutral-900);
-                    margin: 0 0 var(--space-lg) 0;
-                    line-height: var(--line-height-tight);
-                    animation: fadeIn var(--duration-slow) var(--ease-in-out-smooth) 200ms both;
-                }
-
-                .home-hero-subtitle {
-                    font-size: var(--text-lg);
-                    color: var(--neutral-600);
-                    line-height: var(--line-height-relaxed);
-                    margin: 0;
-                    animation: fadeIn var(--duration-slow) var(--ease-in-out-smooth) 400ms both;
-                }
-
-                .welcome-card {
-                    display: flex;
-                    align-items: center;
-                    gap: var(--space-lg);
-                    padding: var(--space-xl);
-                    background: linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%);
-                    border: 1px solid var(--primary-200);
-                    border-radius: var(--radius-2xl);
-                    margin-bottom: var(--space-3xl);
-                    box-shadow: var(--shadow-sm);
-                    animation: slideIn var(--duration-normal) var(--ease-in-out-smooth) 600ms both;
-                }
-
-                .welcome-avatar {
-                    font-size: 2.5rem;
-                    flex-shrink: 0;
-                }
-
-                .welcome-content {
-                    flex: 1;
-                }
-
-                .welcome-name {
-                    font-size: var(--text-xl);
-                    font-weight: 600;
-                    color: var(--primary-800);
-                    margin: 0 0 var(--space-xs) 0;
-                }
-
-                .welcome-text {
-                    font-size: var(--text-base);
-                    color: var(--primary-700);
-                    margin: 0;
-                }
-
-                .home-actions {
-                    display: flex;
-                    flex-direction: column;
-                    gap: var(--space-lg);
-                    margin-bottom: var(--space-4xl);
-                }
-
-                .action-card {
-                    display: flex;
-                    align-items: center;
-                    gap: var(--space-lg);
-                    padding: var(--space-xl);
-                    border-radius: var(--radius-xl);
-                    text-decoration: none;
-                    color: inherit;
-                    transition: all var(--duration-normal) var(--ease-in-out-smooth);
-                    border: 1px solid var(--neutral-200);
-                    background: var(--neutral-0);
-                    box-shadow: var(--shadow-xs);
-                    animation: slideIn var(--duration-normal) var(--ease-in-out-smooth);
-                }
-
-                .action-card:nth-child(1) { animation-delay: 800ms; }
-                .action-card:nth-child(2) { animation-delay: 900ms; }
-                .action-card:nth-child(3) { animation-delay: 1000ms; }
-                .action-card:nth-child(4) { animation-delay: 1100ms; }
-
-                .action-card:hover {
-                    transform: translateY(-4px);
-                    box-shadow: var(--shadow-lg);
-                    border-color: var(--neutral-300);
-                }
-
-                .action-card-primary:hover {
-                    background: linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%);
-                    border-color: var(--primary-300);
-                }
-
-                .action-card-secondary:hover {
-                    background: linear-gradient(135deg, var(--success-50) 0%, #f0fdf9 100%);
-                    border-color: var(--success-300, #86efac);
-                }
-
-                .action-card-tertiary:hover {
-                    background: linear-gradient(135deg, var(--warning-50) 0%, #fffaeb 100%);
-                    border-color: var(--warning-300, #fcd34d);
-                }
-
-                .action-card-quaternary:hover {
-                    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-                    border-color: #cbd5e1;
-                }
-
-                .action-icon {
-                    font-size: 2rem;
-                    flex-shrink: 0;
-                }
-
-                .action-content {
-                    flex: 1;
-                }
-
-                .action-title {
-                    font-size: var(--text-lg);
-                    font-weight: 600;
-                    color: var(--neutral-900);
-                    margin: 0 0 var(--space-xs) 0;
-                }
-
-                .action-description {
-                    font-size: var(--text-sm);
-                    color: var(--neutral-600);
-                    margin: 0;
-                    line-height: var(--line-height-normal);
-                }
-
-                .action-arrow {
-                    font-size: var(--text-xl);
-                    color: var(--neutral-400);
-                    transition: transform var(--duration-fast) var(--ease-in-out-smooth);
-                }
-
-                .action-card:hover .action-arrow {
-                    transform: translateX(4px);
-                    color: var(--neutral-600);
-                }
-
-                .home-tips {
-                    background: var(--neutral-0);
-                    border: 1px solid var(--neutral-200);
-                    border-radius: var(--radius-xl);
-                    padding: var(--space-xl);
-                    box-shadow: var(--shadow-xs);
-                    animation: fadeIn var(--duration-slow) var(--ease-in-out-smooth) 1200ms both;
-                }
-
-                .tips-title {
-                    font-size: var(--text-xl);
-                    font-weight: 600;
-                    color: var(--neutral-900);
-                    margin: 0 0 var(--space-lg) 0;
-                }
-
-                .tips-list {
-                    list-style: none;
-                    padding: 0;
-                    margin: 0;
-                }
-
-                .tips-list li {
-                    padding: var(--space-sm) 0;
-                    color: var(--neutral-700);
-                    position: relative;
-                    padding-left: var(--space-xl);
-                }
-
-                .tips-list li::before {
-                    content: '✓';
-                    position: absolute;
-                    left: 0;
-                    color: var(--primary-500);
-                    font-weight: 600;
-                }
-
-                @media (max-width: 480px) {
-                    .home-main {
-                        padding: var(--space-lg) var(--space-md);
-                    }
-
-                    .home-hero-title {
-                        font-size: var(--text-2xl);
-                    }
-
-                    .home-hero-subtitle {
-                        font-size: var(--text-base);
-                    }
-
-                    .action-card {
-                        padding: var(--space-lg);
-                        gap: var(--space-md);
-                    }
-
-                    .action-icon {
-                        font-size: 1.5rem;
-                    }
-
-                    .welcome-card {
-                        padding: var(--space-lg);
-                    }
-                }
-            `}</style>
         </div>
     );
 }

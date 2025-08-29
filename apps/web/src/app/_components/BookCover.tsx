@@ -25,20 +25,43 @@ export default function BookCover({ src, alt, width, height, fallbackText = '�
         setLoading(true);
         setError(false);
         
+        // Используем прокси для Google Books изображений
+        let finalSrc = src;
+        if (src.includes('books.google.com') || src.includes('books.googleusercontent.com')) {
+            finalSrc = `/api/proxy-image?url=${encodeURIComponent(src)}`;
+            console.log('[BookCover] Using proxy for Google Books image:', finalSrc);
+        }
+        
         // Проверим доступность изображения
         const img = new window.Image();
-        img.crossOrigin = 'anonymous';
         img.onload = () => {
-            console.log('[BookCover] Image loaded successfully:', src);
-            setImageSrc(src);
+            console.log('[BookCover] Image loaded successfully:', finalSrc);
+            setImageSrc(finalSrc);
             setLoading(false);
         };
         img.onerror = (e) => {
-            console.error('[BookCover] Image failed to load:', src, e);
-            setError(true);
-            setLoading(false);
+            console.error('[BookCover] Image failed to load:', finalSrc, e);
+            // Попробуем оригинальный URL если прокси не сработал
+            if (finalSrc !== src) {
+                console.log('[BookCover] Trying original URL:', src);
+                const originalImg = new window.Image();
+                originalImg.onload = () => {
+                    console.log('[BookCover] Original image loaded:', src);
+                    setImageSrc(src);
+                    setLoading(false);
+                };
+                originalImg.onerror = () => {
+                    console.error('[BookCover] Original image also failed:', src);
+                    setError(true);
+                    setLoading(false);
+                };
+                originalImg.src = src;
+            } else {
+                setError(true);
+                setLoading(false);
+            }
         };
-        img.src = src;
+        img.src = finalSrc;
     }, [src]);
 
     if (!src || error) {

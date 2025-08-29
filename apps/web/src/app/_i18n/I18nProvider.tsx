@@ -26,6 +26,8 @@ const RU: Dict = {
   'search.noCover': 'нет обложки',
   'search.isbn': 'ISBN',
   'search.propose': 'Предложить эту книгу',
+  'search.add_button': 'Добавить',
+  'search.unknown_author': 'Неизвестный автор',
 
   'iteration.title': 'Текущая итерация',
   'iteration.addBook': 'Добавить',
@@ -94,6 +96,8 @@ const EN: Dict = {
   'search.noCover': 'no cover',
   'search.isbn': 'ISBN',
   'search.propose': 'Propose this book',
+  'search.add_button': 'Add',
+  'search.unknown_author': 'Unknown author',
 
   'iteration.title': 'Current iteration',
   'iteration.addBook': 'Add',

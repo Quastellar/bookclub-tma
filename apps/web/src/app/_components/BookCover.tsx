@@ -1,7 +1,6 @@
 'use client';
 
-import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface BookCoverProps {
     src: string | null;
@@ -11,27 +10,53 @@ interface BookCoverProps {
     fallbackText?: string;
 }
 
-export default function BookCover({ src, alt, width, height, fallbackText = 'no cover' }: BookCoverProps) {
+export default function BookCover({ src, alt, width, height, fallbackText = '📚' }: BookCoverProps) {
     const [loading, setLoading] = useState(!!src);
     const [error, setError] = useState(false);
+    const [imageSrc, setImageSrc] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!src) {
+            setLoading(false);
+            return;
+        }
+
+        console.log('[BookCover] Loading image:', src);
+        setLoading(true);
+        setError(false);
+        
+        // Проверим доступность изображения
+        const img = new window.Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+            console.log('[BookCover] Image loaded successfully:', src);
+            setImageSrc(src);
+            setLoading(false);
+        };
+        img.onerror = (e) => {
+            console.error('[BookCover] Image failed to load:', src, e);
+            setError(true);
+            setLoading(false);
+        };
+        img.src = src;
+    }, [src]);
 
     if (!src || error) {
         return (
             <div 
-                className="book-cover-skeleton"
                 style={{
                     width,
                     height,
-                    borderRadius: 6,
+                    borderRadius: 8,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: 'var(--tg-theme-hint-color, #666)',
-                    fontSize: 12,
+                    background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                    color: '#6b7280',
+                    fontSize: width > 60 ? 24 : 16,
                     textAlign: 'center',
-                    padding: 4,
+                    border: '1px solid #e5e7eb',
                     fontWeight: 500,
-                    textShadow: '1px 1px 2px rgba(255,255,255,0.8)',
                 }}
             >
                 {fallbackText}
@@ -44,38 +69,38 @@ export default function BookCover({ src, alt, width, height, fallbackText = 'no 
             {/* Скелетон во время загрузки */}
             {loading && (
                 <div 
-                    className="book-cover-skeleton"
                     style={{
                         position: 'absolute',
                         top: 0,
                         left: 0,
                         width: '100%',
                         height: '100%',
-                        borderRadius: 6,
+                        borderRadius: 8,
+                        background: 'linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 50%, #f3f4f6 100%)',
+                        backgroundSize: '200% 100%',
+                        animation: 'shimmer 1.5s ease-in-out infinite',
+                        border: '1px solid #e5e7eb',
                         zIndex: 1,
                     }} 
                 />
             )}
             
             {/* Изображение */}
-            <Image
-                src={src}
-                alt={alt}
-                fill
-                sizes={`${width}px`}
-                style={{ 
-                    objectFit: 'cover', 
-                    borderRadius: 6,
-                    opacity: loading ? 0 : 1,
-                    transition: 'opacity 0.3s ease',
-                }}
-                unoptimized
-                onLoad={() => setLoading(false)}
-                onError={() => {
-                    setLoading(false);
-                    setError(true);
-                }}
-            />
+            {imageSrc && (
+                <img
+                    src={imageSrc}
+                    alt={alt}
+                    style={{ 
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover', 
+                        borderRadius: 8,
+                        opacity: loading ? 0 : 1,
+                        transition: 'opacity 0.3s ease',
+                        border: '1px solid #e5e7eb',
+                    }}
+                />
+            )}
         </div>
     );
 }

@@ -4,15 +4,25 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { tmaLogin } from '@/lib/auth';
 
+type TgWebApp = {
+    ready?: () => void;
+    expand?: () => void;
+};
+
+function getTg(): TgWebApp | undefined {
+    return (window as unknown as { Telegram?: { WebApp?: TgWebApp } })?.Telegram?.WebApp;
+}
+
 export default function HomePage() {
     const [ready, setReady] = useState(false);
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState<import('@/lib/auth').TmaUser | null>(null);
 
     useEffect(() => {
         // Telegram WebApp инициализация
-        if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-            window.Telegram.WebApp.ready();
-            window.Telegram.WebApp.expand();
+        const tg = getTg();
+        if (tg) {
+            tg.ready?.();
+            tg.expand?.();
         }
 
         // TMA логин
@@ -52,7 +62,7 @@ export default function HomePage() {
                     marginBottom: 30,
                     textAlign: 'center'
                 }}>
-                    Привет, {user.username || user.first_name || 'участник'}! 👋
+                    Привет, {user.username || user.name || 'участник'}! 👋
                 </div>
             )}
 

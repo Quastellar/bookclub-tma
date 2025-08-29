@@ -93,7 +93,8 @@ export default function IterationPage() {
             token = getToken();
             if (!token) {
                 hapticError();
-                (window as any).Telegram?.WebApp?.showAlert?.('Не авторизован. Откройте Mini App в Telegram.') ?? alert('Не авторизован. Откройте Mini App в Telegram.');
+                const tg = getTg();
+                if (tg?.showAlert) tg.showAlert('Не авторизован. Откройте Mini App в Telegram.'); else alert('Не авторизован. Откройте Mini App в Telegram.');
                 setPendingCandidateId(null);
                 await load();
                 return;

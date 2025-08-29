@@ -12,6 +12,18 @@ import { apiFetch } from '@/lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL!;
 
+type TgWebApp = {
+    MainButton?: { setText?: (s: string) => void; show?: () => void; onClick?: (fn: () => void) => void; offClick?: (fn: () => void) => void };
+    showAlert?: (msg: string) => void;
+    BackButton?: { show?: () => void; hide?: () => void; onClick?: (fn: () => void) => void };
+    ready?: () => void;
+    expand?: () => void;
+};
+
+function getTg(): TgWebApp | undefined {
+    return (window as unknown as { Telegram?: { WebApp?: TgWebApp } })?.Telegram?.WebApp;
+}
+
 export default function SearchPage() {
     const { t } = useI18n();
     const [q, setQ] = useState('');
@@ -22,12 +34,12 @@ export default function SearchPage() {
     const user = getUser();
 
     useEffect(() => {
-        if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp) {
-            const tg = (window as any).Telegram.WebApp;
-            tg.ready();
-            tg.expand();
-            tg.BackButton.show();
-            tg.BackButton.onClick(() => window.history.back());
+        const tg = getTg();
+        if (tg) {
+            tg.ready?.();
+            tg.expand?.();
+            tg.BackButton?.show?.();
+            tg.BackButton?.onClick?.(() => window.history.back());
         }
 
         tmaLogin()
@@ -35,9 +47,8 @@ export default function SearchPage() {
             .catch(() => setReady(true));
 
         return () => {
-            if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp) {
-                (window as any).Telegram.WebApp.BackButton.hide();
-            }
+            const tg = getTg();
+            tg?.BackButton?.hide?.();
         };
     }, []);
 
@@ -105,7 +116,8 @@ export default function SearchPage() {
             const token = await ensureAuth();
             if (!token) {
                 hapticError();
-                (window as any).Telegram?.WebApp?.showAlert?.('Не авторизован. Откройте Mini App в Telegram.') ?? alert('Не авторизован. Откройте Mini App в Telegram.');
+                const tg = getTg();
+                if (tg?.showAlert) tg.showAlert('Не авторизован. Откройте Mini App в Telegram.'); else alert('Не авторизован. Откройте Mini App в Telegram.');
                 return;
             }
             const res = await apiFetch(`${API}/candidates`, {
@@ -118,15 +130,17 @@ export default function SearchPage() {
             if (!res.ok) {
                 const t = await res.text();
                 hapticError();
-                (window as any).Telegram?.WebApp?.showAlert?.(`Ошибка: ${t}`) ?? alert(`Ошибка: ${t}`);
+                const tg = getTg();
+                if (tg?.showAlert) tg.showAlert(`Ошибка: ${t}`); else alert(`Ошибка: ${t}`);
                 return;
             }
 
             hapticSuccess();
-            (window as any).Telegram?.WebApp?.showAlert?.('✅ Книга добавлена в список кандидатов!') ?? alert('✅ Книга добавлена!');
+            const tg = getTg();
+            if (tg?.showAlert) tg.showAlert('✅ Книга добавлена в список кандидатов!'); else alert('✅ Книга добавлена!');
             // подсказка: перейти в Мои
             try {
-                const tg = (window as any).Telegram?.WebApp;
+                const tg = getTg();
                 tg?.MainButton?.setText?.('Открыть Мои');
                 tg?.MainButton?.show?.();
                 const handler = () => { window.location.href = '/my'; };
@@ -136,7 +150,8 @@ export default function SearchPage() {
         } catch (e) {
             const msg = e instanceof Error ? e.message : 'Не удалось отправить запрос';
             hapticError();
-            (window as any).Telegram?.WebApp?.showAlert?.(`Ошибка сети: ${msg}`) ?? alert(`Ошибка сети: ${msg}`);
+            const tg = getTg();
+            if (tg?.showAlert) tg.showAlert(`Ошибка сети: ${msg}`); else alert(`Ошибка сети: ${msg}`);
         }
     };
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import AppBar from '../_components/AppBar';
 import { authHeaders, getUser, tmaLogin, ensureAuth, getToken } from '@/lib/auth';
 import { hapticError, hapticSuccess } from '@/lib/tg';
@@ -19,7 +19,7 @@ export default function MyProposalsPage() {
     const [error, setError] = useState<string | null>(null);
     const [me, setMe] = useState<import('@/lib/auth').TmaUser>(getUser());
 
-    const load = async () => {
+    const load = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
@@ -38,14 +38,13 @@ export default function MyProposalsPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [me]);
 
     useEffect(() => {
         tmaLogin()
             .then((d) => { setMe(d.user ?? getUser()); setReady(true); })
             .catch(() => setReady(true))
             .finally(load);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [load]);
 
     const remove = async (id: string) => {

@@ -48,6 +48,7 @@ model Iteration {
   openedAt      DateTime?
   closedAt      DateTime?
   meetingDate   DateTime?
+  createdAt     DateTime   @default(now())
 
   Candidates Candidate[]
   Votes      Vote[]

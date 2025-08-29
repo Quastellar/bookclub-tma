@@ -26,10 +26,15 @@ export default function AdminPage() {
     const [currentIter, setCurrentIter] = useState<Iteration | null>(null);
     const [newIterName, setNewIterName] = useState('');
     const [newDeadline, setNewDeadline] = useState('');
-    const user = typeof window !== 'undefined' ? getUser() : null;
+    const [isClient, setIsClient] = useState(false);
+    const user = isClient ? getUser() : null;
 
     // Проверяем права админа
     const isAdmin = user?.roles?.includes('admin') ?? false;
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
 
     const loadCurrent = async () => {
         try {
@@ -174,6 +179,17 @@ export default function AdminPage() {
             setLoading(false);
         }
     };
+
+    if (!isClient) {
+        return (
+            <div style={{ padding: 16 }}>
+                <AppBar title={t('admin.title')} withBack />
+                <div style={{ marginTop: 20, textAlign: 'center' }}>
+                    Загрузка...
+                </div>
+            </div>
+        );
+    }
 
     if (!isAdmin) {
         return (

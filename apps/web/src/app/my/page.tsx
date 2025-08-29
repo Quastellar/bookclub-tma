@@ -18,6 +18,7 @@ export default function MyProposalsPage() {
     const [ready, setReady] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [me, setMe] = useState<import('@/lib/auth').TmaUser | null>(null);
+    const [isClient, setIsClient] = useState(false);
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -41,6 +42,7 @@ export default function MyProposalsPage() {
     }, [me]);
 
     useEffect(() => {
+        setIsClient(true);
         tmaLogin()
             .then((d) => { 
                 setMe(d.user || null); 
@@ -71,6 +73,15 @@ export default function MyProposalsPage() {
             alert(msg || `${t('common.error')}`);
         }
     };
+
+    if (!isClient) {
+        return (
+            <div style={{ padding: 16 }}>
+                <AppBar title={t('my.title')} withBack />
+                <div style={{ marginTop: 8 }}>Загрузка...</div>
+            </div>
+        );
+    }
 
     return (
         <div style={{ padding: 16 }}>

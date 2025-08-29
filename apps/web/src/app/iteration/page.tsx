@@ -36,7 +36,8 @@ export default function IterationPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [pendingCandidateId, setPendingCandidateId] = useState<string | null>(null);
-    const user = typeof window !== 'undefined' ? getUser() : null;
+    const [isClient, setIsClient] = useState(false);
+    const user = isClient ? getUser() : null;
 
     const load = async () => {
         setLoading(true);
@@ -59,6 +60,7 @@ export default function IterationPage() {
     };
 
     useEffect(() => {
+        setIsClient(true);
         tmaLogin()
             .then(() => setReady(true))
             .catch((e) => { console.error(e); setReady(true); })
@@ -123,6 +125,15 @@ export default function IterationPage() {
             await load();
         }
         setPendingCandidateId(null);
+    }
+
+    if (!isClient) {
+        return (
+            <div style={{ padding: 16 }}>
+                <AppBar title={t('iteration.title')} right={<Link href="/search" style={{ fontSize: 14, color: 'var(--tg-theme-link-color, #007AFF)' }}>{t('iteration.addBook')}</Link>} />
+                <div style={{ marginTop: 8 }}>Загрузка...</div>
+            </div>
+        );
     }
 
     return (

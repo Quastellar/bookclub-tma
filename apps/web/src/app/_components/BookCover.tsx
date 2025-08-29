@@ -17,19 +17,23 @@ export default function BookCover({ src, alt, width, height, fallbackText = 'no 
 
     if (!src || error) {
         return (
-            <div style={{
-                width,
-                height,
-                background: 'var(--tg-theme-secondary-bg-color, #eee)',
-                borderRadius: 6,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'var(--tg-theme-hint-color, #999)',
-                fontSize: 12,
-                textAlign: 'center',
-                padding: 4,
-            }}>
+            <div 
+                className="book-cover-skeleton"
+                style={{
+                    width,
+                    height,
+                    borderRadius: 6,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'var(--tg-theme-hint-color, #666)',
+                    fontSize: 12,
+                    textAlign: 'center',
+                    padding: 4,
+                    fontWeight: 500,
+                    textShadow: '1px 1px 2px rgba(255,255,255,0.8)',
+                }}
+            >
                 {fallbackText}
             </div>
         );

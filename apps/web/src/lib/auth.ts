@@ -40,15 +40,17 @@ export async function tmaLogin(): Promise<{ token: string | null; user: TmaUser 
     initWebApp();
 
     let initDataRaw: string | null = null;
-    try {
-        const lp = retrieveLaunchParams();
-        initDataRaw = (typeof lp.initDataRaw === 'string' && lp.initDataRaw) ? lp.initDataRaw : null;
-    } catch (e) {
-        if (!IS_DEV) throw e;
+    if (typeof window !== 'undefined') {
+        try {
+            const lp = retrieveLaunchParams();
+            initDataRaw = (typeof lp.initDataRaw === 'string' && lp.initDataRaw) ? lp.initDataRaw : null;
+        } catch (e) {
+            if (!IS_DEV) throw e;
+        }
     }
 
     // Фоллбэк: берём сырую строку из Telegram WebApp API, если SDK не вернул
-    if (!initDataRaw) {
+    if (!initDataRaw && typeof window !== 'undefined') {
         try {
             const raw = (window as unknown as { Telegram?: { WebApp?: { initData?: string } } })?.Telegram?.WebApp?.initData;
             if (typeof raw === 'string' && raw.length > 0) {

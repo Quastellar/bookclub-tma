@@ -10,6 +10,7 @@ type TgWebApp = {
 };
 
 function getTg(): TgWebApp | undefined {
+    if (typeof window === 'undefined') return undefined;
     return (window as unknown as { Telegram?: { WebApp?: TgWebApp } })?.Telegram?.WebApp;
 }
 

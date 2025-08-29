@@ -1,585 +1,576 @@
 'use client';
 
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { tmaLogin, getUser, getToken } from '@/lib/auth';
-import { hapticError, hapticSuccess } from '@/lib/tg';
-import AppBar from '../_components/AppBar';
+import { useEffect, useState, useCallback } from 'react';
+import { getUser, getToken, ensureAuth } from '@/lib/auth';
 import { useI18n } from '../_i18n/I18nProvider';
 import { apiFetch } from '@/lib/api';
+import { useTelegramTheme } from '../_providers/TelegramThemeProvider';
+import { GlassHeader } from '../_components/GlassHeader';
+import BookCard from '../_components/BookCard';
 
 const API = process.env.NEXT_PUBLIC_API_URL!;
 
-type TgWebApp = {
-    MainButton: { setText: (s: string) => void; show: () => void; hide: () => void; onClick: (fn: () => void) => void; offClick: (fn: () => void) => void };
-    showAlert?: (msg: string) => void;
+type CandidateDto = {
+    id: string;
+    Book?: { 
+        titleNorm?: string; 
+        authorsNorm?: string[];
+        year?: number;
+        coverUrl?: string;
+        isbn13?: string;
+    };
+    AddedBy?: { 
+        id: string; 
+        username?: string; 
+        name?: string; 
+        tgUserId?: string;
+    };
+    reason?: string;
 };
-
-function getTg(): TgWebApp | undefined {
-    if (typeof window === 'undefined') return undefined;
-    return (window as unknown as { Telegram?: { WebApp?: TgWebApp } })?.Telegram?.WebApp;
-}
 
 type IterationDto = {
     id: string;
     name: string;
     status: 'PLANNED' | 'OPEN' | 'CLOSED';
     meetingDate?: string | null;
-    Candidates?: Array<{ id: string; Book?: { titleNorm?: string; authorsNorm?: string[] }; AddedBy?: { id: string; username?: string; name?: string } }>;
+    closedAt?: string | null;
+    Candidates?: CandidateDto[];
     voteCounts?: Record<string, number>;
     myVoteCandidateId?: string | null;
+    winnerCandidateId?: string | null;
 };
 
 export default function IterationPage() {
     const { t } = useI18n();
+    const { tg, isReady } = useTelegramTheme();
+    
     const [iter, setIter] = useState<IterationDto | null>(null);
-    const [ready, setReady] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [voting, setVoting] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [pendingCandidateId, setPendingCandidateId] = useState<string | null>(null);
+    const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
+    const [showThankYou, setShowThankYou] = useState(false);
     const [isClient, setIsClient] = useState(false);
+
     const user = isClient ? getUser() : null;
 
-    const load = async () => {
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    // Инициализация Telegram WebApp
+    useEffect(() => {
+        if (isReady && tg && isClient) {
+            tg.ready();
+            tg.expand();
+            tg.BackButton?.hide();
+        }
+    }, [isReady, tg, isClient]);
+
+    // Загрузка данных итерации
+    const loadIteration = useCallback(async () => {
         setLoading(true);
         setError(null);
+        
         try {
             const token = getToken();
             const url = token ? `${API}/iterations/current/full` : `${API}/iterations/current`;
             const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+            
             const res = await apiFetch(url, { headers, label: 'iterations.current' });
+            
             if (!res.ok) {
                 if (res.status === 404) {
                     setIter(null);
                     return;
                 }
-                throw new Error(`HTTP ${res.status}`);
+                throw new Error(`Ошибка загрузки: ${res.status}`);
             }
+            
             const data = await res.json();
             setIter(data);
+            setSelectedCandidateId(data.myVoteCandidateId);
+            
         } catch (e) {
-            console.error('Load iteration failed:', e);
-            setError(e instanceof Error ? e.message : 'Unknown error');
+            console.error('[ITERATION] Load failed:', e);
+            setError(e instanceof Error ? e.message : 'Произошла ошибка');
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
-    const vote = async (candidateId: string) => {
-        if (!iter || iter.status !== 'OPEN') return;
+    useEffect(() => {
+        if (isClient) {
+            loadIteration();
+        }
+    }, [isClient, loadIteration]);
 
-        try {
-            await tmaLogin();
+    // Обновление MainButton
+    useEffect(() => {
+        if (!isReady || !tg || !isClient) return;
+
+        const canVote = iter?.status === 'OPEN' && selectedCandidateId && selectedCandidateId !== iter?.myVoteCandidateId;
+        
+        if (canVote) {
+            tg.MainButton.setText('Проголосовать');
+            tg.MainButton.show();
             
-            setPendingCandidateId(candidateId);
+            const handleVote = () => submitVote();
+            tg.MainButton.onClick(handleVote);
             
-            const prevVote = iter.myVoteCandidateId;
-            const prevCounts = { ...iter.voteCounts };
-            
-            const newIter: IterationDto = {
-                ...iter,
-                myVoteCandidateId: candidateId,
-                voteCounts: {
-                    ...iter.voteCounts,
-                    [candidateId]: (iter.voteCounts?.[candidateId] || 0) + 1,
-                    ...(prevVote && prevVote !== candidateId ? { [prevVote]: Math.max(0, (iter.voteCounts?.[prevVote] || 0) - 1) } : {})
-                }
+            return () => {
+                tg.MainButton.offClick(handleVote);
             };
-            setIter(newIter);
+        } else {
+            tg.MainButton.hide();
+        }
+    }, [iter, selectedCandidateId, isReady, tg, isClient]);
+
+    const submitVote = useCallback(async () => {
+        if (!selectedCandidateId || !iter || voting) return;
+
+        setVoting(true);
+        
+        try {
+            const token = await ensureAuth();
+            if (!token) {
+                throw new Error('Требуется авторизация');
+            }
+
+            // Показать прогресс в MainButton
+            if (tg?.MainButton) {
+                tg.MainButton.showProgress();
+            }
+
+            // Haptic feedback
+            if (tg?.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('light');
+            }
 
             const res = await apiFetch(`${API}/votes`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ candidateId }),
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ candidateId: selectedCandidateId }),
                 label: 'votes.create'
             });
 
             if (!res.ok) {
-                setIter(prevData => prevData ? {
-                    ...prevData,
-                    myVoteCandidateId: prevVote,
-                    voteCounts: prevCounts
-                } : null);
-                throw new Error('Vote failed');
+                throw new Error('Не удалось проголосовать');
             }
 
-            hapticSuccess();
-            const tg = getTg();
-            if (tg?.showAlert) {
-                tg.showAlert('Ваш голос учтен!');
+            // Успешное голосование
+            if (tg?.HapticFeedback) {
+                tg.HapticFeedback.notificationOccurred('success');
             }
+
+            if (tg?.MainButton) {
+                tg.MainButton.hideProgress();
+                tg.MainButton.hide();
+            }
+
+            // Показать анимацию благодарности
+            setShowThankYou(true);
+            
+            // Перезагрузить данные
+            setTimeout(() => {
+                loadIteration();
+                setShowThankYou(false);
+            }, 2000);
 
         } catch (error) {
-            console.error('Vote error:', error);
-            hapticError();
-            const tg = getTg();
+            console.error('[VOTING] Error:', error);
+            
+            if (tg?.HapticFeedback) {
+                tg.HapticFeedback.notificationOccurred('error');
+            }
+
+            if (tg?.MainButton) {
+                tg.MainButton.hideProgress();
+            }
+
+            const msg = error instanceof Error ? error.message : 'Произошла ошибка';
             if (tg?.showAlert) {
-                tg.showAlert('Ошибка при голосовании. Попробуйте еще раз.');
+                tg.showAlert(`Ошибка: ${msg}`);
             }
         } finally {
-            setPendingCandidateId(null);
+            setVoting(false);
         }
+    }, [selectedCandidateId, iter, voting, tg, loadIteration]);
+
+    const getVotePercentage = (candidateId: string): number => {
+        if (!iter?.voteCounts) return 0;
+        
+        const totalVotes = Object.values(iter.voteCounts).reduce((sum, count) => sum + count, 0);
+        if (totalVotes === 0) return 0;
+        
+        const candidateVotes = iter.voteCounts[candidateId] || 0;
+        return Math.round((candidateVotes / totalVotes) * 100);
     };
 
-    const confirmVote = () => {
-        if (!iter?.myVoteCandidateId) return;
-        
-        const candidate = iter.Candidates?.find(c => c.id === iter.myVoteCandidateId);
-        if (!candidate) return;
-        
-        const tg = getTg();
-        if (tg?.showAlert) {
-            tg.showAlert(`Ваш голос за "${candidate.Book?.titleNorm || 'Unknown'}" учтен!`);
-        }
-    };
+    const renderIterationStatus = () => {
+        if (!iter) return null;
 
-    useEffect(() => {
-        setIsClient(true);
-        
-        tmaLogin()
-            .then(() => setReady(true))
-            .catch(() => setReady(true));
-    }, []);
-
-    useEffect(() => {
-        if (ready) {
-            load();
-        }
-    }, [ready]);
-
-    useEffect(() => {
-        if (!isClient || !iter) return;
-
-        const tg = getTg();
-        if (!tg?.MainButton) return;
-
-        if (iter.status === 'OPEN' && iter.myVoteCandidateId) {
-            tg.MainButton.setText('Подтвердить голос');
-            tg.MainButton.show();
-            
-            const handleConfirm = () => confirmVote();
-            tg.MainButton.offClick(handleConfirm);
-            tg.MainButton.onClick(handleConfirm);
-        } else {
-            tg.MainButton.hide();
-        }
-
-        return () => {
-            tg.MainButton?.hide();
+        const statusConfig = {
+            PLANNED: { 
+                emoji: '🟡', 
+                text: 'Планируется', 
+                color: 'var(--color-warning)', 
+                bgColor: 'var(--color-warning-bg)' 
+            },
+            OPEN: { 
+                emoji: '🟢', 
+                text: 'Открыто голосование', 
+                color: 'var(--color-success)', 
+                bgColor: 'var(--color-success-bg)' 
+            },
+            CLOSED: { 
+                emoji: '⚫', 
+                text: 'Завершено', 
+                color: 'var(--color-text-muted)', 
+                bgColor: 'var(--color-bg-layer)' 
+            },
         };
-    }, [isClient, iter]);
 
-    if (!ready || !isClient) {
+        const config = statusConfig[iter.status];
+
         return (
             <div style={{
-                minHeight: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-s)',
+                padding: 'var(--space-s) var(--space-m)',
+                background: config.bgColor,
+                borderRadius: 'var(--radius-button)',
+                border: `1px solid ${config.color}`,
+                marginBottom: 'var(--space-l)',
+            }}>
+                <span style={{ fontSize: '1.2em' }}>{config.emoji}</span>
+                <span style={{
+                    fontSize: 'var(--font-size-body)',
+                    fontWeight: 'var(--font-weight-medium)',
+                    color: config.color,
+                }}>
+                    {config.text}
+                </span>
+                
+                {iter.meetingDate && (
+                    <>
+                        <span style={{ color: 'var(--color-text-muted)' }}>•</span>
+                        <span style={{
+                            fontSize: 'var(--font-size-body)',
+                            color: 'var(--color-text-secondary)',
+                        }}>
+                            {new Date(iter.meetingDate).toLocaleDateString('ru-RU')}
+                        </span>
+                    </>
+                )}
+            </div>
+        );
+    };
+
+    const renderThankYou = () => (
+        <div 
+            style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'rgba(247, 243, 234, 0.95)',
+                backdropFilter: 'blur(24px)',
+                zIndex: 1000,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '16px',
-                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
+                padding: 'var(--space-l)',
+                animation: 'fadeIn var(--duration-slow) var(--ease-out)',
+            }}
+        >
+            <div style={{
+                textAlign: 'center',
+                animation: 'scaleIn var(--duration-normal) var(--ease-out-back)',
             }}>
-                <div style={{
-                    width: '32px',
-                    height: '32px',
-                    border: '3px solid #e5e7eb',
-                    borderTop: '3px solid #f26419',
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite'
-                }} />
-                <p style={{ color: '#6b7280' }}>Загрузка...</p>
-                <style jsx>{`
-                    @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                    }
-                `}</style>
+                <div style={{ 
+                    fontSize: '4rem', 
+                    marginBottom: 'var(--space-l)',
+                    animation: 'spring var(--duration-slow) var(--ease-out-back)',
+                }}>
+                    ✨
+                </div>
+                <h2 style={{
+                    fontSize: 'var(--font-size-title)',
+                    fontWeight: 'var(--font-weight-bold)',
+                    color: 'var(--color-text-primary)',
+                    margin: '0 0 var(--space-s) 0',
+                }}>
+                    Спасибо за голос!
+                </h2>
+                <p style={{
+                    fontSize: 'var(--font-size-body)',
+                    color: 'var(--color-text-secondary)',
+                    margin: 0,
+                }}>
+                    Ваш выбор учтён
+                </p>
+            </div>
+        </div>
+    );
+
+    if (!isClient) {
+        return (
+            <div style={{ minHeight: '100vh', background: 'var(--color-bg-base)' }}>
+                <div className="skeleton" style={{ height: '100px', margin: 'var(--space-m)' }} />
             </div>
         );
     }
 
-    return (
-        <div style={{
-            minHeight: '100vh',
-            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-            paddingBottom: '80px'
-        }}>
-            <AppBar title={t('iteration.title')} />
-            
-            <main style={{
-                padding: '16px',
-                maxWidth: '600px',
-                margin: '0 auto'
-            }}>
-                {loading ? (
-                    <div style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '48px 20px',
-                        background: '#ffffff',
-                        borderRadius: '16px',
-                        border: '1px solid #e5e7eb',
-                        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-                        gap: '16px'
-                    }}>
-                        <div style={{
-                            width: '32px',
-                            height: '32px',
-                            border: '3px solid #e5e7eb',
-                            borderTop: '3px solid #f26419',
-                            borderRadius: '50%',
-                            animation: 'spin 1s linear infinite'
-                        }} />
-                        <p style={{ color: '#6b7280' }}>Загрузка итерации...</p>
+    if (loading) {
+        return (
+            <div style={{ minHeight: '100vh', background: 'var(--color-bg-base)' }}>
+                <GlassHeader title="Голосование" />
+                <div className="container">
+                    <div className="skeleton" style={{ height: '60px', marginBottom: 'var(--space-l)' }} />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-m)' }}>
+                        {Array.from({ length: 3 }).map((_, i) => (
+                            <div key={i} className="skeleton" style={{ height: '150px' }} />
+                        ))}
                     </div>
-                ) : error ? (
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div style={{ minHeight: '100vh', background: 'var(--color-bg-base)' }}>
+                <GlassHeader title="Голосование" />
+                <div className="container">
                     <div style={{
                         textAlign: 'center',
-                        padding: '48px 20px',
-                        background: '#ffffff',
-                        borderRadius: '16px',
-                        border: '1px solid #fecaca',
-                        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                        padding: 'var(--space-2xl)',
+                        background: 'var(--color-error-bg)',
+                        borderRadius: 'var(--radius-large)',
+                        border: '1px solid var(--color-error)',
                     }}>
-                        <div style={{ fontSize: '3rem', marginBottom: '16px' }}>⚠️</div>
-                        <h3 style={{
-                            fontSize: '20px',
-                            fontWeight: '600',
-                            color: '#dc2626',
-                            margin: '0 0 12px 0'
-                        }}>Ошибка загрузки</h3>
-                        <p style={{
-                            fontSize: '16px',
-                            color: '#6b7280',
-                            lineHeight: '1.6',
-                            margin: '0 0 16px 0'
+                        <div style={{ fontSize: '3rem', marginBottom: 'var(--space-m)' }}>⚠️</div>
+                        <h3 style={{ 
+                            color: 'var(--color-error)', 
+                            marginBottom: 'var(--space-s)' 
                         }}>
+                            Ошибка загрузки
+                        </h3>
+                        <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-l)' }}>
                             {error}
                         </p>
-                        <button
-                            onClick={load}
-                            style={{
-                                padding: '12px 24px',
-                                backgroundColor: '#f26419',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '12px',
-                                fontWeight: '500',
-                                cursor: 'pointer',
-                                transition: 'all 0.15s ease'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = '#e34a0f';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.backgroundColor = '#f26419';
-                            }}
-                        >
+                        <button className="btn btn-primary" onClick={loadIteration}>
                             Попробовать снова
                         </button>
                     </div>
-                ) : !iter ? (
+                </div>
+            </div>
+        );
+    }
+
+    if (!iter) {
+        return (
+            <div style={{ minHeight: '100vh', background: 'var(--color-bg-base)' }}>
+                <GlassHeader title="Голосование" />
+                <div className="container">
                     <div style={{
                         textAlign: 'center',
-                        padding: '48px 20px',
-                        background: '#ffffff',
-                        borderRadius: '16px',
-                        border: '1px solid #e5e7eb',
-                        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                        padding: 'var(--space-2xl)',
+                        background: 'var(--card-gradient)',
+                        borderRadius: 'var(--radius-large)',
+                        border: '1px solid var(--color-border-subtle)',
                     }}>
-                        <div style={{ fontSize: '3rem', marginBottom: '16px' }}>📚</div>
-                        <h3 style={{
-                            fontSize: '20px',
-                            fontWeight: '600',
-                            color: '#1f2937',
-                            margin: '0 0 12px 0'
-                        }}>Нет активной итерации</h3>
-                        <p style={{
-                            fontSize: '16px',
-                            color: '#6b7280',
-                            lineHeight: '1.6',
-                            margin: '0 0 24px 0'
+                        <div style={{ fontSize: '4rem', marginBottom: 'var(--space-l)' }}>📚</div>
+                        <h3 style={{ 
+                            fontSize: 'var(--font-size-h1)',
+                            color: 'var(--color-text-primary)', 
+                            marginBottom: 'var(--space-s)' 
                         }}>
-                            В данный момент голосование не проводится
+                            Нет активной итерации
+                        </h3>
+                        <p style={{ 
+                            color: 'var(--color-text-secondary)', 
+                            marginBottom: 'var(--space-l)',
+                            lineHeight: 'var(--line-height-relaxed)',
+                        }}>
+                            В настоящее время нет открытых итераций для голосования. 
+                            Следите за анонсами в канале!
                         </p>
-                        <Link 
-                            href="/search"
-                            style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                padding: '12px 24px',
-                                backgroundColor: '#f26419',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '12px',
-                                fontWeight: '500',
-                                textDecoration: 'none',
-                                transition: 'all 0.15s ease'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = '#e34a0f';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.backgroundColor = '#f26419';
-                            }}
-                        >
-                            Предложить книгу
-                        </Link>
                     </div>
-                ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                        {/* Заголовок итерации */}
-                        <div style={{
-                            padding: '24px',
-                            background: '#ffffff',
-                            borderRadius: '16px',
-                            border: '1px solid #e5e7eb',
-                            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
-                        }}>
-                            <h1 style={{
-                                fontSize: '24px',
-                                fontWeight: '700',
-                                color: '#1f2937',
-                                margin: '0 0 12px 0',
-                                textAlign: 'center'
-                            }}>
-                                {iter.name}
-                            </h1>
-                            
-                            <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '8px',
-                                marginBottom: '16px'
-                            }}>
-                                <div style={{
-                                    padding: '4px 12px',
-                                    borderRadius: '12px',
-                                    fontSize: '14px',
-                                    fontWeight: '500',
-                                    ...(iter.status === 'OPEN' ? {
-                                        background: '#d1fae5',
-                                        color: '#065f46'
-                                    } : iter.status === 'CLOSED' ? {
-                                        background: '#fee2e2',
-                                        color: '#991b1b'
-                                    } : {
-                                        background: '#fef3c7',
-                                        color: '#92400e'
-                                    })
-                                }}>
-                                    {iter.status === 'OPEN' ? '🗳️ Голосование открыто' : 
-                                     iter.status === 'CLOSED' ? '✅ Завершено' : 
-                                     '📋 Планируется'}
-                                </div>
-                            </div>
-                            
-                            {iter.meetingDate && (
-                                <p style={{
-                                    fontSize: '16px',
-                                    color: '#6b7280',
-                                    textAlign: 'center',
-                                    margin: '0'
-                                }}>
-                                    📅 Встреча: {new Date(iter.meetingDate).toLocaleDateString('ru-RU')}
-                                </p>
-                            )}
-                        </div>
+                </div>
+            </div>
+        );
+    }
 
-                        {/* Список кандидатов */}
-                        {iter.Candidates && iter.Candidates.length > 0 ? (
-                            <div style={{
-                                background: '#ffffff',
-                                borderRadius: '16px',
-                                border: '1px solid #e5e7eb',
-                                boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-                                padding: '24px'
-                            }}>
-                                <h2 style={{
-                                    fontSize: '20px',
-                                    fontWeight: '600',
-                                    color: '#1f2937',
-                                    margin: '0 0 20px 0',
-                                    textAlign: 'center'
-                                }}>
-                                    Книги на голосование
-                                </h2>
-                                
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                    {iter.Candidates.map((candidate) => (
-                                        <div 
-                                            key={candidate.id}
-                                            style={{
-                                                padding: '20px',
-                                                borderRadius: '12px',
-                                                border: `2px solid ${iter.myVoteCandidateId === candidate.id ? '#f26419' : '#e5e7eb'}`,
-                                                background: iter.myVoteCandidateId === candidate.id ? '#fff7ed' : '#ffffff',
-                                                transition: 'all 0.25s ease',
-                                                cursor: iter.status === 'OPEN' ? 'pointer' : 'default'
-                                            }}
-                                            onClick={() => iter.status === 'OPEN' && vote(candidate.id)}
-                                            onMouseEnter={(e) => {
-                                                if (iter.status === 'OPEN') {
-                                                    e.currentTarget.style.borderColor = '#f26419';
-                                                    e.currentTarget.style.transform = 'translateY(-1px)';
-                                                    e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
-                                                }
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                if (iter.status === 'OPEN') {
-                                                    e.currentTarget.style.borderColor = iter.myVoteCandidateId === candidate.id ? '#f26419' : '#e5e7eb';
-                                                    e.currentTarget.style.transform = 'translateY(0)';
-                                                    e.currentTarget.style.boxShadow = 'none';
-                                                }
-                                            }}
-                                        >
-                                            <div style={{
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'flex-start',
-                                                gap: '16px'
-                                            }}>
-                                                <div style={{ flex: 1 }}>
-                                                    <h3 style={{
-                                                        fontSize: '18px',
-                                                        fontWeight: '600',
-                                                        color: '#1f2937',
-                                                        margin: '0 0 8px 0',
-                                                        lineHeight: '1.3'
-                                                    }}>
-                                                        {candidate.Book?.titleNorm || 'Неизвестная книга'}
-                                                    </h3>
-                                                    
-                                                    <p style={{
-                                                        fontSize: '14px',
-                                                        color: '#6b7280',
-                                                        margin: '0 0 8px 0'
-                                                    }}>
-                                                        Автор: {candidate.Book?.authorsNorm?.join(', ') || 'Неизвестен'}
-                                                    </p>
-                                                    
-                                                    <p style={{
-                                                        fontSize: '12px',
-                                                        color: '#9ca3af',
-                                                        margin: '0'
-                                                    }}>
-                                                        Предложил: {candidate.AddedBy?.username || candidate.AddedBy?.name || 'Аноним'}
-                                                    </p>
-                                                </div>
-                                                
-                                                <div style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'column',
-                                                    alignItems: 'center',
-                                                    gap: '4px'
-                                                }}>
-                                                    {iter.voteCounts && (
-                                                        <div style={{
-                                                            padding: '4px 8px',
-                                                            borderRadius: '8px',
-                                                            background: '#f3f4f6',
-                                                            fontSize: '14px',
-                                                            fontWeight: '600',
-                                                            color: '#374151'
-                                                        }}>
-                                                            {iter.voteCounts[candidate.id] || 0} 🗳️
-                                                        </div>
-                                                    )}
-                                                    
-                                                    {iter.myVoteCandidateId === candidate.id && (
-                                                        <div style={{
-                                                            padding: '2px 6px',
-                                                            borderRadius: '6px',
-                                                            background: '#f26419',
-                                                            color: 'white',
-                                                            fontSize: '12px',
-                                                            fontWeight: '500'
-                                                        }}>
-                                                            Ваш выбор
-                                                        </div>
-                                                    )}
-                                                    
-                                                    {pendingCandidateId === candidate.id && (
-                                                        <div style={{
-                                                            width: '16px',
-                                                            height: '16px',
-                                                            border: '2px solid #f26419',
-                                                            borderTop: '2px solid transparent',
-                                                            borderRadius: '50%',
-                                                            animation: 'spin 1s linear infinite'
-                                                        }} />
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        ) : (
-                            <div style={{
-                                textAlign: 'center',
-                                padding: '48px 20px',
-                                background: '#ffffff',
-                                borderRadius: '16px',
-                                border: '1px solid #e5e7eb',
-                                boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
-                            }}>
-                                <div style={{ fontSize: '3rem', marginBottom: '16px' }}>📖</div>
-                                <h3 style={{
-                                    fontSize: '20px',
-                                    fontWeight: '600',
-                                    color: '#1f2937',
-                                    margin: '0 0 12px 0'
-                                }}>Пока нет книг</h3>
-                                <p style={{
-                                    fontSize: '16px',
-                                    color: '#6b7280',
-                                    lineHeight: '1.6',
-                                    margin: '0 0 24px 0'
-                                }}>
-                                    Будьте первым, кто предложит книгу!
-                                </p>
-                                <Link 
-                                    href="/search"
-                                    style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                        padding: '12px 24px',
-                                        backgroundColor: '#f26419',
-                                        color: 'white',
-                                        border: 'none',
-                                        borderRadius: '12px',
-                                        fontWeight: '500',
-                                        textDecoration: 'none',
-                                        transition: 'all 0.15s ease'
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.backgroundColor = '#e34a0f';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.backgroundColor = '#f26419';
-                                    }}
-                                >
-                                    Предложить книгу
-                                </Link>
-                            </div>
-                        )}
+    const candidates = iter.Candidates || [];
+    const totalVotes = Object.values(iter.voteCounts || {}).reduce((sum, count) => sum + count, 0);
+
+    return (
+        <div style={{
+            minHeight: '100vh',
+            background: 'var(--color-bg-base)',
+            paddingBottom: '100px',
+        }}>
+            {showThankYou && renderThankYou()}
+            
+            <GlassHeader 
+                title={iter.name}
+                subtitle={`${candidates.length} ${candidates.length === 1 ? 'книга' : candidates.length < 5 ? 'книги' : 'книг'} • ${totalVotes} ${totalVotes === 1 ? 'голос' : totalVotes < 5 ? 'голоса' : 'голосов'}`}
+            />
+            
+            <div className="container">
+                {renderIterationStatus()}
+
+                {/* Voting Instructions */}
+                {iter.status === 'OPEN' && (
+                    <div style={{
+                        padding: 'var(--space-m)',
+                        background: 'linear-gradient(135deg, rgba(126,200,165,0.1), rgba(240,179,90,0.05))',
+                        borderRadius: 'var(--radius-card)',
+                        border: '1px solid rgba(126,200,165,0.2)',
+                        marginBottom: 'var(--space-l)',
+                    }}>
+                        <h3 style={{
+                            fontSize: 'var(--font-size-h2)',
+                            fontWeight: 'var(--font-weight-semibold)',
+                            color: 'var(--color-text-primary)',
+                            margin: '0 0 var(--space-xs) 0',
+                        }}>
+                            🗳️ Выберите книгу для чтения
+                        </h3>
+                        <p style={{
+                            fontSize: 'var(--font-size-body)',
+                            color: 'var(--color-text-secondary)',
+                            margin: 0,
+                            lineHeight: 'var(--line-height-relaxed)',
+                        }}>
+                            Нажмите на карточку книги, которую хотите прочитать, и подтвердите выбор
+                        </p>
                     </div>
                 )}
-            </main>
 
-            <style jsx>{`
-                @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                }
-            `}</style>
+                {/* Candidates List */}
+                <div 
+                    className="stagger-children"
+                    style={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        gap: 'var(--space-m)' 
+                    }}
+                >
+                    {candidates.map((candidate, index) => {
+                        const isSelected = selectedCandidateId === candidate.id;
+                        const isMyVote = iter.myVoteCandidateId === candidate.id;
+                        const voteCount = iter.voteCounts?.[candidate.id] || 0;
+                        const percentage = getVotePercentage(candidate.id);
+                        const isWinner = iter.status === 'CLOSED' && iter.winnerCandidateId === candidate.id;
+
+                        return (
+                            <div
+                                key={candidate.id}
+                                style={{
+                                    position: 'relative',
+                                    animationDelay: `${index * 30}ms`,
+                                }}
+                            >
+                                <BookCard
+                                    title={candidate.Book?.titleNorm || 'Неизвестная книга'}
+                                    authors={candidate.Book?.authorsNorm || ['Неизвестный автор']}
+                                    year={candidate.Book?.year}
+                                    coverUrl={candidate.Book?.coverUrl}
+                                    variant="voting"
+                                    isSelected={isSelected || isMyVote}
+                                    isInteractive={iter.status === 'OPEN'}
+                                    onClick={iter.status === 'OPEN' ? () => setSelectedCandidateId(candidate.id) : undefined}
+                                    badges={[
+                                        ...(isMyVote ? ['Ваш голос'] : []),
+                                        ...(isWinner ? ['🏆 Победитель'] : []),
+                                    ]}
+                                    footer={
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-xs)' }}>
+                                            {/* Vote progress bar */}
+                                            {(iter.status === 'CLOSED' || voteCount > 0) && (
+                                                <div style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'space-between',
+                                                    marginBottom: 'var(--space-xs)',
+                                                }}>
+                                                    <span style={{
+                                                        fontSize: 'var(--font-size-caption)',
+                                                        color: 'var(--color-text-secondary)',
+                                                    }}>
+                                                        {voteCount} {voteCount === 1 ? 'голос' : voteCount < 5 ? 'голоса' : 'голосов'}
+                                                    </span>
+                                                    <span style={{
+                                                        fontSize: 'var(--font-size-caption)',
+                                                        fontWeight: 'var(--font-weight-semibold)',
+                                                        color: 'var(--color-accent-warm)',
+                                                    }}>
+                                                        {percentage}%
+                                                    </span>
+                                                </div>
+                                            )}
+                                            
+                                            {(iter.status === 'CLOSED' || voteCount > 0) && (
+                                                <div style={{
+                                                    height: '6px',
+                                                    background: 'var(--color-bg-layer)',
+                                                    borderRadius: '3px',
+                                                    overflow: 'hidden',
+                                                    position: 'relative',
+                                                }}>
+                                                    <div style={{
+                                                        height: '100%',
+                                                        width: `${percentage}%`,
+                                                        background: isWinner 
+                                                            ? 'linear-gradient(90deg, var(--color-accent-warm), var(--color-accent-fresh))'
+                                                            : 'var(--color-accent-warm)',
+                                                        borderRadius: '3px',
+                                                        transition: 'width var(--duration-slow) var(--ease-out)',
+                                                    }} />
+                                                </div>
+                                            )}
+
+                                            {/* Added by info */}
+                                            {candidate.AddedBy && (
+                                                <div style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 'var(--space-xs)',
+                                                    paddingTop: 'var(--space-xs)',
+                                                    borderTop: '1px solid var(--color-border-soft)',
+                                                }}>
+                                                    <span style={{
+                                                        fontSize: 'var(--font-size-caption)',
+                                                        color: 'var(--color-text-muted)',
+                                                    }}>
+                                                        Предложил:
+                                                    </span>
+                                                    <span style={{
+                                                        fontSize: 'var(--font-size-caption)',
+                                                        color: 'var(--color-text-secondary)',
+                                                        fontWeight: 'var(--font-weight-medium)',
+                                                    }}>
+                                                        {candidate.AddedBy.name || candidate.AddedBy.username || 'Аноним'}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    }
+                                />
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
         </div>
     );
 }

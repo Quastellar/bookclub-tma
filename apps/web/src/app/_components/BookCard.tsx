@@ -5,13 +5,16 @@ import BookCover from './BookCover';
 interface BookCardProps {
   title: string;
   authors: string[];
-  year?: number;
+  year?: number | null;
   isbn?: string | null;
   coverUrl?: string | null;
+  genre?: string;
   footer?: React.ReactNode;
   onClick?: () => void;
-  variant?: 'default' | 'compact' | 'featured';
+  variant?: 'default' | 'compact' | 'voting';
   className?: string;
+  isSelected?: boolean;
+  badges?: string[];
 }
 
 export default function BookCard({
@@ -20,24 +23,110 @@ export default function BookCard({
   year,
   isbn,
   coverUrl,
+  genre,
   footer,
   onClick,
   variant = 'default',
   className = '',
+  isSelected = false,
+  badges = [],
 }: BookCardProps) {
   const isClickable = !!onClick;
-  const coverSize = variant === 'compact' ? { width: 48, height: 72 } : 
-                   variant === 'featured' ? { width: 80, height: 120 } : 
-                   { width: 64, height: 96 };
+  
+  const getCoverSize = () => {
+    switch (variant) {
+      case 'compact':
+        return { width: 48, height: 72 };
+      case 'voting':
+        return { width: 80, height: 120 };
+      default:
+        return { width: 72, height: 108 };
+    }
+  };
+
+  const coverSize = getCoverSize();
+
+  const cardStyle = {
+    display: 'flex',
+    gap: variant === 'compact' ? 'var(--space-s)' : 'var(--space-m)',
+    padding: variant === 'compact' ? 'var(--space-s)' : 'var(--space-m)',
+    background: isSelected 
+      ? 'linear-gradient(145deg, rgba(240,179,90,0.15), rgba(126,200,165,0.05))'
+      : 'var(--card-gradient)',
+    backdropFilter: 'blur(12px)',
+    borderRadius: 'var(--radius-card)',
+    border: isSelected 
+      ? '2px solid var(--color-accent-warm)'
+      : '1px solid var(--color-border-subtle)',
+    boxShadow: isSelected 
+      ? 'var(--shadow-warm), var(--shadow-elev1)'
+      : 'var(--shadow-card)',
+    transition: 'all var(--duration-normal) var(--ease-out)',
+    cursor: isClickable ? 'pointer' : 'default',
+    position: 'relative' as const,
+    overflow: 'hidden' as const,
+  };
+
+  const handleInteraction = (e: React.MouseEvent, type: 'enter' | 'leave' | 'down' | 'up') => {
+    if (!isClickable) return;
+    
+    const target = e.currentTarget as HTMLElement;
+    
+    switch (type) {
+      case 'enter':
+        target.style.transform = 'translateY(-2px)';
+        target.style.boxShadow = 'var(--shadow-elev1)';
+        target.style.borderColor = 'var(--color-accent-warm)';
+        break;
+      case 'leave':
+        target.style.transform = 'translateY(0)';
+        target.style.boxShadow = isSelected ? 'var(--shadow-warm), var(--shadow-elev1)' : 'var(--shadow-card)';
+        target.style.borderColor = isSelected ? 'var(--color-accent-warm)' : 'var(--color-border-subtle)';
+        break;
+      case 'down':
+        target.style.transform = 'translateY(0) scale(0.98)';
+        break;
+      case 'up':
+        target.style.transform = 'translateY(-2px) scale(1)';
+        break;
+    }
+  };
 
   return (
     <div 
-      className={`book-card book-card-${variant} ${isClickable ? 'book-card-clickable' : ''} ${className}`}
+      className={`card-glass ${className}`}
+      style={cardStyle}
       onClick={onClick}
+      onMouseEnter={(e) => handleInteraction(e, 'enter')}
+      onMouseLeave={(e) => handleInteraction(e, 'leave')}
+      onMouseDown={(e) => handleInteraction(e, 'down')}
+      onMouseUp={(e) => handleInteraction(e, 'up')}
       role={isClickable ? 'button' : undefined}
       tabIndex={isClickable ? 0 : undefined}
     >
-      <div className="book-card-cover">
+      {/* Selection indicator overlay */}
+      {isSelected && (
+        <div 
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'linear-gradient(135deg, rgba(240,179,90,0.08), rgba(126,200,165,0.02))',
+            backdropFilter: 'blur(2px)',
+            borderRadius: 'var(--radius-card)',
+            pointerEvents: 'none',
+          }}
+        />
+      )}
+
+      {/* Book cover */}
+      <div style={{ 
+        flexShrink: 0, 
+        position: 'relative',
+        zIndex: 1,
+      }}>
         <BookCover
           src={coverUrl ?? null}
           alt={title}
@@ -45,200 +134,166 @@ export default function BookCard({
           height={coverSize.height}
           fallbackText="📚"
         />
+        
+        {/* Selection checkmark */}
+        {isSelected && (
+          <div 
+            style={{
+              position: 'absolute',
+              top: '-6px',
+              right: '-6px',
+              width: '24px',
+              height: '24px',
+              background: 'var(--color-accent-warm)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 2px 8px rgba(240,179,90,0.4)',
+              border: '2px solid var(--color-bg-base)',
+              animation: 'scaleIn var(--duration-normal) var(--ease-out-back)',
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+          </div>
+        )}
       </div>
       
-      <div className="book-card-content">
-        <div className="book-card-header">
-          <h3 className="book-card-title">
-            {title}
-            {year && <span className="book-card-year">({year})</span>}
-          </h3>
-          {authors && authors.length > 0 && (
-            <p className="book-card-authors">
-              {authors.join(', ')}
-            </p>
+      {/* Content */}
+      <div style={{ 
+        flex: '1 1 auto',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 'var(--space-xs)',
+        minWidth: 0,
+        position: 'relative',
+        zIndex: 1,
+      }}>
+        {/* Title */}
+        <h3 style={{ 
+          fontSize: variant === 'compact' ? 'var(--font-size-body)' : 
+                   variant === 'voting' ? 'var(--font-size-h1)' : 'var(--font-size-h2)',
+          fontWeight: 'var(--font-weight-semibold)',
+          color: 'var(--color-text-primary)',
+          margin: 0,
+          lineHeight: 'var(--line-height-tight)',
+          wordBreak: 'break-word',
+          display: '-webkit-box',
+          WebkitLineClamp: variant === 'compact' ? 1 : 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+        }}>
+          {title}
+          {year && variant !== 'compact' && (
+            <span style={{
+              color: 'var(--color-text-muted)',
+              fontWeight: 'var(--font-weight-normal)',
+              marginLeft: 'var(--space-xs)',
+            }}>
+              ({year})
+            </span>
           )}
+        </h3>
+        
+        {/* Authors */}
+        {authors && authors.length > 0 && (
+          <p style={{ 
+            fontSize: variant === 'compact' ? 'var(--font-size-caption)' : 'var(--font-size-body)',
+            color: 'var(--color-text-secondary)',
+            margin: 0,
+            lineHeight: 'var(--line-height-normal)',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}>
+            {authors.join(', ')}
+          </p>
+        )}
+        
+        {/* Meta info: genre, year for compact, isbn */}
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 'var(--space-xs)',
+          flexWrap: 'wrap',
+        }}>
+          {variant === 'compact' && year && (
+            <span className="chip" style={{
+              fontSize: 'var(--font-size-caption)',
+              padding: '2px var(--space-xs)',
+              background: 'var(--color-bg-layer)',
+              color: 'var(--color-text-muted)',
+              border: '1px solid var(--color-border-soft)',
+              cursor: 'default',
+            }}>
+              {year}
+            </span>
+          )}
+          
+          {genre && (
+            <span className="chip active" style={{
+              fontSize: 'var(--font-size-caption)',
+              padding: '2px var(--space-xs)',
+              background: 'rgba(240,179,90,0.15)',
+              color: 'var(--color-accent-warm-alt)',
+              border: '1px solid rgba(240,179,90,0.3)',
+              cursor: 'default',
+            }}>
+              {genre}
+            </span>
+          )}
+
           {isbn && variant !== 'compact' && (
-            <p className="book-card-isbn">{isbn}</p>
+            <span style={{
+              fontSize: 'var(--font-size-caption)',
+              color: 'var(--color-text-muted)',
+              fontFamily: 'monospace',
+              letterSpacing: '0.5px',
+            }}>
+              {isbn}
+            </span>
           )}
         </div>
         
+        {/* Badges */}
+        {badges.length > 0 && (
+          <div style={{ 
+            display: 'flex', 
+            gap: 'var(--space-xs)',
+            flexWrap: 'wrap',
+          }}>
+            {badges.map((badge, index) => (
+              <span 
+                key={index}
+                className="chip"
+                style={{
+                  fontSize: 'var(--font-size-caption)',
+                  padding: '2px var(--space-xs)',
+                  background: 'var(--color-accent-fresh)',
+                  color: 'var(--color-text-on-accent)',
+                  border: 'none',
+                  cursor: 'default',
+                }}
+              >
+                {badge}
+              </span>
+            ))}
+          </div>
+        )}
+        
+        {/* Footer */}
         {footer && (
-          <div className="book-card-footer">
+          <div style={{
+            marginTop: 'auto',
+            paddingTop: 'var(--space-s)',
+            borderTop: `1px solid var(--color-border-soft)`,
+          }}>
             {footer}
           </div>
         )}
       </div>
-
-      <style jsx>{`
-        .book-card {
-          display: flex;
-          gap: var(--space-lg);
-          padding: var(--space-lg);
-          background: var(--neutral-0);
-          border-radius: var(--radius-xl);
-          border: 1px solid var(--neutral-200);
-          box-shadow: var(--shadow-xs);
-          transition: all var(--duration-normal) var(--ease-in-out-smooth);
-          position: relative;
-          overflow: hidden;
-        }
-
-        .book-card::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 3px;
-          background: linear-gradient(90deg, var(--primary-400), var(--primary-500), var(--primary-600));
-          opacity: 0;
-          transition: opacity var(--duration-normal) var(--ease-in-out-smooth);
-        }
-
-        .book-card:hover::before {
-          opacity: 1;
-        }
-
-        .book-card:hover {
-          border-color: var(--neutral-300);
-          box-shadow: var(--shadow-md);
-          transform: translateY(-2px);
-        }
-
-        .book-card-clickable {
-          cursor: pointer;
-        }
-
-        .book-card-clickable:active {
-          transform: translateY(-1px);
-          box-shadow: var(--shadow-sm);
-        }
-
-        .book-card-compact {
-          gap: var(--space-md);
-          padding: var(--space-md);
-          border-radius: var(--radius-lg);
-        }
-
-        .book-card-featured {
-          gap: var(--space-xl);
-          padding: var(--space-xl);
-          border-radius: var(--radius-2xl);
-          background: linear-gradient(135deg, var(--neutral-0) 0%, var(--primary-50) 100%);
-          border-color: var(--primary-200);
-        }
-
-        .book-card-cover {
-          flex-shrink: 0;
-          position: relative;
-        }
-
-        .book-card-content {
-          flex: 1;
-          min-width: 0;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-        }
-
-        .book-card-header {
-          flex: 1;
-        }
-
-        .book-card-title {
-          font-size: var(--text-base);
-          font-weight: 600;
-          color: var(--neutral-900);
-          line-height: var(--line-height-tight);
-          margin: 0 0 var(--space-xs) 0;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-
-        .book-card-featured .book-card-title {
-          font-size: var(--text-lg);
-          font-weight: 700;
-        }
-
-        .book-card-compact .book-card-title {
-          font-size: var(--text-sm);
-          -webkit-line-clamp: 1;
-        }
-
-        .book-card-year {
-          color: var(--neutral-600);
-          font-weight: 400;
-          margin-left: var(--space-xs);
-        }
-
-        .book-card-authors {
-          font-size: var(--text-sm);
-          color: var(--neutral-600);
-          line-height: var(--line-height-normal);
-          margin: var(--space-xs) 0 0 0;
-          display: -webkit-box;
-          -webkit-line-clamp: 1;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-
-        .book-card-compact .book-card-authors {
-          font-size: var(--text-xs);
-        }
-
-        .book-card-featured .book-card-authors {
-          font-size: var(--text-base);
-          color: var(--neutral-700);
-        }
-
-        .book-card-isbn {
-          font-size: var(--text-xs);
-          color: var(--neutral-500);
-          margin: var(--space-xs) 0 0 0;
-          font-family: monospace;
-          letter-spacing: 0.5px;
-        }
-
-        .book-card-footer {
-          margin-top: var(--space-md);
-          padding-top: var(--space-sm);
-          border-top: 1px solid var(--neutral-200);
-        }
-
-        .book-card-compact .book-card-footer {
-          margin-top: var(--space-sm);
-          padding-top: var(--space-xs);
-        }
-
-        .book-card-featured .book-card-footer {
-          margin-top: var(--space-lg);
-          padding-top: var(--space-md);
-          border-top: 1px solid var(--primary-200);
-        }
-
-        @media (max-width: 480px) {
-          .book-card {
-            gap: var(--space-md);
-            padding: var(--space-md);
-          }
-
-          .book-card-featured {
-            gap: var(--space-lg);
-            padding: var(--space-lg);
-          }
-
-          .book-card-title {
-            font-size: var(--text-sm);
-          }
-
-          .book-card-featured .book-card-title {
-            font-size: var(--text-base);
-          }
-        }
-      `}</style>
     </div>
   );
 }

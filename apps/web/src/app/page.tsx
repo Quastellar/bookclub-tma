@@ -2,31 +2,27 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { tmaLogin } from '@/lib/auth';
-import AppBar from './_components/AppBar';
-
-type TgWebApp = {
-    ready?: () => void;
-    expand?: () => void;
-};
-
-function getTg(): TgWebApp | undefined {
-    if (typeof window === 'undefined') return undefined;
-    return (window as unknown as { Telegram?: { WebApp?: TgWebApp } })?.Telegram?.WebApp;
-}
+import { tmaLogin, TmaUser } from '@/lib/auth';
+import { useTelegramTheme } from './_providers/TelegramThemeProvider';
+import { GlassHeader } from './_components/GlassHeader';
 
 export default function HomePage() {
+    const { tg, isReady } = useTelegramTheme();
     const [ready, setReady] = useState(false);
-    const [user, setUser] = useState<import('@/lib/auth').TmaUser | null>(null);
+    const [user, setUser] = useState<TmaUser | null>(null);
 
     useEffect(() => {
-        // Telegram WebApp инициализация
-        const tg = getTg();
-        if (tg) {
-            tg.ready?.();
-            tg.expand?.();
+        if (isReady && tg) {
+            tg.ready();
+            tg.expand();
+            
+            // Скрыть Telegram кнопки
+            tg.BackButton?.hide();
+            tg.MainButton?.hide();
         }
+    }, [isReady, tg]);
 
+    useEffect(() => {
         // TMA логин
         tmaLogin()
             .then((data) => {
@@ -43,36 +39,31 @@ export default function HomePage() {
         return (
             <div style={{
                 minHeight: '100vh',
+                background: 'var(--color-bg-base)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-                padding: '20px'
             }}>
-                <div style={{ textAlign: 'center' }}>
-                    <div style={{
-                        width: '48px',
-                        height: '48px',
-                        border: '4px solid #e5e7eb',
-                        borderTop: '4px solid #f26419',
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 'var(--space-l)',
+                }}>
+                    <div className="skeleton" style={{
+                        width: '80px',
+                        height: '80px',
                         borderRadius: '50%',
-                        animation: 'spin 1s linear infinite',
-                        margin: '0 auto 16px auto'
                     }} />
-                    <p style={{
-                        color: '#6b7280',
-                        fontSize: '18px',
-                        fontWeight: '500',
-                        margin: '0'
-                    }}>Загрузка Mini App...</p>
+                    <div className="skeleton" style={{
+                        width: '200px',
+                        height: '24px',
+                    }} />
+                    <div className="skeleton" style={{
+                        width: '150px',
+                        height: '18px',
+                    }} />
                 </div>
-                
-                <style jsx>{`
-                    @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                    }
-                `}</style>
             </div>
         );
     }
@@ -80,316 +71,441 @@ export default function HomePage() {
     return (
         <div style={{
             minHeight: '100vh',
-            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-            paddingBottom: '80px'
+            background: 'var(--color-bg-base)',
         }}>
-            <AppBar title="Книжный клуб" withBack={false} />
+            <GlassHeader 
+                title="Книжный клуб"
+                subtitle={user ? `Добро пожаловать, ${user.name || user.username || 'Читатель'}!` : 'Добро пожаловать!'}
+            />
             
-            <main style={{
-                padding: '24px 16px',
-                maxWidth: '600px',
-                margin: '0 auto'
-            }}>
-                {/* Hero секция */}
+            <div className="container">
+                {/* Hero Section */}
                 <div style={{
                     textAlign: 'center',
-                    marginBottom: '48px',
-                    padding: '32px 0'
+                    padding: 'var(--space-2xl) var(--space-m)',
+                    background: 'var(--header-gradient)',
+                    borderRadius: 'var(--radius-xl)',
+                    color: 'white',
+                    marginBottom: 'var(--space-l)',
+                    position: 'relative',
+                    overflow: 'hidden',
                 }}>
                     <div style={{
-                        fontSize: '4rem',
-                        marginBottom: '16px'
-                    }}>📚</div>
-                    <h1 style={{
-                        fontSize: '30px',
-                        fontWeight: '700',
-                        color: '#1f2937',
-                        margin: '0 0 16px 0',
-                        lineHeight: '1.25'
-                    }}>Добро пожаловать в книжный клуб!</h1>
-                    <p style={{
-                        fontSize: '18px',
-                        color: '#6b7280',
-                        lineHeight: '1.6',
-                        margin: '0'
-                    }}>
-                        Предлагайте книги, голосуйте за любимые произведения и открывайте новые литературные миры вместе
-                    </p>
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(12px)',
+                        borderRadius: 'var(--radius-xl)',
+                    }} />
+                    
+                    <div style={{ position: 'relative', zIndex: 1 }}>
+                        <div style={{ 
+                            fontSize: '4rem', 
+                            marginBottom: 'var(--space-m)',
+                            animation: 'scaleIn var(--duration-slow) var(--ease-out-back)',
+                        }}>
+                            📚
+                        </div>
+                        <h1 style={{
+                            fontSize: 'var(--font-size-title)',
+                            fontWeight: 'var(--font-weight-bold)',
+                            margin: '0 0 var(--space-s) 0',
+                            textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+                        }}>
+                            Выбираем книги вместе
+                        </h1>
+                        <p style={{
+                            fontSize: 'var(--font-size-body-lg)',
+                            opacity: 0.9,
+                            margin: 0,
+                            lineHeight: 'var(--line-height-relaxed)',
+                        }}>
+                            Предлагайте, голосуйте и читайте лучшие книги в нашем сообществе
+                        </p>
+                    </div>
                 </div>
 
-                {/* Приветствие пользователя */}
-                {user && (
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '16px',
-                        padding: '20px',
-                        background: 'linear-gradient(135deg, #fef7ee 0%, #feebd4 100%)',
-                        border: '1px solid #fcd2a9',
-                        borderRadius: '20px',
-                        marginBottom: '32px',
-                        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <div style={{ fontSize: '2.5rem', flexShrink: 0 }}>👋</div>
-                        <div style={{ flex: 1 }}>
-                            <h3 style={{
-                                fontSize: '20px',
-                                fontWeight: '600',
-                                color: '#792713',
-                                margin: '0 0 4px 0'
+                {/* Quick Actions */}
+                <div 
+                    className="stagger-children"
+                    style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                        gap: 'var(--space-m)',
+                        marginBottom: 'var(--space-l)',
+                    }}
+                >
+                    {/* Current Voting */}
+                    <Link href="/iteration" style={{ textDecoration: 'none' }}>
+                        <div className="card-glass" style={{
+                            padding: 'var(--space-l)',
+                            cursor: 'pointer',
+                            transition: 'all var(--duration-normal) var(--ease-out)',
+                            border: '2px solid var(--color-accent-warm)',
+                            background: 'linear-gradient(145deg, rgba(240,179,90,0.15), rgba(126,200,165,0.05))',
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-4px)';
+                            e.currentTarget.style.boxShadow = 'var(--shadow-elev1), var(--shadow-warm)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)';
+                            e.currentTarget.style.boxShadow = 'var(--shadow-card)';
+                        }}>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 'var(--space-s)',
+                                marginBottom: 'var(--space-m)',
                             }}>
-                                Привет, {user.username || user.name || 'участник'}!
-                            </h3>
+                                <div style={{
+                                    width: '48px',
+                                    height: '48px',
+                                    borderRadius: '50%',
+                                    background: 'var(--color-accent-warm)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '1.5rem',
+                                    color: 'white',
+                                    boxShadow: 'var(--shadow-warm)',
+                                }}>
+                                    🗳️
+                                </div>
+                                <div>
+                                    <h3 style={{
+                                        fontSize: 'var(--font-size-h1)',
+                                        fontWeight: 'var(--font-weight-semibold)',
+                                        color: 'var(--color-text-primary)',
+                                        margin: 0,
+                                    }}>
+                                        Голосование
+                                    </h3>
+                                    <p style={{
+                                        fontSize: 'var(--font-size-body)',
+                                        color: 'var(--color-text-secondary)',
+                                        margin: 0,
+                                    }}>
+                                        Выберите книгу
+                                    </p>
+                                </div>
+                            </div>
                             <p style={{
-                                fontSize: '16px',
-                                color: '#bc350f',
-                                margin: '0'
+                                fontSize: 'var(--font-size-body)',
+                                color: 'var(--color-text-secondary)',
+                                margin: '0 0 var(--space-m) 0',
+                                lineHeight: 'var(--line-height-relaxed)',
                             }}>
-                                Готовы к новым литературным приключениям?
+                                Проголосуйте за книгу, которую хотите прочитать в этом месяце
+                            </p>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 'var(--space-xs)',
+                                color: 'var(--color-accent-warm)',
+                                fontWeight: 'var(--font-weight-medium)',
+                                fontSize: 'var(--font-size-body)',
+                            }}>
+                                Перейти к голосованию
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M5 12h14" />
+                                    <path d="M12 5l7 7-7 7" />
+                                </svg>
+                            </div>
+                        </div>
+                    </Link>
+
+                    {/* Search Books */}
+                    <Link href="/search" style={{ textDecoration: 'none' }}>
+                        <div className="card-glass" style={{
+                            padding: 'var(--space-l)',
+                            cursor: 'pointer',
+                            transition: 'all var(--duration-normal) var(--ease-out)',
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-4px)';
+                            e.currentTarget.style.boxShadow = 'var(--shadow-elev1)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)';
+                            e.currentTarget.style.boxShadow = 'var(--shadow-card)';
+                        }}>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 'var(--space-s)',
+                                marginBottom: 'var(--space-m)',
+                            }}>
+                                <div style={{
+                                    width: '48px',
+                                    height: '48px',
+                                    borderRadius: '50%',
+                                    background: 'var(--color-accent-fresh)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '1.5rem',
+                                    color: 'white',
+                                    boxShadow: '0 4px 16px 0 rgba(126, 200, 165, 0.3)',
+                                }}>
+                                    🔍
+                                </div>
+                                <div>
+                                    <h3 style={{
+                                        fontSize: 'var(--font-size-h1)',
+                                        fontWeight: 'var(--font-weight-semibold)',
+                                        color: 'var(--color-text-primary)',
+                                        margin: 0,
+                                    }}>
+                                        Поиск книг
+                                    </h3>
+                                    <p style={{
+                                        fontSize: 'var(--font-size-body)',
+                                        color: 'var(--color-text-secondary)',
+                                        margin: 0,
+                                    }}>
+                                        Найти и предложить
+                                    </p>
+                                </div>
+                            </div>
+                            <p style={{
+                                fontSize: 'var(--font-size-body)',
+                                color: 'var(--color-text-secondary)',
+                                margin: '0 0 var(--space-m) 0',
+                                lineHeight: 'var(--line-height-relaxed)',
+                            }}>
+                                Найдите интересную книгу и предложите её для чтения в клубе
+                            </p>
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 'var(--space-xs)',
+                                color: 'var(--color-accent-fresh)',
+                                fontWeight: 'var(--font-weight-medium)',
+                                fontSize: 'var(--font-size-body)',
+                            }}>
+                                Найти книгу
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M5 12h14" />
+                                    <path d="M12 5l7 7-7 7" />
+                                </svg>
+                            </div>
+                        </div>
+                    </Link>
+                </div>
+
+                {/* Secondary Actions */}
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                    gap: 'var(--space-s)',
+                    marginBottom: 'var(--space-l)',
+                }}>
+                    <Link href="/my" style={{ textDecoration: 'none' }}>
+                        <div className="card-glass" style={{
+                            padding: 'var(--space-m)',
+                            textAlign: 'center',
+                            cursor: 'pointer',
+                            transition: 'all var(--duration-normal) var(--ease-out)',
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-2px)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)';
+                        }}>
+                            <div style={{ fontSize: '2rem', marginBottom: 'var(--space-xs)' }}>📖</div>
+                            <h4 style={{
+                                fontSize: 'var(--font-size-h2)',
+                                fontWeight: 'var(--font-weight-medium)',
+                                color: 'var(--color-text-primary)',
+                                margin: '0 0 var(--space-xs) 0',
+                            }}>
+                                Мои предложения
+                            </h4>
+                            <p style={{
+                                fontSize: 'var(--font-size-caption)',
+                                color: 'var(--color-text-muted)',
+                                margin: 0,
+                            }}>
+                                Управление
+                            </p>
+                        </div>
+                    </Link>
+
+                    <Link href="/history" style={{ textDecoration: 'none' }}>
+                        <div className="card-glass" style={{
+                            padding: 'var(--space-m)',
+                            textAlign: 'center',
+                            cursor: 'pointer',
+                            transition: 'all var(--duration-normal) var(--ease-out)',
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-2px)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)';
+                        }}>
+                            <div style={{ fontSize: '2rem', marginBottom: 'var(--space-xs)' }}>📜</div>
+                            <h4 style={{
+                                fontSize: 'var(--font-size-h2)',
+                                fontWeight: 'var(--font-weight-medium)',
+                                color: 'var(--color-text-primary)',
+                                margin: '0 0 var(--space-xs) 0',
+                            }}>
+                                История
+                            </h4>
+                            <p style={{
+                                fontSize: 'var(--font-size-caption)',
+                                color: 'var(--color-text-muted)',
+                                margin: 0,
+                            }}>
+                                Прошлые итерации
+                            </p>
+                        </div>
+                    </Link>
+
+                    {user?.roles?.includes('admin') && (
+                        <Link href="/admin" style={{ textDecoration: 'none' }}>
+                            <div className="card-glass" style={{
+                                padding: 'var(--space-m)',
+                                textAlign: 'center',
+                                cursor: 'pointer',
+                                transition: 'all var(--duration-normal) var(--ease-out)',
+                                border: '1px solid var(--color-accent-warm)',
+                                background: 'rgba(240,179,90,0.05)',
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'translateY(-2px)';
+                                e.currentTarget.style.background = 'rgba(240,179,90,0.1)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.background = 'rgba(240,179,90,0.05)';
+                            }}>
+                                <div style={{ fontSize: '2rem', marginBottom: 'var(--space-xs)' }}>⚙️</div>
+                                <h4 style={{
+                                    fontSize: 'var(--font-size-h2)',
+                                    fontWeight: 'var(--font-weight-medium)',
+                                    color: 'var(--color-accent-warm)',
+                                    margin: '0 0 var(--space-xs) 0',
+                                }}>
+                                    Админ
+                                </h4>
+                                <p style={{
+                                    fontSize: 'var(--font-size-caption)',
+                                    color: 'var(--color-text-muted)',
+                                    margin: 0,
+                                }}>
+                                    Управление
+                                </p>
+                            </div>
+                        </Link>
+                    )}
+                </div>
+
+                {/* About */}
+                <div className="card-glass" style={{
+                    padding: 'var(--space-l)',
+                    textAlign: 'center',
+                }}>
+                    <h3 style={{
+                        fontSize: 'var(--font-size-h1)',
+                        fontWeight: 'var(--font-weight-semibold)',
+                        color: 'var(--color-text-primary)',
+                        margin: '0 0 var(--space-s) 0',
+                    }}>
+                        Как это работает?
+                    </h3>
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                        gap: 'var(--space-m)',
+                        marginTop: 'var(--space-l)',
+                    }}>
+                        <div style={{ textAlign: 'center' }}>
+                            <div style={{ 
+                                fontSize: '2.5rem', 
+                                marginBottom: 'var(--space-s)',
+                                filter: 'grayscale(0.2)',
+                            }}>
+                                📝
+                            </div>
+                            <h4 style={{
+                                fontSize: 'var(--font-size-h2)',
+                                fontWeight: 'var(--font-weight-medium)',
+                                color: 'var(--color-text-primary)',
+                                margin: '0 0 var(--space-xs) 0',
+                            }}>
+                                Предлагайте
+                            </h4>
+                            <p style={{
+                                fontSize: 'var(--font-size-body)',
+                                color: 'var(--color-text-secondary)',
+                                margin: 0,
+                                lineHeight: 'var(--line-height-relaxed)',
+                            }}>
+                                Найдите интересную книгу и добавьте её в список кандидатов
+                            </p>
+                        </div>
+
+                        <div style={{ textAlign: 'center' }}>
+                            <div style={{ 
+                                fontSize: '2.5rem', 
+                                marginBottom: 'var(--space-s)',
+                                filter: 'grayscale(0.2)',
+                            }}>
+                                🗳️
+                            </div>
+                            <h4 style={{
+                                fontSize: 'var(--font-size-h2)',
+                                fontWeight: 'var(--font-weight-medium)',
+                                color: 'var(--color-text-primary)',
+                                margin: '0 0 var(--space-xs) 0',
+                            }}>
+                                Голосуйте
+                            </h4>
+                            <p style={{
+                                fontSize: 'var(--font-size-body)',
+                                color: 'var(--color-text-secondary)',
+                                margin: 0,
+                                lineHeight: 'var(--line-height-relaxed)',
+                            }}>
+                                Выберите книгу, которую хотите прочитать в этом месяце
+                            </p>
+                        </div>
+
+                        <div style={{ textAlign: 'center' }}>
+                            <div style={{ 
+                                fontSize: '2.5rem', 
+                                marginBottom: 'var(--space-s)',
+                                filter: 'grayscale(0.2)',
+                            }}>
+                                📚
+                            </div>
+                            <h4 style={{
+                                fontSize: 'var(--font-size-h2)',
+                                fontWeight: 'var(--font-weight-medium)',
+                                color: 'var(--color-text-primary)',
+                                margin: '0 0 var(--space-xs) 0',
+                            }}>
+                                Читайте
+                            </h4>
+                            <p style={{
+                                fontSize: 'var(--font-size-body)',
+                                color: 'var(--color-text-secondary)',
+                                margin: 0,
+                                lineHeight: 'var(--line-height-relaxed)',
+                            }}>
+                                Наслаждайтесь чтением и обсуждайте книгу с сообществом
                             </p>
                         </div>
                     </div>
-                )}
-
-                {/* Карточки действий */}
-                <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '16px',
-                    marginBottom: '48px'
-                }}>
-                    <Link href="/search" style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '16px',
-                        padding: '20px',
-                        borderRadius: '16px',
-                        textDecoration: 'none',
-                        color: 'inherit',
-                        transition: 'all 0.25s ease',
-                        border: '1px solid #e5e7eb',
-                        background: '#ffffff',
-                        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
-                    }} onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-4px)';
-                        e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
-                        e.currentTarget.style.borderColor = '#d1d5db';
-                        e.currentTarget.style.background = 'linear-gradient(135deg, #fef7ee 0%, #feebd4 100%)';
-                    }} onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
-                        e.currentTarget.style.borderColor = '#e5e7eb';
-                        e.currentTarget.style.background = '#ffffff';
-                    }}>
-                        <div style={{ fontSize: '2rem', flexShrink: 0 }}>🔍</div>
-                        <div style={{ flex: 1 }}>
-                            <h3 style={{
-                                fontSize: '18px',
-                                fontWeight: '600',
-                                color: '#1f2937',
-                                margin: '0 0 4px 0'
-                            }}>Найти книгу</h3>
-                            <p style={{
-                                fontSize: '14px',
-                                color: '#6b7280',
-                                margin: '0',
-                                lineHeight: '1.5'
-                            }}>
-                                Ищите и предлагайте интересные книги для чтения
-                            </p>
-                        </div>
-                        <div style={{
-                            fontSize: '20px',
-                            color: '#9ca3af',
-                            transition: 'transform 0.15s ease'
-                        }}>→</div>
-                    </Link>
-
-                    <Link href="/iteration" style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '16px',
-                        padding: '20px',
-                        borderRadius: '16px',
-                        textDecoration: 'none',
-                        color: 'inherit',
-                        transition: 'all 0.25s ease',
-                        border: '1px solid #e5e7eb',
-                        background: '#ffffff',
-                        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
-                    }} onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-4px)';
-                        e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
-                        e.currentTarget.style.borderColor = '#d1d5db';
-                        e.currentTarget.style.background = 'linear-gradient(135deg, #f0fdf4 0%, #f0fdf9 100%)';
-                    }} onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
-                        e.currentTarget.style.borderColor = '#e5e7eb';
-                        e.currentTarget.style.background = '#ffffff';
-                    }}>
-                        <div style={{ fontSize: '2rem', flexShrink: 0 }}>🗳️</div>
-                        <div style={{ flex: 1 }}>
-                            <h3 style={{
-                                fontSize: '18px',
-                                fontWeight: '600',
-                                color: '#1f2937',
-                                margin: '0 0 4px 0'
-                            }}>Голосование</h3>
-                            <p style={{
-                                fontSize: '14px',
-                                color: '#6b7280',
-                                margin: '0',
-                                lineHeight: '1.5'
-                            }}>
-                                Выберите книгу для следующего чтения
-                            </p>
-                        </div>
-                        <div style={{
-                            fontSize: '20px',
-                            color: '#9ca3af',
-                            transition: 'transform 0.15s ease'
-                        }}>→</div>
-                    </Link>
-
-                    <Link href="/my" style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '16px',
-                        padding: '20px',
-                        borderRadius: '16px',
-                        textDecoration: 'none',
-                        color: 'inherit',
-                        transition: 'all 0.25s ease',
-                        border: '1px solid #e5e7eb',
-                        background: '#ffffff',
-                        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
-                    }} onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-4px)';
-                        e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
-                        e.currentTarget.style.borderColor = '#d1d5db';
-                        e.currentTarget.style.background = 'linear-gradient(135deg, #fffbeb 0%, #fffaeb 100%)';
-                    }} onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
-                        e.currentTarget.style.borderColor = '#e5e7eb';
-                        e.currentTarget.style.background = '#ffffff';
-                    }}>
-                        <div style={{ fontSize: '2rem', flexShrink: 0 }}>📖</div>
-                        <div style={{ flex: 1 }}>
-                            <h3 style={{
-                                fontSize: '18px',
-                                fontWeight: '600',
-                                color: '#1f2937',
-                                margin: '0 0 4px 0'
-                            }}>Мои предложения</h3>
-                            <p style={{
-                                fontSize: '14px',
-                                color: '#6b7280',
-                                margin: '0',
-                                lineHeight: '1.5'
-                            }}>
-                                Управляйте своими предложенными книгами
-                            </p>
-                        </div>
-                        <div style={{
-                            fontSize: '20px',
-                            color: '#9ca3af',
-                            transition: 'transform 0.15s ease'
-                        }}>→</div>
-                    </Link>
-
-                    <Link href="/history" style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '16px',
-                        padding: '20px',
-                        borderRadius: '16px',
-                        textDecoration: 'none',
-                        color: 'inherit',
-                        transition: 'all 0.25s ease',
-                        border: '1px solid #e5e7eb',
-                        background: '#ffffff',
-                        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
-                    }} onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-4px)';
-                        e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
-                        e.currentTarget.style.borderColor = '#d1d5db';
-                        e.currentTarget.style.background = 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)';
-                    }} onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
-                        e.currentTarget.style.borderColor = '#e5e7eb';
-                        e.currentTarget.style.background = '#ffffff';
-                    }}>
-                        <div style={{ fontSize: '2rem', flexShrink: 0 }}>🏆</div>
-                        <div style={{ flex: 1 }}>
-                            <h3 style={{
-                                fontSize: '18px',
-                                fontWeight: '600',
-                                color: '#1f2937',
-                                margin: '0 0 4px 0'
-                            }}>История</h3>
-                            <p style={{
-                                fontSize: '14px',
-                                color: '#6b7280',
-                                margin: '0',
-                                lineHeight: '1.5'
-                            }}>
-                                Посмотрите результаты прошлых голосований
-                            </p>
-                        </div>
-                        <div style={{
-                            fontSize: '20px',
-                            color: '#9ca3af',
-                            transition: 'transform 0.15s ease'
-                        }}>→</div>
-                    </Link>
                 </div>
-
-                {/* Советы */}
-                <div style={{
-                    background: '#ffffff',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '16px',
-                    padding: '20px',
-                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
-                }}>
-                    <h3 style={{
-                        fontSize: '20px',
-                        fontWeight: '600',
-                        color: '#1f2937',
-                        margin: '0 0 16px 0'
-                    }}>💡 Как это работает?</h3>
-                    <ul style={{
-                        listStyle: 'none',
-                        padding: '0',
-                        margin: '0'
-                    }}>
-                        {[
-                            'Найдите и предложите интересную книгу',
-                            'Участвуйте в голосовании за следующую книгу',
-                            'Читайте и обсуждайте выбранные произведения',
-                            'Открывайте новых авторов и жанры'
-                        ].map((item, index) => (
-                            <li key={index} style={{
-                                padding: '8px 0',
-                                color: '#374151',
-                                position: 'relative',
-                                paddingLeft: '20px'
-                            }}>
-                                <span style={{
-                                    position: 'absolute',
-                                    left: '0',
-                                    color: '#f26419',
-                                    fontWeight: '600'
-                                }}>✓</span>
-                                {item}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </main>
+            </div>
         </div>
     );
 }

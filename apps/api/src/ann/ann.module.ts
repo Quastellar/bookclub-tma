@@ -7,5 +7,6 @@ import { ConfigModule } from '@nestjs/config';
   imports: [ConfigModule.forRoot({ isGlobal: true })],
   providers: [AnnService],
   controllers: [AnnController],
+  exports: [AnnService],
 })
 export class AnnModule {}

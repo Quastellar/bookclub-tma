@@ -14,6 +14,7 @@ interface BookCardProps {
   variant?: 'default' | 'compact' | 'voting';
   className?: string;
   isSelected?: boolean;
+  isInteractive?: boolean;
   badges?: string[];
 }
 
@@ -29,9 +30,10 @@ export default function BookCard({
   variant = 'default',
   className = '',
   isSelected = false,
+  isInteractive = false,
   badges = [],
 }: BookCardProps) {
-  const isClickable = !!onClick;
+  const isClickable = !!onClick || isInteractive;
   
   const getCoverSize = () => {
     switch (variant) {

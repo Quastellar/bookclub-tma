@@ -66,28 +66,7 @@ export default function SearchPage() {
         }
     }, [isReady, tg]);
 
-    // Дебаунсинг поиска
-    useEffect(() => {
-        if (!q.trim()) {
-            setItems([]);
-            setHasSearched(false);
-            return;
-        }
-
-        const timeoutId = setTimeout(() => {
-            search(q);
-        }, 500);
-
-        return () => clearTimeout(timeoutId);
-    }, [q]);
-
-    // Сохранение поискового запроса
-    useEffect(() => {
-        if (q && typeof window !== 'undefined') {
-            localStorage.setItem('lastSearchQuery', q);
-        }
-    }, [q]);
-
+    // Функция поиска
     const search = useCallback(async (query: string) => {
         if (!query.trim() || query.length < 2) return;
 
@@ -120,6 +99,28 @@ export default function SearchPage() {
             setLoading(false);
         }
     }, [tg]);
+
+    // Дебаунсинг поиска
+    useEffect(() => {
+        if (!q.trim()) {
+            setItems([]);
+            setHasSearched(false);
+            return;
+        }
+
+        const timeoutId = setTimeout(() => {
+            search(q);
+        }, 500);
+
+        return () => clearTimeout(timeoutId);
+    }, [q, search]);
+
+    // Сохранение поискового запроса
+    useEffect(() => {
+        if (q && typeof window !== 'undefined') {
+            localStorage.setItem('lastSearchQuery', q);
+        }
+    }, [q]);
 
     const addBook = useCallback(async (item: SearchItem) => {
         try {

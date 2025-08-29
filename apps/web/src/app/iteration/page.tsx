@@ -41,7 +41,6 @@ type IterationDto = {
 };
 
 export default function IterationPage() {
-    const { t } = useI18n();
     const { tg, isReady } = useTelegramTheme();
     
     const [iter, setIter] = useState<IterationDto | null>(null);
@@ -51,8 +50,6 @@ export default function IterationPage() {
     const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
     const [showThankYou, setShowThankYou] = useState(false);
     const [isClient, setIsClient] = useState(false);
-
-    const user = isClient ? getUser() : null;
 
     useEffect(() => {
         setIsClient(true);
@@ -105,27 +102,7 @@ export default function IterationPage() {
         }
     }, [isClient, loadIteration]);
 
-    // Обновление MainButton
-    useEffect(() => {
-        if (!isReady || !tg || !isClient) return;
-
-        const canVote = iter?.status === 'OPEN' && selectedCandidateId && selectedCandidateId !== iter?.myVoteCandidateId;
-        
-        if (canVote) {
-            tg.MainButton.setText('Проголосовать');
-            tg.MainButton.show();
-            
-            const handleVote = () => submitVote();
-            tg.MainButton.onClick(handleVote);
-            
-            return () => {
-                tg.MainButton.offClick(handleVote);
-            };
-        } else {
-            tg.MainButton.hide();
-        }
-    }, [iter, selectedCandidateId, isReady, tg, isClient]);
-
+    // Функция голосования
     const submitVote = useCallback(async () => {
         if (!selectedCandidateId || !iter || voting) return;
 
@@ -199,6 +176,27 @@ export default function IterationPage() {
             setVoting(false);
         }
     }, [selectedCandidateId, iter, voting, tg, loadIteration]);
+
+    // Обновление MainButton
+    useEffect(() => {
+        if (!isReady || !tg || !isClient) return;
+
+        const canVote = iter?.status === 'OPEN' && selectedCandidateId && selectedCandidateId !== iter?.myVoteCandidateId;
+        
+        if (canVote) {
+            tg.MainButton.setText('Проголосовать');
+            tg.MainButton.show();
+            
+            const handleVote = () => submitVote();
+            tg.MainButton.onClick(handleVote);
+            
+            return () => {
+                tg.MainButton.offClick(handleVote);
+            };
+        } else {
+            tg.MainButton.hide();
+        }
+    }, [iter, selectedCandidateId, isReady, tg, isClient, submitVote]);
 
     const getVotePercentage = (candidateId: string): number => {
         if (!iter?.voteCounts) return 0;

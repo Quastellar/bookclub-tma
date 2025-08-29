@@ -28,7 +28,6 @@ export default function MyProposalsPage() {
     const { t } = useI18n();
     const [items, setItems] = useState<CandidateDto[]>([]);
     const [loading, setLoading] = useState(false);
-    const [ready, setReady] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [me, setMe] = useState<import('@/lib/auth').TmaUser | null>(null);
     const [isClient, setIsClient] = useState(false);
@@ -70,14 +69,12 @@ export default function MyProposalsPage() {
         tmaLogin()
             .then((d) => { 
                 setMe(d.user || null); 
-                setReady(true); 
             })
             .catch(() => {
                 // Безопасная инициализация пользователя на клиенте
                 if (typeof window !== 'undefined') {
                     setMe(getUser());
                 }
-                setReady(true);
             })
             .finally(load);
     }, [load]);

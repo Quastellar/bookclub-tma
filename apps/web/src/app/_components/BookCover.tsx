@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 interface BookCoverProps {
     src: string | null;
@@ -110,19 +111,51 @@ export default function BookCover({ src, alt, width, height, fallbackText = '�
             
             {/* Изображение */}
             {imageSrc && (
-                <img
+                <Image
                     src={imageSrc}
                     alt={alt}
+                    width={width}
+                    height={height}
                     style={{ 
-                        width: '100%',
-                        height: '100%',
                         objectFit: 'cover', 
                         borderRadius: 8,
                         opacity: loading ? 0 : 1,
                         transition: 'opacity 0.3s ease',
-                        border: '1px solid #e5e7eb',
+                        border: '1px solid var(--color-border-subtle)',
                     }}
+                    onLoad={() => setLoading(false)}
+                    onError={() => {
+                        setError(true);
+                        setLoading(false);
+                        setImageSrc(null);
+                    }}
+                    priority={false}
+                    quality={75}
                 />
+            )}
+            
+            {/* Fallback - показываем если нет src или произошла ошибка */}
+            {(!src || (error && !loading)) && (
+                <div 
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        background: 'var(--color-bg-layer)',
+                        border: '1px solid var(--color-border-subtle)',
+                        borderRadius: 8,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: width > 60 ? '2rem' : '1.5rem',
+                        color: 'var(--color-text-muted)',
+                        textShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                    }}
+                >
+                    {fallbackText}
+                </div>
             )}
         </div>
     );

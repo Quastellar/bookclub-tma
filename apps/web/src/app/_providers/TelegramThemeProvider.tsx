@@ -27,6 +27,9 @@ interface TelegramWebApp {
   colorScheme: 'light' | 'dark';
   onEvent: (eventType: string, eventHandler: () => void) => void;
   offEvent: (eventType: string, eventHandler: () => void) => void;
+  showAlert: (message: string, callback?: () => void) => void;
+  showConfirm: (message: string, callback?: (confirmed: boolean) => void) => void;
+  showPopup: (params: { title?: string; message: string; buttons?: Array<{id?: string; type?: string; text: string}>}, callback?: (buttonId: string) => void) => void;
   MainButton: {
     text: string;
     color: string;

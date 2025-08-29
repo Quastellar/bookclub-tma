@@ -161,13 +161,17 @@ export default function SearchPage() {
             const candidateData = normalizeForCandidate(item);
             console.log('[ADD_BOOK] Candidate data:', candidateData);
             
+            // Обернуть в объект с полем book, как ожидает бэкенд
+            const requestBody = { book: candidateData };
+            console.log('[ADD_BOOK] Request body:', requestBody);
+            
             const response = await apiFetch(`${API}/candidates`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(candidateData),
+                body: JSON.stringify(requestBody),
                 label: 'candidates.create'
             });
 

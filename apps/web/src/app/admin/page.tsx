@@ -350,7 +350,7 @@ export default function AdminPage() {
                         color: '#1f2937',
                         margin: '0 0 16px 0'
                     }}>
-шв                         Текущая итерация
+                        Текущая итерация
                     </h2>
 
                     {currentIter ? (

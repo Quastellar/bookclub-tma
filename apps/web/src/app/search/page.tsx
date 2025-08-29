@@ -99,8 +99,32 @@ export default function SearchPage() {
 
         setLoading(true);
         try {
-            const response = await fetch(`${API}/books/search?q=${encodeURIComponent(query)}`);
-            if (!response.ok) throw new Error('Search failed');
+            const url = `${API}/books/search?q=${encodeURIComponent(query)}`;
+            console.log('[SEARCH] API URL:', API);
+            console.log('[SEARCH] Full URL:', url);
+            console.log('[SEARCH] Query:', query);
+            
+            // Проверим, доступен ли API вообще
+            try {
+                const testResponse = await fetch(`${API}/books/test`);
+                console.log('[SEARCH] Test endpoint status:', testResponse.status);
+                if (testResponse.ok) {
+                    const testData = await testResponse.json();
+                    console.log('[SEARCH] Test endpoint data:', testData);
+                }
+            } catch (testError) {
+                console.error('[SEARCH] Test endpoint failed:', testError);
+            }
+            
+            const response = await fetch(url);
+            console.log('[SEARCH] Response status:', response.status);
+            console.log('[SEARCH] Response ok:', response.ok);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('[SEARCH] Error response:', errorText);
+                throw new Error(`Search failed: ${response.status} ${errorText}`);
+            }
             
             const data = await response.json();
             setItems(data.items || []);
@@ -275,6 +299,36 @@ export default function SearchPage() {
                             <p className="search-placeholder-text">
                                 Введите название книги или имя автора для поиска
                             </p>
+                            <button 
+                                onClick={async () => {
+                                    try {
+                                        console.log('[TEST] Testing API connection...');
+                                        const response = await fetch(`${API}/books/test`);
+                                        console.log('[TEST] Status:', response.status);
+                                        if (response.ok) {
+                                            const data = await response.json();
+                                            console.log('[TEST] Data:', data);
+                                            alert(`API работает! Статус: ${response.status}, Сообщение: ${data.message}`);
+                                        } else {
+                                            alert(`API недоступен. Статус: ${response.status}`);
+                                        }
+                                    } catch (error) {
+                                        console.error('[TEST] Error:', error);
+                                        alert(`Ошибка соединения: ${error}`);
+                                    }
+                                }}
+                                style={{
+                                    marginTop: '16px',
+                                    padding: '8px 16px',
+                                    backgroundColor: '#f26419',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                Тест API
+                            </button>
                         </div>
                     ) : null}
                 </div>

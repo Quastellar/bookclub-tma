@@ -7,6 +7,11 @@ const nextConfig = {
         styledJsx: true,
     },
     
+    // Переменные окружения
+    env: {
+        NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://bookclub-tma.onrender.com',
+    },
+    
     // Разрешаем отдачу dev-ресурсов со страницы, открытой по домену туннеля (исправляет dev-предупреждение)
     // Замените на ваш фактический фронтовый URL из Cloudflare Tunnel
     allowedDevOrigins: [

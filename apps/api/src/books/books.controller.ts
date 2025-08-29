@@ -5,9 +5,9 @@ import { BooksService } from './books.service';
 export class BooksController {
   constructor(private readonly books: BooksService) {}
 
-  @Get('lookup')
-  async lookup(@Query('q') q?: string) {
-    console.log('Books lookup called with q:', q);
+  @Get('search')
+  async search(@Query('q') q?: string) {
+    console.log('[BOOKS][SEARCH] Books search called with q:', q);
 
     const query = (q || '').trim();
     console.log('Processed query:', query);
@@ -42,6 +42,12 @@ export class BooksController {
       console.error('Books lookup error:', error);
       throw error;
     }
+  }
+
+  @Get('lookup')
+  async lookup(@Query('q') q?: string) {
+    // Алиас для совместимости
+    return this.search(q);
   }
 
   @Get('test')

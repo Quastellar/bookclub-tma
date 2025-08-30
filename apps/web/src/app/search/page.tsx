@@ -7,6 +7,7 @@ import { useI18n } from '../_i18n/I18nProvider';
 import { apiFetch } from '@/lib/api';
 import { useTelegramTheme } from '../_providers/TelegramThemeProvider';
 import { GlassHeader } from '../_components/GlassHeader';
+import { BurgerMenu } from '../_components/BurgerMenu';
 import BookCard from '../_components/BookCard';
 
 const API = process.env.NEXT_PUBLIC_API_URL!;
@@ -365,6 +366,7 @@ export default function SearchPage() {
                 title="Поиск книг"
                 subtitle="Найдите книгу для следующего чтения"
                 showBack
+                action={<BurgerMenu />}
             />
             
             <div className="container">

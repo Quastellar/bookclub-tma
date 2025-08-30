@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { tmaLogin, TmaUser } from '@/lib/auth';
 import { useTelegramTheme } from './_providers/TelegramThemeProvider';
 import { GlassHeader } from './_components/GlassHeader';
+import { BurgerMenu } from './_components/BurgerMenu';
 
 export default function HomePage() {
     const { tg, isReady } = useTelegramTheme();
@@ -76,6 +77,7 @@ export default function HomePage() {
             <GlassHeader 
                 title="Книжный клуб"
                 subtitle={user ? `Добро пожаловать, ${user.name || user.username || 'Читатель'}!` : 'Добро пожаловать!'}
+                action={<BurgerMenu />}
             />
             
             <div className="container">
@@ -393,7 +395,7 @@ export default function HomePage() {
                                 </p>
                             </div>
                         </div>
-                    </Link>
+                </Link>
 
                     {user?.roles?.includes('admin') && (
                         <Link href="/admin" style={{ textDecoration: 'none', display: 'flex' }}>
@@ -516,10 +518,10 @@ export default function HomePage() {
                             }}>
                                 Выберите книгу, которую хотите прочитать в этом месяце
                             </p>
-                        </div>
+            </div>
 
                         <div style={{ textAlign: 'center' }}>
-                            <div style={{ 
+            <div style={{
                                 fontSize: '2.5rem', 
                                 marginBottom: 'var(--space-s)',
                                 filter: 'grayscale(0.2)',

@@ -2,14 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { getUser } from '@/lib/auth';
 
 const navItems = [
   {
     href: '/',
     label: 'Главная',
     icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
         <polyline points="9,22 9,12 15,12 15,22"/>
       </svg>
@@ -19,7 +18,7 @@ const navItems = [
     href: '/search',
     label: 'Поиск',
     icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <circle cx="11" cy="11" r="8"/>
         <path d="m21 21-4.35-4.35"/>
       </svg>
@@ -27,33 +26,23 @@ const navItems = [
   },
   {
     href: '/iteration',
-    label: 'Голос',
+    label: 'Голосование',
     icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M9 11H5a2 2 0 0 0-2 2v3c0 1.1.9 2 2 2h4l6.29 6.29c.94.94 2.48.94 3.42 0s.94-2.48 0-3.42L12 14v-3c0-1.1-.9-2-2-2z"/>
-        <path d="m17 10 2-2v4l-2-2"/>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="m9 12 2 2 4-4"/>
+        <path d="M21 12c.552 0 1-.448 1-1V5c0-.552-.448-1-1-1H3c-.552 0-1 .448-1 1v6c0 .552.448 1 1 1h18z"/>
+        <path d="M3 12v7c0 .552.448 1 1 1h16c.552 0 1-.448 1-1v-7"/>
       </svg>
     ),
   },
   {
     href: '/my',
-    label: 'Мои предложения',
+    label: 'Мои книги',
     icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="8.5" cy="7" r="4"/>
         <path d="m22 21-3-3"/>
-      </svg>
-    ),
-  },
-  {
-    href: '/history',
-    label: 'Прошлые итерации',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M3 3v5h5"/>
-        <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/>
-        <path d="M12 7v5l4 2"/>
       </svg>
     ),
   },
@@ -61,24 +50,8 @@ const navItems = [
 
 export default function Nav() {
   const pathname = usePathname();
-  const user = typeof window !== 'undefined' ? getUser() : null;
-  const isAdmin = user?.roles?.includes('admin') ?? false;
 
   const isActive = (href: string) => pathname === href;
-
-  const items = [...navItems];
-  if (isAdmin) {
-    items.splice(-1, 0, {
-      href: '/admin',
-      label: 'Управление',
-      icon: (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
-          <path d="M9 12l2 2 4-4"/>
-        </svg>
-      ),
-    });
-  }
 
   return (
     <nav style={{
@@ -102,7 +75,7 @@ export default function Nav() {
         margin: '0 auto',
         gap: '2px'
       }}>
-        {items.map((item) => {
+        {navItems.map((item) => {
           const active = isActive(item.href);
           return (
             <Link
@@ -114,9 +87,9 @@ export default function Nav() {
                 alignItems: 'center',
                 justifyContent: 'flex-start',
                 gap: '4px',
-                padding: '8px 4px',
-                width: '70px',
-                height: '56px',
+                padding: '10px 6px',
+                minWidth: '60px',
+                height: '58px',
                 textDecoration: 'none',
                 color: active ? 'var(--color-accent-warm)' : 'var(--color-text-muted)',
                 transition: 'all 0.25s ease',
@@ -160,18 +133,17 @@ export default function Nav() {
               </div>
               
               <span style={{
-                fontSize: '11px',
-                fontWeight: '500',
-                lineHeight: '12px',
+                fontSize: '10px',
+                fontWeight: '600',
+                lineHeight: '1.2',
                 textAlign: 'center',
                 width: '100%',
-                height: '24px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                whiteSpace: 'nowrap',
                 overflow: 'hidden',
-                wordBreak: 'break-word',
-                hyphens: 'auto'
+                textOverflow: 'ellipsis'
               }}>
                 {item.label}
               </span>

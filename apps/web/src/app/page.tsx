@@ -303,13 +303,19 @@ export default function HomePage() {
                     gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
                     gap: 'var(--space-s)',
                     marginBottom: 'var(--space-l)',
+                    alignItems: 'stretch', // Растягиваем все элементы до одинаковой высоты
                 }}>
-                    <Link href="/my" style={{ textDecoration: 'none' }}>
+                    <Link href="/my" style={{ textDecoration: 'none', display: 'flex' }}>
                         <div className="card-glass" style={{
                             padding: 'var(--space-m)',
                             textAlign: 'center',
                             cursor: 'pointer',
                             transition: 'all var(--duration-normal) var(--ease-out)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            minHeight: '120px', // Фиксированная минимальная высота
+                            width: '100%',
                         }}
                         onMouseEnter={(e) => {
                             e.currentTarget.style.transform = 'translateY(-2px)';
@@ -317,31 +323,44 @@ export default function HomePage() {
                         onMouseLeave={(e) => {
                             e.currentTarget.style.transform = 'translateY(0)';
                         }}>
-                            <div style={{ fontSize: '2rem', marginBottom: 'var(--space-xs)' }}>📖</div>
-                            <h4 style={{
-                                fontSize: 'var(--font-size-h2)',
-                                fontWeight: 'var(--font-weight-medium)',
-                                color: 'var(--color-text-primary)',
-                                margin: '0 0 var(--space-xs) 0',
-                            }}>
-                                Мои предложения
-                            </h4>
-                            <p style={{
-                                fontSize: 'var(--font-size-caption)',
-                                color: 'var(--color-text-muted)',
-                                margin: 0,
-                            }}>
-                                Управление
-                            </p>
+                            <div style={{ 
+                                fontSize: '2rem', 
+                                marginBottom: 'var(--space-xs)',
+                                flexShrink: 0,
+                            }}>📖</div>
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                <h4 style={{
+                                    fontSize: 'var(--font-size-h2)',
+                                    fontWeight: 'var(--font-weight-medium)',
+                                    color: 'var(--color-text-primary)',
+                                    margin: '0 0 var(--space-xs) 0',
+                                    lineHeight: '1.2',
+                                }}>
+                                    Мои<br/>предложения
+                                </h4>
+                                <p style={{
+                                    fontSize: 'var(--font-size-caption)',
+                                    color: 'var(--color-text-muted)',
+                                    margin: 0,
+                                    flexShrink: 0,
+                                }}>
+                                    Управление
+                                </p>
+                            </div>
                         </div>
                     </Link>
 
-                    <Link href="/history" style={{ textDecoration: 'none' }}>
+                    <Link href="/history" style={{ textDecoration: 'none', display: 'flex' }}>
                         <div className="card-glass" style={{
                             padding: 'var(--space-m)',
                             textAlign: 'center',
                             cursor: 'pointer',
                             transition: 'all var(--duration-normal) var(--ease-out)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            minHeight: '120px', // Фиксированная минимальная высота
+                            width: '100%',
                         }}
                         onMouseEnter={(e) => {
                             e.currentTarget.style.transform = 'translateY(-2px)';
@@ -349,27 +368,35 @@ export default function HomePage() {
                         onMouseLeave={(e) => {
                             e.currentTarget.style.transform = 'translateY(0)';
                         }}>
-                            <div style={{ fontSize: '2rem', marginBottom: 'var(--space-xs)' }}>📜</div>
-                            <h4 style={{
-                                fontSize: 'var(--font-size-h2)',
-                                fontWeight: 'var(--font-weight-medium)',
-                                color: 'var(--color-text-primary)',
-                                margin: '0 0 var(--space-xs) 0',
-                            }}>
-                                История
-                            </h4>
-                            <p style={{
-                                fontSize: 'var(--font-size-caption)',
-                                color: 'var(--color-text-muted)',
-                                margin: 0,
-                            }}>
-                                Прошлые итерации
-                            </p>
+                            <div style={{ 
+                                fontSize: '2rem', 
+                                marginBottom: 'var(--space-xs)',
+                                flexShrink: 0,
+                            }}>📜</div>
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                <h4 style={{
+                                    fontSize: 'var(--font-size-h2)',
+                                    fontWeight: 'var(--font-weight-medium)',
+                                    color: 'var(--color-text-primary)',
+                                    margin: '0 0 var(--space-xs) 0',
+                                    lineHeight: '1.2',
+                                }}>
+                                    История
+                                </h4>
+                                <p style={{
+                                    fontSize: 'var(--font-size-caption)',
+                                    color: 'var(--color-text-muted)',
+                                    margin: 0,
+                                    flexShrink: 0,
+                                }}>
+                                    Прошлые итерации
+                                </p>
+                            </div>
                         </div>
                     </Link>
 
                     {user?.roles?.includes('admin') && (
-                        <Link href="/admin" style={{ textDecoration: 'none' }}>
+                        <Link href="/admin" style={{ textDecoration: 'none', display: 'flex' }}>
                             <div className="card-glass" style={{
                                 padding: 'var(--space-m)',
                                 textAlign: 'center',
@@ -377,6 +404,11 @@ export default function HomePage() {
                                 transition: 'all var(--duration-normal) var(--ease-out)',
                                 border: '1px solid var(--color-accent-warm)',
                                 background: 'rgba(240,179,90,0.05)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between',
+                                minHeight: '120px', // Фиксированная минимальная высота
+                                width: '100%',
                             }}
                             onMouseEnter={(e) => {
                                 e.currentTarget.style.transform = 'translateY(-2px)';
@@ -386,22 +418,30 @@ export default function HomePage() {
                                 e.currentTarget.style.transform = 'translateY(0)';
                                 e.currentTarget.style.background = 'rgba(240,179,90,0.05)';
                             }}>
-                                <div style={{ fontSize: '2rem', marginBottom: 'var(--space-xs)' }}>⚙️</div>
-                                <h4 style={{
-                                    fontSize: 'var(--font-size-h2)',
-                                    fontWeight: 'var(--font-weight-medium)',
-                                    color: 'var(--color-accent-warm)',
-                                    margin: '0 0 var(--space-xs) 0',
-                                }}>
-                                    Админ
-                                </h4>
-                                <p style={{
-                                    fontSize: 'var(--font-size-caption)',
-                                    color: 'var(--color-text-muted)',
-                                    margin: 0,
-                                }}>
-                                    Управление
-                                </p>
+                                <div style={{ 
+                                    fontSize: '2rem', 
+                                    marginBottom: 'var(--space-xs)',
+                                    flexShrink: 0,
+                                }}>⚙️</div>
+                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                    <h4 style={{
+                                        fontSize: 'var(--font-size-h2)',
+                                        fontWeight: 'var(--font-weight-medium)',
+                                        color: 'var(--color-accent-warm)',
+                                        margin: '0 0 var(--space-xs) 0',
+                                        lineHeight: '1.2',
+                                    }}>
+                                        Админ
+                                    </h4>
+                                    <p style={{
+                                        fontSize: 'var(--font-size-caption)',
+                                        color: 'var(--color-text-muted)',
+                                        margin: 0,
+                                        flexShrink: 0,
+                                    }}>
+                                        Управление
+                                    </p>
+                                </div>
                             </div>
                         </Link>
                     )}

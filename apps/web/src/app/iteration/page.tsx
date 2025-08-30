@@ -47,7 +47,7 @@ export default function IterationPage() {
     const [loading, setLoading] = useState(true);
     const [voting, setVoting] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
+    const [selectedCandidateIds, setSelectedCandidateIds] = useState<Set<string>>(new Set());
     const [showThankYou, setShowThankYou] = useState(false);
     const [isClient, setIsClient] = useState(false);
 
@@ -86,7 +86,10 @@ export default function IterationPage() {
             
             const data = await res.json();
             setIter(data);
-            setSelectedCandidateId(data.myVoteCandidateId);
+            // Если уже проголосовал, устанавливаем выбранную книгу
+            if (data.myVoteCandidateId) {
+                setSelectedCandidateIds(new Set([data.myVoteCandidateId]));
+            }
             
         } catch (e) {
             console.error('[ITERATION] Load failed:', e);
@@ -104,7 +107,7 @@ export default function IterationPage() {
 
     // Функция голосования
     const submitVote = useCallback(async () => {
-        if (!selectedCandidateId || !iter || voting) return;
+        if (selectedCandidateIds.size === 0 || !iter || voting) return;
 
         setVoting(true);
         
@@ -124,13 +127,18 @@ export default function IterationPage() {
                 tg.HapticFeedback.impactOccurred('light');
             }
 
+            // Отправляем голоса за все выбранные книги
+            const candidateIds = Array.from(selectedCandidateIds);
+            
+            // Пока API принимает только один голос, отправляем первый выбранный
+            // TODO: В будущем можно обновить API для поддержки множественного голосования
             const res = await apiFetch(`${API}/votes`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ candidateId: selectedCandidateId }),
+                body: JSON.stringify({ candidateId: candidateIds[0] }),
                 label: 'votes.create'
             });
 
@@ -175,16 +183,22 @@ export default function IterationPage() {
         } finally {
             setVoting(false);
         }
-    }, [selectedCandidateId, iter, voting, tg, loadIteration]);
+    }, [selectedCandidateIds, iter, voting, tg, loadIteration]);
 
     // Обновление MainButton
     useEffect(() => {
         if (!isReady || !tg || !isClient) return;
 
-        const canVote = iter?.status === 'OPEN' && selectedCandidateId && selectedCandidateId !== iter?.myVoteCandidateId;
+        const canVote = iter?.status === 'OPEN' && 
+                       selectedCandidateIds.size > 0 && 
+                       !iter?.myVoteCandidateId; // Нельзя голосовать повторно
         
         if (canVote) {
-            tg.MainButton.setText('Проголосовать');
+            const buttonText = selectedCandidateIds.size === 1 
+                ? 'Проголосовать' 
+                : `Проголосовать (${selectedCandidateIds.size})`;
+            
+            tg.MainButton.setText(buttonText);
             tg.MainButton.show();
             
             const handleVote = () => submitVote();
@@ -196,7 +210,7 @@ export default function IterationPage() {
         } else {
             tg.MainButton.hide();
         }
-    }, [iter, selectedCandidateId, isReady, tg, isClient, submitVote]);
+    }, [iter, selectedCandidateIds, isReady, tg, isClient, submitVote]);
 
     const getVotePercentage = (candidateId: string): number => {
         if (!iter?.voteCounts) return 0;
@@ -261,7 +275,7 @@ export default function IterationPage() {
                             fontSize: 'var(--font-size-body)',
                             color: 'var(--color-text-secondary)',
                         }}>
-                            {new Date(iter.meetingDate).toLocaleDateString('ru-RU')}
+                            {new Date(iter.meetingDate).toLocaleDateString('ru-RU', { timeZone: 'UTC' })}
                         </span>
                     </>
                 )}
@@ -407,7 +421,14 @@ export default function IterationPage() {
         );
     }
 
-    const candidates = iter.Candidates || [];
+    // Получаем ID текущего пользователя
+    const currentUser = isClient ? getUser() : null;
+    const currentUserId = currentUser?.id;
+    
+    // Фильтруем кандидатов - убираем книги, добавленные текущим пользователем
+    const candidates = (iter.Candidates || []).filter(candidate => 
+        candidate.AddedBy?.id !== currentUserId
+    );
     const totalVotes = Object.values(iter.voteCounts || {}).reduce((sum, count) => sum + count, 0);
 
     return (
@@ -464,7 +485,7 @@ export default function IterationPage() {
                     }}
                 >
                     {candidates.map((candidate, index) => {
-                        const isSelected = selectedCandidateId === candidate.id;
+                        const isSelected = selectedCandidateIds.has(candidate.id);
                         const isMyVote = iter.myVoteCandidateId === candidate.id;
                         const voteCount = iter.voteCounts?.[candidate.id] || 0;
                         const percentage = getVotePercentage(candidate.id);
@@ -486,7 +507,19 @@ export default function IterationPage() {
                                     variant="voting"
                                     isSelected={isSelected || isMyVote}
                                     isInteractive={iter.status === 'OPEN'}
-                                    onClick={iter.status === 'OPEN' ? () => setSelectedCandidateId(candidate.id) : undefined}
+                                    onClick={iter.status === 'OPEN' && !iter.myVoteCandidateId ? () => {
+                                        setSelectedCandidateIds(prev => {
+                                            const newSet = new Set(prev);
+                                            if (newSet.has(candidate.id)) {
+                                                newSet.delete(candidate.id);
+                                            } else {
+                                                // Пока ограничиваем выбор одной книгой
+                                                // TODO: В будущем можно разрешить множественный выбор
+                                                return new Set([candidate.id]);
+                                            }
+                                            return newSet;
+                                        });
+                                    } : undefined}
                                     badges={[
                                         ...(isMyVote ? ['Ваш голос'] : []),
                                         ...(isWinner ? ['🏆 Победитель'] : []),

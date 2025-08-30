@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { normalizeForCandidate } from '@/lib/book';
 import { ensureAuth } from '@/lib/auth';
 import { useI18n } from '../_i18n/I18nProvider';
@@ -33,16 +33,10 @@ export default function SearchPage() {
     const [loading, setLoading] = useState(false);
     const [isInputFocused, setIsInputFocused] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
+    const [addedBooks, setAddedBooks] = useState<Set<string>>(new Set());
+    const [addingBook, setAddingBook] = useState<string | null>(null);
 
-    // Восстановление последнего поискового запроса
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const savedQuery = localStorage.getItem('lastSearchQuery');
-            if (savedQuery) {
-                setQ(savedQuery);
-            }
-        }
-    }, []);
+    // Поисковый запрос больше не сохраняется между сессиями
 
     // Инициализация Telegram WebApp
     useEffect(() => {
@@ -104,14 +98,17 @@ export default function SearchPage() {
         return () => clearTimeout(timeoutId);
     }, [q, search]);
 
-    // Сохранение поискового запроса
-    useEffect(() => {
-        if (q && typeof window !== 'undefined') {
-            localStorage.setItem('lastSearchQuery', q);
-        }
-    }, [q]);
+    // Поисковый запрос не сохраняется автоматически
 
     const addBook = useCallback(async (item: SearchItem) => {
+        const bookId = item.sourceId || item.title;
+        
+        // Если книга уже добавлена, ничего не делаем
+        if (addedBooks.has(bookId)) return;
+        
+        // Показываем состояние загрузки
+        setAddingBook(bookId);
+        
         try {
             console.log('[ADD_BOOK] Starting to add book:', item.title);
             
@@ -143,11 +140,9 @@ export default function SearchPage() {
                 tg.HapticFeedback.notificationOccurred('success');
             }
             
-            // Показать уведомление
-            if (tg?.showAlert) {
-                tg.showAlert('Книга добавлена! Перейдите в "Мои предложения" чтобы увидеть её.');
-            }
-
+            // Добавляем книгу в список добавленных
+            setAddedBooks(prev => new Set(prev).add(bookId));
+            
             // Показать подсказку в MainButton
             if (tg?.MainButton) {
                 tg.MainButton.setText('Перейти к "Мои предложения"');
@@ -181,13 +176,16 @@ export default function SearchPage() {
             if (tg?.showAlert) {
                 tg.showAlert(`Ошибка: ${msg}`);
             }
+        } finally {
+            setAddingBook(null);
         }
-    }, [tg]);
+    }, [tg, addedBooks]);
 
     const clearSearch = useCallback(() => {
         setQ('');
         setItems([]);
         setHasSearched(false);
+        // Очищаем localStorage от старых сохраненных запросов
         if (typeof window !== 'undefined') {
             localStorage.removeItem('lastSearchQuery');
         }
@@ -286,29 +284,73 @@ export default function SearchPage() {
 
         return (
             <div className="stagger-children" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-s)' }}>
-                {items.map((item, index) => (
-                    <BookCard
-                        key={`${item.sourceId || item.title}-${index}`}
-                        title={item.title}
-                        authors={item.authors}
-                        year={item.year}
-                        coverUrl={item.coverUrl}
-                        onClick={() => addBook(item)}
-                        isInteractive
-                        footer={
-                            <button 
-                                className="btn btn-primary"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    addBook(item);
-                                }}
-                                style={{ width: '100%' }}
-                            >
-                                {t('search.add_button')}
-                            </button>
-                        }
-                    />
-                ))}
+                {items.map((item, index) => {
+                    const bookId = item.sourceId || item.title;
+                    const isAdded = addedBooks.has(bookId);
+                    const isAdding = addingBook === bookId;
+                    
+                    return (
+                        <BookCard
+                            key={`${bookId}-${index}`}
+                            title={item.title}
+                            authors={item.authors}
+                            year={item.year}
+                            coverUrl={item.coverUrl}
+                            onClick={() => !isAdded && addBook(item)}
+                            isInteractive={!isAdded}
+                            footer={
+                                <button 
+                                    className={`btn ${isAdded ? 'btn-success' : 'btn-primary'}`}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (!isAdded) {
+                                            addBook(item);
+                                        }
+                                    }}
+                                    disabled={isAdded || isAdding}
+                                    style={{ 
+                                        width: '100%',
+                                        position: 'relative',
+                                        overflow: 'hidden'
+                                    }}
+                                >
+                                    {isAdding ? (
+                                        <span style={{ 
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            justifyContent: 'center',
+                                            gap: 'var(--space-xs)'
+                                        }}>
+                                            <span className="spinner" style={{
+                                                width: '16px',
+                                                height: '16px',
+                                                border: '2px solid rgba(255,255,255,0.3)',
+                                                borderTopColor: 'white',
+                                                borderRadius: '50%',
+                                                animation: 'spin 0.6s linear infinite'
+                                            }} />
+                                            Добавляем...
+                                        </span>
+                                    ) : isAdded ? (
+                                        <span style={{ 
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            justifyContent: 'center',
+                                            gap: 'var(--space-xs)'
+                                        }}>
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                                                <polyline points="20 6 9 17 4 12" />
+                                            </svg>
+                                            Добавлено
+                                        </span>
+                                    ) : (
+                                        t('search.add_button')
+                                    )}
+                                </button>
+                            }
+                        />
+                    );
+                })}
             </div>
         );
     };

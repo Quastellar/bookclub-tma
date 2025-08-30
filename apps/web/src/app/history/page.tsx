@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import AppBar from '../_components/AppBar';
 import BookCard from '../_components/BookCard';
 import { useI18n } from '../_i18n/I18nProvider';
+import { useTelegramTheme } from '../_providers/TelegramThemeProvider';
 
 const API = process.env.NEXT_PUBLIC_API_URL!;
 
@@ -25,6 +26,7 @@ type HistoryItem = {
 
 export default function HistoryPage() {
     const { t } = useI18n();
+    const { tg, isReady } = useTelegramTheme();
     const [items, setItems] = useState<HistoryItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);

@@ -318,6 +318,25 @@ textarea::placeholder {
   transform: translateY(0);
 }
 
+.btn-success {
+  background: var(--color-accent-fresh);
+  color: white;
+  border: 1px solid var(--color-accent-fresh);
+  box-shadow: 0 4px 16px 0 rgba(126, 200, 165, 0.3);
+}
+
+.btn-success:hover:not(:disabled) {
+  background: var(--color-accent-fresh-alt);
+  border-color: var(--color-accent-fresh-alt);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-elev1), 0 4px 16px 0 rgba(126, 200, 165, 0.4);
+}
+
+.btn-success:disabled {
+  opacity: 0.9;
+  cursor: default;
+}
+
 .btn-secondary {
   background: var(--color-bg-glass);
   color: var(--color-text-primary);
@@ -475,6 +494,11 @@ textarea::placeholder {
   100% {
     transform: scale(1);
   }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* Animation Classes */

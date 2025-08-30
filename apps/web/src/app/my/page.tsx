@@ -8,6 +8,7 @@ import { authHeaders, getUser, tmaLogin, ensureAuth, getToken } from '@/lib/auth
 import { hapticError, hapticSuccess } from '@/lib/tg';
 import { useI18n } from '../_i18n/I18nProvider';
 import { apiFetch } from '@/lib/api';
+import { useTelegramTheme } from '../_providers/TelegramThemeProvider';
 
 const API = process.env.NEXT_PUBLIC_API_URL!;
 
@@ -26,6 +27,7 @@ type CandidateDto = {
 
 export default function MyProposalsPage() {
     const { t } = useI18n();
+    const { tg, isReady } = useTelegramTheme();
     const [items, setItems] = useState<CandidateDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);

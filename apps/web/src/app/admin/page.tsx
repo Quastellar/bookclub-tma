@@ -6,6 +6,7 @@ import { useI18n } from '../_i18n/I18nProvider';
 import { ensureAuth, getUser } from '@/lib/auth';
 import { apiFetch } from '@/lib/api';
 import { hapticError, hapticSuccess } from '@/lib/tg';
+import { useTelegramTheme } from '../_providers/TelegramThemeProvider';
 
 const API = process.env.NEXT_PUBLIC_API_URL!;
 
@@ -21,6 +22,7 @@ type Iteration = {
 
 export default function AdminPage() {
     const { t } = useI18n();
+    const { tg, isReady } = useTelegramTheme();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [currentIter, setCurrentIter] = useState<Iteration | null>(null);
@@ -408,7 +410,14 @@ export default function AdminPage() {
                                     }}>
                                         <span style={{ color: '#6b7280', fontWeight: '500' }}>Дедлайн:</span>
                                         <span style={{ color: '#1f2937' }}>
-                                            {new Date(currentIter.meetingDate).toLocaleString('ru-RU')}
+                                            {new Date(currentIter.meetingDate).toLocaleString('ru-RU', {
+                                                timeZone: 'UTC',
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}
                                         </span>
                                     </div>
                                 )}

@@ -56,6 +56,8 @@ export class IterationsService implements OnModuleInit, OnModuleDestroy {
   }
 
   async announceWinner(iterationId: string) {
+    console.log(`[ANNOUNCE] Starting announceWinner for iteration: ${iterationId}`);
+    
     const iter = await this.prisma.iteration.findUnique({
       where: { id: iterationId },
       include: {
@@ -69,7 +71,17 @@ export class IterationsService implements OnModuleInit, OnModuleDestroy {
       },
     });
 
-    if (!iter || !iter.Candidates.length) return;
+    if (!iter) {
+      console.error(`[ANNOUNCE] Iteration not found: ${iterationId}`);
+      return;
+    }
+
+    if (!iter.Candidates.length) {
+      console.warn(`[ANNOUNCE] No candidates found for iteration: ${iter.name}`);
+      return;
+    }
+
+    console.log(`[ANNOUNCE] Found iteration: ${iter.name} with ${iter.Candidates.length} candidates`);
 
     // Находим победителя
     type CandidateWithRelations = typeof iter.Candidates[0];
@@ -77,6 +89,7 @@ export class IterationsService implements OnModuleInit, OnModuleDestroy {
     let maxVotes = -1;
     for (const c of iter.Candidates) {
       const votes = (c.Votes || []).length;
+      console.log(`[ANNOUNCE] Candidate "${c.Book?.titleNorm}": ${votes} votes`);
       if (votes > maxVotes) {
         maxVotes = votes;
         winner = c;
@@ -84,7 +97,7 @@ export class IterationsService implements OnModuleInit, OnModuleDestroy {
     }
 
     if (!winner || maxVotes === 0) {
-      console.log(`[ANNOUNCE] Итерация ${iter.name}: нет голосов`);
+      console.warn(`[ANNOUNCE] Итерация ${iter.name}: нет голосов или победителя`);
       return;
     }
 
@@ -99,10 +112,22 @@ export class IterationsService implements OnModuleInit, OnModuleDestroy {
       `👤 Предложил: ${addedBy}\n` +
       `🗳️ Голосов: ${maxVotes}`;
 
-    console.log(`[ANNOUNCE] Итерация ${iter.name}:`, { winner: bookTitle, votes: maxVotes, addedBy });
+    console.log(`[ANNOUNCE] Winner message for iteration ${iter.name}:`, { 
+      winner: bookTitle, 
+      votes: maxVotes, 
+      addedBy,
+      coverUrl: winner.Book?.coverUrl,
+      message: message 
+    });
     
     // Отправка в Telegram канал
-    await this.sendToChannel(message, winner.Book?.coverUrl);
+    try {
+      await this.sendToChannel(message, winner.Book?.coverUrl);
+      console.log(`[ANNOUNCE] ✅ Successfully sent announcement for iteration ${iter.name}`);
+    } catch (error) {
+      console.error(`[ANNOUNCE] ❌ Failed to send announcement for iteration ${iter.name}:`, error);
+      // Не прокидываем ошибку дальше, чтобы не ломать процесс закрытия итерации
+    }
     
     return { message, winner };
   }
@@ -111,29 +136,52 @@ export class IterationsService implements OnModuleInit, OnModuleDestroy {
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
     const channelId = process.env.TELEGRAM_CHANNEL_ID;
     
+    console.log('[ANNOUNCE] Checking environment variables:', {
+      hasBotToken: !!botToken,
+      hasChannelId: !!channelId,
+      channelId: channelId ? `${channelId.substring(0, 5)}...` : 'undefined',
+      messageLength: message.length
+    });
+    
     if (!botToken || !channelId) {
-      console.warn('[ANNOUNCE] Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHANNEL_ID in env');
+      console.warn('[ANNOUNCE] ❌ Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHANNEL_ID in env');
+      console.warn('[ANNOUNCE] Required env vars: TELEGRAM_BOT_TOKEN, TELEGRAM_CHANNEL_ID');
       return;
     }
 
     try {
+      console.log('[ANNOUNCE] Sending message to channel...', {
+        channelId,
+        messagePreview: message.substring(0, 50) + '...'
+      });
+      
       // Отправляем сообщение
-      await this.annService.sendMessage({
+      const result = await this.annService.sendMessage({
         token: botToken,
         chatId: channelId,
         text: message,
         parseMode: 'Markdown',
         disableWebPagePreview: true,
       });
+      
+      console.log('[ANNOUNCE] ✅ Message sent successfully:', result);
 
       // Если есть обложка, отправляем фото отдельно
       if (coverUrl) {
+        console.log('[ANNOUNCE] Sending cover photo...', { coverUrl });
         await this.sendPhoto(botToken, channelId, coverUrl);
+        console.log('[ANNOUNCE] ✅ Cover photo sent successfully');
       }
       
-      console.log('[ANNOUNCE] Message sent to channel');
+      console.log('[ANNOUNCE] ✅ All messages sent to channel successfully');
     } catch (e) {
-      console.error('[ANNOUNCE] Failed to send to channel:', e instanceof Error ? e.message : String(e));
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      console.error('[ANNOUNCE] ❌ Failed to send to channel:', {
+        error: errorMessage,
+        channelId,
+        hasBotToken: !!botToken
+      });
+      throw e; // Прокидываем ошибку выше для логирования
     }
   }
 
@@ -182,7 +230,7 @@ export class IterationsService implements OnModuleInit, OnModuleDestroy {
 
   async latestIterationForAdmin() {
     const iter = await this.prisma.iteration.findFirst({
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ createdAt: 'desc' }] as any, // createdAt field exists in production DB schema
       include: {
         Candidates: {
           include: {
@@ -275,16 +323,22 @@ export class IterationsService implements OnModuleInit, OnModuleDestroy {
       });
 
       for (const iter of expiredIterations) {
-        console.log(`[SCHEDULER] Auto-closing expired iteration: ${iter.name}`);
+        console.log(`[SCHEDULER] Auto-closing expired iteration: ${iter.name} (ID: ${iter.id})`);
         
         // Закрываем итерацию
         await this.prisma.iteration.update({
           where: { id: iter.id },
           data: { status: 'CLOSED', closedAt: now },
         });
+        console.log(`[SCHEDULER] Iteration ${iter.name} marked as CLOSED in database`);
 
         // Объявляем результаты
-        await this.announceWinner(iter.id);
+        try {
+          await this.announceWinner(iter.id);
+          console.log(`[SCHEDULER] ✅ Auto-announcement completed for iteration ${iter.name}`);
+        } catch (error) {
+          console.error(`[SCHEDULER] ❌ Auto-announcement failed for iteration ${iter.name}:`, error);
+        }
       }
 
       if (expiredIterations.length > 0) {

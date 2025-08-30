@@ -8,7 +8,6 @@ import { apiFetch } from '@/lib/api';
 import { useTelegramTheme } from '../_providers/TelegramThemeProvider';
 import { GlassHeader } from '../_components/GlassHeader';
 import BookCard from '../_components/BookCard';
-import { FilterChips } from '../_components/FilterChips';
 
 const API = process.env.NEXT_PUBLIC_API_URL!;
 
@@ -23,16 +22,7 @@ type SearchItem = {
     source?: string; 
 };
 
-const MOCK_GENRES = [
-    { id: 'fiction', label: 'Художественная литература', count: 245 },
-    { id: 'non-fiction', label: 'Нон-фикшн', count: 128 },
-    { id: 'sci-fi', label: 'Фантастика', count: 89 },
-    { id: 'mystery', label: 'Детективы', count: 67 },
-    { id: 'biography', label: 'Биографии', count: 45 },
-    { id: 'history', label: 'История', count: 78 },
-    { id: 'psychology', label: 'Психология', count: 56 },
-    { id: 'business', label: 'Бизнес', count: 92 },
-];
+
 
 export default function SearchPage() {
     const { t } = useI18n();
@@ -41,7 +31,6 @@ export default function SearchPage() {
     const [q, setQ] = useState('');
     const [items, setItems] = useState<SearchItem[]>([]);
     const [loading, setLoading] = useState(false);
-    const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
     const [isInputFocused, setIsInputFocused] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
 
@@ -204,13 +193,7 @@ export default function SearchPage() {
         }
     }, []);
 
-    const filteredItems = useMemo(() => {
-        if (selectedGenres.length === 0) return items;
-        
-        // В реальном приложении здесь была бы фильтрация по жанрам
-        // Пока возвращаем все элементы
-        return items;
-    }, [items, selectedGenres]);
+
 
     const renderEmptyState = () => {
         if (loading) return null;
@@ -238,22 +221,15 @@ export default function SearchPage() {
                         fontSize: 'var(--font-size-body)',
                         color: 'var(--color-text-secondary)',
                         lineHeight: 'var(--line-height-relaxed)',
-                        margin: '0 0 var(--space-l) 0',
+                        margin: '0',
                     }}>
                         Введите название книги или имя автора для поиска в библиотеке Google Books
                     </p>
-                    <button 
-                        className="btn btn-secondary"
-                        onClick={() => setQ('Харари')}
-                        style={{ fontSize: 'var(--font-size-body)' }}
-                    >
-                        🔥 Популярные сейчас
-                    </button>
                 </div>
             );
         }
 
-        if (hasSearched && filteredItems.length === 0 && !loading) {
+        if (hasSearched && items.length === 0 && !loading) {
             return (
                 <div style={{
                     textAlign: 'center',
@@ -304,13 +280,13 @@ export default function SearchPage() {
             );
         }
 
-        if (filteredItems.length === 0) {
+        if (items.length === 0) {
             return renderEmptyState();
         }
 
         return (
             <div className="stagger-children" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-s)' }}>
-                {filteredItems.map((item, index) => (
+                {items.map((item, index) => (
                     <BookCard
                         key={`${item.sourceId || item.title}-${index}`}
                         title={item.title}
@@ -432,17 +408,6 @@ export default function SearchPage() {
                         )}
                     </div>
                 </div>
-
-                {/* Filter Chips */}
-                {hasSearched && (
-                    <div style={{ marginBottom: 'var(--space-l)' }}>
-                        <FilterChips
-                            filters={MOCK_GENRES}
-                            selectedFilters={selectedGenres}
-                            onFilterChange={setSelectedGenres}
-                        />
-                    </div>
-                )}
 
                 {/* Results */}
                 <div style={{ position: 'relative' }}>

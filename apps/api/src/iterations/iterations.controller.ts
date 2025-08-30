@@ -30,9 +30,20 @@ export class IterationsController {
   @Patch(':id/close')
   async close(@Param('id') id: string, @Req() req: any) {
     this.checkAdmin(req.user);
+    console.log(`[CONTROLLER] Manual close initiated for iteration: ${id} by user: ${req.user?.username || req.user?.id}`);
+    
     const result = await this.svc.close(id);
+    console.log(`[CONTROLLER] Iteration ${id} closed successfully, starting announcement...`);
+    
     // Запускаем аннонс в канал
-    await this.svc.announceWinner(id);
+    try {
+      await this.svc.announceWinner(id);
+      console.log(`[CONTROLLER] ✅ Announcement completed for iteration ${id}`);
+    } catch (error) {
+      console.error(`[CONTROLLER] ❌ Announcement failed for iteration ${id}:`, error);
+      // Не прокидываем ошибку, итерация уже закрыта
+    }
+    
     return result;
   }
 

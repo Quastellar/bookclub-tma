@@ -44,11 +44,11 @@ model Iteration {
   id            String     @id @default(cuid())
   name          String
   status        IterStatus @default(PLANNED)
-  isPublicVotes Boolean    @default(false)
-  openedAt      DateTime?
-  closedAt      DateTime?
-  meetingDate   DateTime?
-  createdAt     DateTime   @default(now())
+  isPublicVotes Boolean    @default(false)  @map("isPublicVotes")
+  openedAt      DateTime?  @map("openedAt") @db.Timestamp(3)
+  closedAt      DateTime?  @map("closedAt") @db.Timestamp(3)
+  meetingDate   DateTime?  @map("meetingDate") @db.Timestamp(3)
+  createdAt     DateTime   @default(now()) @map("createdAt") @db.Timestamp(3)
 
   Candidates Candidate[]
   Votes      Vote[]

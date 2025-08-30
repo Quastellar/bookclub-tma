@@ -37,7 +37,7 @@ const navItems = [
   },
   {
     href: '/my',
-    label: 'Мои',
+    label: 'Мои предложения',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
@@ -48,7 +48,7 @@ const navItems = [
   },
   {
     href: '/history',
-    label: 'История',
+    label: 'Прошлые итерации',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M3 3v5h5"/>
@@ -70,7 +70,7 @@ export default function Nav() {
   if (isAdmin) {
     items.splice(-1, 0, {
       href: '/admin',
-      label: 'Админ',
+      label: 'Управление',
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
@@ -97,9 +97,10 @@ export default function Nav() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-around',
-        padding: '8px 4px',
+        padding: '6px 4px',
         maxWidth: '100%',
-        margin: '0 auto'
+        margin: '0 auto',
+        gap: '2px'
       }}>
         {items.map((item) => {
           const active = isActive(item.href);
@@ -111,9 +112,11 @@ export default function Nav() {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
+                justifyContent: 'flex-start',
                 gap: '4px',
                 padding: '8px 4px',
-                minWidth: '52px',
+                width: '70px',
+                height: '56px',
                 textDecoration: 'none',
                 color: active ? '#f26419' : '#6b7280',
                 transition: 'all 0.25s ease',
@@ -157,14 +160,18 @@ export default function Nav() {
               </div>
               
               <span style={{
-                fontSize: '12px',
+                fontSize: '11px',
                 fontWeight: '500',
-                lineHeight: 1,
+                lineHeight: '12px',
                 textAlign: 'center',
-                whiteSpace: 'nowrap',
-                maxWidth: '60px',
+                width: '100%',
+                height: '24px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 overflow: 'hidden',
-                textOverflow: 'ellipsis'
+                wordBreak: 'break-word',
+                hyphens: 'auto'
               }}>
                 {item.label}
               </span>

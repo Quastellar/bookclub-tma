@@ -32,6 +32,7 @@ export default function MyProposalsPage() {
     const [me, setMe] = useState<import('@/lib/auth').TmaUser | null>(null);
     const [isClient, setIsClient] = useState(false);
     const [deleting, setDeleting] = useState<string | null>(null);
+    const [initialized, setInitialized] = useState(false);
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -49,7 +50,14 @@ export default function MyProposalsPage() {
                 throw new Error(await res.text());
             }
             const data = await res.json();
-            const currentUser = me || (typeof window !== 'undefined' ? getUser() : null);
+            
+            // Получаем текущего пользователя в момент выполнения
+            const currentUser = typeof window !== 'undefined' ? getUser() : null;
+            if (!currentUser) {
+                setItems([]);
+                return;
+            }
+            
             const mine = (data?.Candidates || []).filter((c: CandidateDto) => {
                 const added = c?.AddedBy;
                 return added?.id === currentUser?.id || (added?.tgUserId && added?.tgUserId === currentUser?.tgUserId);
@@ -62,22 +70,37 @@ export default function MyProposalsPage() {
         } finally {
             setLoading(false);
         }
-    }, [me]);
+    }, []); // Убираем зависимость от me
 
     useEffect(() => {
+        if (initialized) return; // Предотвращаем повторную инициализацию
+        
         setIsClient(true);
-        tmaLogin()
-            .then((d) => { 
-                setMe(d.user || null); 
-            })
-            .catch(() => {
+        
+        // Простая инициализация без циклов
+        const initUser = async () => {
+            try {
+                const authData = await tmaLogin();
+                setMe(authData.user || null);
+            } catch (error) {
                 // Безопасная инициализация пользователя на клиенте
                 if (typeof window !== 'undefined') {
                     setMe(getUser());
                 }
-            })
-            .finally(load);
-    }, [load]);
+            } finally {
+                setInitialized(true);
+            }
+        };
+        
+        initUser();
+    }, [initialized]); // Зависимость от initialized
+
+    // Отдельный useEffect для загрузки данных когда компонент готов
+    useEffect(() => {
+        if (isClient && initialized) {
+            load();
+        }
+    }, [isClient, initialized, load]); // load только когда все готово
 
     const remove = async (id: string, title: string) => {
         const confirmed = window.confirm(`Удалить книгу "${title}"?`);

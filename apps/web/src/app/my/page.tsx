@@ -2,13 +2,13 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import AppBar from '../_components/AppBar';
 import BookCard from '../_components/BookCard';
 import { authHeaders, getUser, tmaLogin, ensureAuth, getToken } from '@/lib/auth';
 import { hapticError, hapticSuccess } from '@/lib/tg';
 import { useI18n } from '../_i18n/I18nProvider';
 import { apiFetch } from '@/lib/api';
 import { useTelegramTheme } from '../_providers/TelegramThemeProvider';
+import { GlassHeader } from '../_components/GlassHeader';
 
 const API = process.env.NEXT_PUBLIC_API_URL!;
 
@@ -170,16 +170,12 @@ export default function MyProposalsPage() {
     return (
         <div style={{
             minHeight: '100vh',
-            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+            background: 'var(--color-bg-base)',
             paddingBottom: '80px'
         }}>
-            <AppBar title={t('my.title')} withBack />
+            <GlassHeader title="Мои предложения" subtitle="Книги, которые вы предложили для чтения" showBack />
             
-            <main style={{
-                padding: '16px',
-                maxWidth: '600px',
-                margin: '0 auto'
-            }}>
+            <div className="container">
                 {loading ? (
                     <div style={{
                         display: 'flex',
@@ -466,7 +462,7 @@ export default function MyProposalsPage() {
                         </div>
                     </div>
                 )}
-            </main>
+            </div>
 
             <style jsx>{`
                 @keyframes spin {

@@ -130,12 +130,31 @@
 
 /* Telegram Theme Integration */
 [data-theme="dark"] {
+  /* Base Colors - Dark Theme */
   --color-bg-base: var(--tg-theme-bg-color, #1A1B1E);
   --color-bg-layer: var(--tg-theme-secondary-bg-color, #25262A);
+  --color-bg-glass: rgba(20, 22, 28, 0.5);
+  --color-bg-glass-outline: rgba(255, 255, 255, 0.1);
+  
+  /* Text Colors - Dark Theme */
   --color-text-primary: var(--tg-theme-text-color, #E8E9EA);
   --color-text-secondary: var(--tg-theme-hint-color, #B8BABD);
+  --color-text-muted: #6F7276;
+  
+  /* Border Colors - Dark Theme */
+  --color-border-subtle: rgba(255, 255, 255, 0.12);
+  --color-border-soft: rgba(255, 255, 255, 0.08);
+  
+  /* Accent and Status Colors */
   --color-accent-warm: var(--tg-theme-button-color, #F0B35A);
+  --color-error: #E74C3C;
+  --color-error-bg: rgba(231, 76, 60, 0.15);
+  --color-success-bg: rgba(126, 200, 165, 0.15);
+  --color-warning-bg: rgba(240, 179, 90, 0.15);
+  
+  /* Gradients - Dark Theme */
   --header-gradient: var(--header-gradient-dark);
+  --card-gradient: linear-gradient(145deg, rgba(20,22,28,0.9), rgba(20,22,28,0.7));
 }
 
 [data-theme="light"] {

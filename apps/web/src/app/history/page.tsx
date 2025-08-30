@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import AppBar from '../_components/AppBar';
 import BookCard from '../_components/BookCard';
 import { useI18n } from '../_i18n/I18nProvider';
 import { useTelegramTheme } from '../_providers/TelegramThemeProvider';
+import { GlassHeader } from '../_components/GlassHeader';
 
 const API = process.env.NEXT_PUBLIC_API_URL!;
 
@@ -79,16 +79,12 @@ export default function HistoryPage() {
     return (
         <div style={{
             minHeight: '100vh',
-            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+            background: 'var(--color-bg-base)',
             paddingBottom: '80px'
         }}>
-            <AppBar title={t('history.title')} withBack />
+            <GlassHeader title="История итераций" subtitle="Завершенные итерации книжного клуба" showBack />
             
-            <main style={{
-                padding: '16px',
-                maxWidth: '600px',
-                margin: '0 auto'
-            }}>
+            <div className="container">
                 {loading ? (
                     <div style={{
                         display: 'flex',
@@ -342,7 +338,7 @@ export default function HistoryPage() {
                         </div>
                     </div>
                 )}
-            </main>
+            </div>
 
             <style jsx>{`
                 @keyframes spin {

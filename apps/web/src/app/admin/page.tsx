@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import AppBar from '../_components/AppBar';
 import { useI18n } from '../_i18n/I18nProvider';
 import { ensureAuth, getUser } from '@/lib/auth';
 import { apiFetch } from '@/lib/api';
 import { hapticError, hapticSuccess } from '@/lib/tg';
 import { useTelegramTheme } from '../_providers/TelegramThemeProvider';
+import { GlassHeader } from '../_components/GlassHeader';
 
 const API = process.env.NEXT_PUBLIC_API_URL!;
 
@@ -232,23 +232,17 @@ export default function AdminPage() {
         return (
             <div style={{
                 minHeight: '100vh',
-                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+                background: 'var(--color-bg-base)',
                 paddingBottom: '80px'
             }}>
-                <AppBar title={t('admin.title')} withBack />
+                <GlassHeader title="Администрирование" subtitle="Управление итерациями книжного клуба" showBack />
                 
-                <main style={{
-                    padding: '16px',
-                    maxWidth: '600px',
-                    margin: '0 auto'
-                }}>
-                    <div style={{
+                <div className="container">
+                    <div className="card-glass" style={{
                         textAlign: 'center',
-                        padding: '48px 20px',
-                        background: '#ffffff',
-                        borderRadius: '16px',
-                        border: '1px solid #fecaca',
-                        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                        padding: 'var(--space-2xl)',
+                        border: '1px solid var(--color-error)',
+                        background: 'var(--color-error-bg)',
                     }}>
                         <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🔒</div>
                         <h3 style={{
@@ -266,7 +260,7 @@ export default function AdminPage() {
                             Требуются права администратора
                         </p>
                     </div>
-                </main>
+                </div>
             </div>
         );
     }
@@ -274,16 +268,12 @@ export default function AdminPage() {
     return (
         <div style={{
             minHeight: '100vh',
-            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+            background: 'var(--color-bg-base)',
             paddingBottom: '80px'
         }}>
-            <AppBar title={t('admin.title')} withBack />
+            <GlassHeader title="Администрирование" subtitle="Управление итерациями книжного клуба" showBack />
             
-            <main style={{
-                padding: '16px',
-                maxWidth: '600px',
-                margin: '0 auto'
-            }}>
+            <div className="container">
                 {/* Ошибки */}
                 {error && (
                     <div style={{
@@ -796,7 +786,7 @@ export default function AdminPage() {
                         </button>
                     </div>
                 </div>
-            </main>
+            </div>
 
             <style jsx>{`
                 @keyframes spin {

@@ -87,10 +87,10 @@ export default function Nav() {
       left: 0,
       right: 0,
       zIndex: 1000,
-      background: 'rgba(255, 255, 255, 0.95)',
-      backdropFilter: 'blur(12px)',
-      borderTop: '1px solid #e5e7eb',
-      boxShadow: '0 -4px 6px -1px rgba(0, 0, 0, 0.1)',
+      background: 'var(--color-bg-glass)',
+      backdropFilter: 'blur(24px)',
+      borderTop: '1px solid var(--color-border-subtle)',
+      boxShadow: 'var(--shadow-soft)',
       paddingBottom: 'env(safe-area-inset-bottom)'
     }}>
       <div style={{
@@ -118,7 +118,7 @@ export default function Nav() {
                 width: '70px',
                 height: '56px',
                 textDecoration: 'none',
-                color: active ? '#f26419' : '#6b7280',
+                color: active ? 'var(--color-accent-warm)' : 'var(--color-text-muted)',
                 transition: 'all 0.25s ease',
                 borderRadius: '12px',
                 position: 'relative',
@@ -126,13 +126,13 @@ export default function Nav() {
               }}
               onMouseEnter={(e) => {
                 if (!active) {
-                  e.currentTarget.style.color = '#374151';
-                  e.currentTarget.style.background = '#f3f4f6';
+                  e.currentTarget.style.color = 'var(--color-text-secondary)';
+                  e.currentTarget.style.background = 'var(--color-border-soft)';
                 }
               }}
               onMouseLeave={(e) => {
                 if (!active) {
-                  e.currentTarget.style.color = '#6b7280';
+                  e.currentTarget.style.color = 'var(--color-text-muted)';
                   e.currentTarget.style.background = 'transparent';
                 }
               }}
@@ -145,7 +145,7 @@ export default function Nav() {
                   transform: 'translateX(-50%)',
                   width: '24px',
                   height: '3px',
-                  background: '#f26419',
+                  background: 'var(--color-accent-warm)',
                   borderRadius: '0 0 4px 4px'
                 }} />
               )}

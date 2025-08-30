@@ -146,7 +146,7 @@ export default function MyProposalsPage() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '16px',
-                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
+                background: 'var(--color-bg-base)'
             }}>
                 <div style={{
                     width: '32px',
@@ -177,17 +177,13 @@ export default function MyProposalsPage() {
             
             <div className="container">
                 {loading ? (
-                    <div style={{
+                    <div className="card-glass" style={{
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        padding: '48px 20px',
-                        background: '#ffffff',
-                        borderRadius: '16px',
-                        border: '1px solid #e5e7eb',
-                        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-                        gap: '16px'
+                        padding: 'var(--space-2xl)',
+                        gap: 'var(--space-m)'
                     }}>
                         <div style={{
                             width: '32px',
@@ -200,13 +196,11 @@ export default function MyProposalsPage() {
                         <p style={{ color: '#6b7280' }}>Загрузка ваших предложений...</p>
                     </div>
                 ) : error ? (
-                    <div style={{
+                    <div className="card-glass" style={{
                         textAlign: 'center',
-                        padding: '48px 20px',
-                        background: '#ffffff',
-                        borderRadius: '16px',
-                        border: '1px solid #fecaca',
-                        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                        padding: 'var(--space-2xl)',
+                        border: '1px solid var(--color-error)',
+                        background: 'var(--color-error-bg)',
                     }}>
                         <div style={{ fontSize: '3rem', marginBottom: '16px' }}>⚠️</div>
                         <h3 style={{
@@ -246,13 +240,9 @@ export default function MyProposalsPage() {
                         </button>
                     </div>
                 ) : items.length === 0 ? (
-                    <div style={{
+                    <div className="card-glass" style={{
                         textAlign: 'center',
-                        padding: '48px 20px',
-                        background: '#ffffff',
-                        borderRadius: '16px',
-                        border: '1px solid #e5e7eb',
-                        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                        padding: 'var(--space-2xl)',
                     }}>
                         <div style={{ fontSize: '3rem', marginBottom: '16px' }}>📚</div>
                         <h3 style={{
@@ -301,12 +291,8 @@ export default function MyProposalsPage() {
                 ) : (
                     <div>
                         {/* Заголовок */}
-                        <div style={{
-                            padding: '24px',
-                            background: '#ffffff',
-                            borderRadius: '16px',
-                            border: '1px solid #e5e7eb',
-                            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                        <div className="card-glass" style={{
+                            padding: 'var(--space-l)',
                             marginBottom: '24px'
                         }}>
                             <h1 style={{
@@ -333,12 +319,9 @@ export default function MyProposalsPage() {
                             {items.map((candidate) => (
                                 <div 
                                     key={candidate.id}
+                                    className="card-glass"
                                     style={{
-                                        padding: '20px',
-                                        background: '#ffffff',
-                                        borderRadius: '16px',
-                                        border: '1px solid #e5e7eb',
-                                        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                                        padding: 'var(--space-m)',
                                         transition: 'all 0.25s ease'
                                     }}
                                     onMouseEnter={(e) => {

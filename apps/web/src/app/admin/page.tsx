@@ -207,7 +207,7 @@ export default function AdminPage() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '16px',
-                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
+                background: 'var(--color-bg-base)'
             }}>
                 <div style={{
                     width: '32px',
@@ -296,12 +296,8 @@ export default function AdminPage() {
                 )}
 
                 {/* Заголовок */}
-                <div style={{
-                    padding: '24px',
-                    background: '#ffffff',
-                    borderRadius: '16px',
-                    border: '1px solid #e5e7eb',
-                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                <div className="card-glass" style={{
+                    padding: 'var(--space-l)',
                     marginBottom: '24px'
                 }}>
                     <h1 style={{
@@ -328,11 +324,7 @@ export default function AdminPage() {
                 </div>
 
                 {/* Текущая итерация */}
-                <div style={{
-                    background: '#ffffff',
-                    borderRadius: '16px',
-                    border: '1px solid #e5e7eb',
-                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                <div className="card-glass" style={{
                     padding: '24px',
                     marginBottom: '24px'
                 }}>
@@ -570,8 +562,8 @@ export default function AdminPage() {
                                                         border: '1px solid #d1d5db',
                                                         borderRadius: '8px',
                                                         fontSize: '16px',
-                                                        background: '#ffffff',
-                                                        color: '#1f2937'
+                                                        background: 'var(--color-bg-base)',
+                                                        color: 'var(--color-text-primary)'
                                                     }}
                                                 />
                                             </div>
@@ -645,11 +637,7 @@ export default function AdminPage() {
                 </div>
 
                 {/* Создание новой итерации */}
-                <div style={{
-                    background: '#ffffff',
-                    borderRadius: '16px',
-                    border: '1px solid #e5e7eb',
-                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                <div className="card-glass" style={{
                     padding: '24px'
                 }}>
                     <h2 style={{
@@ -683,8 +671,8 @@ export default function AdminPage() {
                                     border: '1px solid #d1d5db',
                                     borderRadius: '8px',
                                     fontSize: '16px',
-                                    background: '#ffffff',
-                                    color: '#1f2937',
+                                    background: 'var(--color-bg-base)',
+                                    color: 'var(--color-text-primary)',
                                     transition: 'border-color 0.15s ease'
                                 }}
                                 onFocus={(e) => {
@@ -718,8 +706,8 @@ export default function AdminPage() {
                                     border: '1px solid #d1d5db',
                                     borderRadius: '8px',
                                     fontSize: '16px',
-                                    background: '#ffffff',
-                                    color: '#1f2937',
+                                    background: 'var(--color-bg-base)',
+                                    color: 'var(--color-text-primary)',
                                     transition: 'border-color 0.15s ease'
                                 }}
                                 onFocus={(e) => {

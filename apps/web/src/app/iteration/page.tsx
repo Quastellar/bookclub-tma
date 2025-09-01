@@ -6,7 +6,6 @@ import { useI18n } from '../_i18n/I18nProvider';
 import { apiFetch } from '@/lib/api';
 import { useTelegramTheme } from '../_providers/TelegramThemeProvider';
 import { GlassHeader } from '../_components/GlassHeader';
-import { BurgerMenu } from '../_components/BurgerMenu';
 import BookCard from '../_components/BookCard';
 
 const API = process.env.NEXT_PUBLIC_API_URL!;
@@ -344,7 +343,7 @@ export default function IterationPage() {
     if (loading) {
         return (
             <div style={{ minHeight: '100vh', background: 'var(--color-bg-base)' }}>
-                <GlassHeader title="Голосование" action={<BurgerMenu />} />
+                <GlassHeader title="Голосование" />
                 <div className="container">
                     <div className="skeleton" style={{ height: '60px', marginBottom: 'var(--space-l)' }} />
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-m)' }}>
@@ -360,7 +359,7 @@ export default function IterationPage() {
     if (error) {
         return (
             <div style={{ minHeight: '100vh', background: 'var(--color-bg-base)' }}>
-                <GlassHeader title="Голосование" action={<BurgerMenu />} />
+                <GlassHeader title="Голосование" />
                 <div className="container">
                     <div style={{
                         textAlign: 'center',
@@ -391,7 +390,7 @@ export default function IterationPage() {
     if (!iter) {
         return (
             <div style={{ minHeight: '100vh', background: 'var(--color-bg-base)' }}>
-                <GlassHeader title="Голосование" action={<BurgerMenu />} />
+                <GlassHeader title="Голосование" />
                 <div className="container">
                     <div style={{
                         textAlign: 'center',
@@ -443,7 +442,6 @@ export default function IterationPage() {
             <GlassHeader 
                 title={iter.name}
                 subtitle={`${candidates.length} ${candidates.length === 1 ? 'книга' : candidates.length < 5 ? 'книги' : 'книг'} • ${totalVotes} ${totalVotes === 1 ? 'голос' : totalVotes < 5 ? 'голоса' : 'голосов'}`}
-                action={<BurgerMenu />}
             />
             
             <div className="container">

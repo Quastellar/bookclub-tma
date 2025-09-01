@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import { tmaLogin, TmaUser } from '@/lib/auth';
 import { useTelegramTheme } from './_providers/TelegramThemeProvider';
 import { GlassHeader } from './_components/GlassHeader';
-import { BurgerMenu } from './_components/BurgerMenu';
 
 export default function HomePage() {
     const { tg, isReady } = useTelegramTheme();
@@ -77,7 +76,6 @@ export default function HomePage() {
             <GlassHeader 
                 title="Книжный клуб"
                 subtitle={user ? `Добро пожаловать, ${user.name || user.username || 'Читатель'}!` : 'Добро пожаловать!'}
-                action={<BurgerMenu />}
             />
             
             <div className="container">

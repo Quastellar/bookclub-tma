@@ -46,7 +46,7 @@ export function GlassHeader({ title, subtitle, action, showBack, onBack }: Glass
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            minHeight: 'var(--touch-target-min)',
+            height: '72px', // Фиксированная высота для всех хедеров
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-s)' }}>
@@ -84,7 +84,15 @@ export function GlassHeader({ title, subtitle, action, showBack, onBack }: Glass
               </button>
             )}
             
-            <div>
+            <div 
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                height: '100%',
+                minWidth: 0, // Позволяет тексту сжиматься
+              }}
+            >
               <h1 
                 style={{
                   fontSize: 'var(--font-size-title)',
@@ -92,6 +100,10 @@ export function GlassHeader({ title, subtitle, action, showBack, onBack }: Glass
                   color: 'var(--color-text-primary)',
                   margin: 0,
                   textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  lineHeight: subtitle ? '1.2' : '1.4',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
                 }}
               >
                 {title}
@@ -103,6 +115,10 @@ export function GlassHeader({ title, subtitle, action, showBack, onBack }: Glass
                     color: 'var(--color-text-secondary)',
                     margin: 0,
                     opacity: 0.8,
+                    lineHeight: '1.3',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
                   }}
                 >
                   {subtitle}

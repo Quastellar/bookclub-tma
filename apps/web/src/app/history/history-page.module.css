@@ -1,0 +1,229 @@
+/* History Page CSS Module - Paper & Glass Design System */
+
+.container {
+  min-height: 100vh;
+  background: var(--color-bg-base);
+  padding-bottom: 80px;
+}
+
+/* Loading States */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2xl);
+  gap: var(--space-m);
+}
+
+.loadingSpinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e5e7eb;
+  border-top: 3px solid #f26419;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loadingText {
+  color: var(--color-text-muted);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error States */
+.errorContainer {
+  text-align: center;
+  padding: var(--space-2xl);
+}
+
+.errorIcon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.errorTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-error);
+  margin: 0 0 12px 0;
+}
+
+.errorText {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0 0 16px 0;
+}
+
+/* Empty States */
+.emptyContainer {
+  text-align: center;
+  padding: var(--space-2xl);
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.emptyTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 8px 0;
+  text-align: center;
+}
+
+.emptyText {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin: 0;
+}
+
+/* Iteration Cards */
+.iterationCard {
+  padding: var(--space-l);
+  margin-bottom: var(--space-m);
+}
+
+.iterationHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  margin-bottom: var(--space-s);
+}
+
+.iterationTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+  flex: 1;
+}
+
+.iterationStatus {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statusOpen {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.statusClosed {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.statusPlanned {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.iterationDetails {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-s);
+}
+
+.iterationDetail {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+.detailLabel {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  min-width: 80px;
+}
+
+.detailValue {
+  color: var(--color-text-primary);
+}
+
+.iterationStats {
+  display: flex;
+  gap: var(--space-m);
+  margin-bottom: var(--space-s);
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.statValue {
+  background: var(--color-border-soft);
+  color: var(--color-text-primary);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.statLabel {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+/* Winner Section */
+.winnerSection {
+  margin-top: var(--space-m);
+  padding: var(--space-m);
+  background: var(--color-success-bg);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.winnerTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-success);
+  margin: 0 0 var(--space-s) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.winnerBook {
+  font-size: 16px;
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.winnerAuthor {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin-top: 4px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .iterationStats {
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+  
+  .iterationDetail {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-xs);
+  }
+  
+  .detailLabel {
+    min-width: auto;
+  }
+}

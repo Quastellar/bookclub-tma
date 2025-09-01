@@ -1,0 +1,230 @@
+/* My Page CSS Module - Paper & Glass Design System */
+
+.container {
+  min-height: 100vh;
+  background: var(--color-bg-base);
+  padding-bottom: 80px;
+}
+
+/* Loading States */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2xl);
+  gap: var(--space-m);
+}
+
+.loadingSpinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e5e7eb;
+  border-top: 3px solid #f26419;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loadingText {
+  color: var(--color-text-muted);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error States */
+.errorContainer {
+  text-align: center;
+  padding: var(--space-2xl);
+}
+
+.errorIcon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.errorTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-error);
+  margin: 0 0 12px 0;
+}
+
+.errorText {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0 0 16px 0;
+}
+
+/* Empty States */
+.emptyContainer {
+  text-align: center;
+  padding: var(--space-2xl);
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.emptyTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 12px 0;
+}
+
+.emptyText {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0 0 24px 0;
+}
+
+/* Header Section */
+.headerCard {
+  padding: var(--space-l);
+  margin-bottom: 24px;
+}
+
+.headerTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 8px 0;
+  text-align: center;
+}
+
+.headerSubtitle {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin: 0;
+}
+
+/* Candidate Cards */
+.candidateList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.candidateCard {
+  padding: var(--space-m);
+  margin-bottom: var(--space-m);
+  transition: all 0.25s ease;
+}
+
+.candidateCard:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  border-color: #d1d5db;
+}
+
+.candidateHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  margin-bottom: var(--space-s);
+}
+
+.candidateTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+  flex: 1;
+}
+
+.candidateYear {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  background: var(--color-border-soft);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.candidateAuthors {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-s);
+}
+
+.candidateActions {
+  display: flex;
+  gap: var(--space-s);
+  align-items: center;
+}
+
+.deleteButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.deleteButton:hover {
+  background-color: #dc2626;
+}
+
+.deleteButton:disabled {
+  background-color: #f3f4f6;
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.viewButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background-color: #f26419;
+  color: white;
+  border: 2px solid #f26419;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.viewButton:hover {
+  background-color: transparent;
+  color: var(--color-accent-warm);
+  border-color: var(--color-accent-warm);
+}
+
+.viewButton:active {
+  background-color: var(--color-accent-warm);
+  color: white;
+}
+
+.addMoreSection {
+  margin-top: 24px;
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .candidateActions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .deleteButton,
+  .viewButton {
+    justify-content: center;
+  }
+}

@@ -9,6 +9,7 @@ import { useI18n } from '../_i18n/I18nProvider';
 import { apiFetch } from '@/lib/api';
 import { useTelegramTheme } from '../_providers/TelegramThemeProvider';
 import { GlassHeader } from '../_components/GlassHeader';
+import styles from './my-page.module.css';
 
 const API = process.env.NEXT_PUBLIC_API_URL!;
 
@@ -139,102 +140,35 @@ export default function MyProposalsPage() {
 
     if (!isClient) {
         return (
-            <div style={{
-                minHeight: '100vh',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '16px',
-                background: 'var(--color-bg-base)'
-            }}>
-                <div style={{
-                    width: '32px',
-                    height: '32px',
-                    border: '3px solid #e5e7eb',
-                    borderTop: '3px solid #f26419',
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite'
-                }} />
-                <p style={{ color: 'var(--color-text-muted)' }}>Загрузка...</p>
-                <style jsx>{`
-                    @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                    }
-                `}</style>
+            <div className={styles.container}>
+                <div className={styles.loadingContainer}>
+                    <div className={styles.loadingSpinner} />
+                    <p className={styles.loadingText}>Загрузка...</p>
+                </div>
             </div>
         );
     }
 
     return (
-        <div style={{
-            minHeight: '100vh',
-            background: 'var(--color-bg-base)',
-            paddingBottom: '80px'
-        }}>
+        <div className={styles.container}>
             <GlassHeader title="Мои предложения" subtitle="Книги, которые вы предложили для чтения" showBack />
             
             <div className="container">
                 {loading ? (
-                    <div className="card-glass" style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: 'var(--space-2xl)',
-                        gap: 'var(--space-m)'
-                    }}>
-                        <div style={{
-                            width: '32px',
-                            height: '32px',
-                            border: '3px solid #e5e7eb',
-                            borderTop: '3px solid #f26419',
-                            borderRadius: '50%',
-                            animation: 'spin 1s linear infinite'
-                        }} />
-                        <p style={{ color: 'var(--color-text-muted)' }}>Загрузка ваших предложений...</p>
+                    <div className={`card-glass ${styles.loadingContainer}`}>
+                        <div className={styles.loadingSpinner} />
+                        <p className={styles.loadingText}>Загрузка ваших предложений...</p>
                     </div>
                 ) : error ? (
-                    <div className="card-glass" style={{
-                        textAlign: 'center',
-                        padding: 'var(--space-2xl)',
-                        border: '1px solid var(--color-error)',
-                        background: 'var(--color-error-bg)',
-                    }}>
-                        <div style={{ fontSize: '3rem', marginBottom: '16px' }}>⚠️</div>
-                        <h3 style={{
-                            fontSize: '20px',
-                            fontWeight: '600',
-                            color: 'var(--color-error)',
-                            margin: '0 0 12px 0'
-                        }}>Ошибка загрузки</h3>
-                        <p style={{
-                            fontSize: '16px',
-                            color: 'var(--color-text-secondary)',
-                            lineHeight: '1.6',
-                            margin: '0 0 16px 0'
-                        }}>
+                    <div className={`card-glass ${styles.errorContainer}`}>
+                        <div className={styles.errorIcon}>⚠️</div>
+                        <h3 className={styles.errorTitle}>Ошибка загрузки</h3>
+                        <p className={styles.errorText}>
                             {error}
                         </p>
                         <button
                             onClick={load}
-                            style={{
-                                padding: '12px 24px',
-                                backgroundColor: '#f26419',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '12px',
-                                fontWeight: '500',
-                                cursor: 'pointer',
-                                transition: 'all 0.15s ease'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = '#e34a0f';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.backgroundColor = '#f26419';
-                            }}
+                            className={styles.viewButton}
                         >
                             Попробовать снова
                         </button>
@@ -244,42 +178,14 @@ export default function MyProposalsPage() {
                         textAlign: 'center',
                         padding: 'var(--space-2xl)',
                     }}>
-                        <div style={{ fontSize: '3rem', marginBottom: '16px' }}>📚</div>
-                        <h3 style={{
-                            fontSize: '20px',
-                            fontWeight: '600',
-                            color: 'var(--color-text-primary)',
-                            margin: '0 0 12px 0'
-                        }}>Пока нет предложений</h3>
-                        <p style={{
-                            fontSize: '16px',
-                            color: 'var(--color-text-secondary)',
-                            lineHeight: '1.6',
-                            margin: '0 0 24px 0'
-                        }}>
+                        <div className={styles.emptyIcon}>📚</div>
+                        <h3 className={styles.emptyTitle}>Пока нет предложений</h3>
+                        <p className={styles.emptyText}>
                             Предложите первую книгу для обсуждения в клубе
                         </p>
                         <Link 
                             href="/search"
-                            style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                padding: '12px 24px',
-                                backgroundColor: '#f26419',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '12px',
-                                fontWeight: '500',
-                                textDecoration: 'none',
-                                transition: 'all 0.15s ease'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = '#e34a0f';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.backgroundColor = '#f26419';
-                            }}
+                            className={styles.viewButton}
                         >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <circle cx="11" cy="11" r="8"/>
@@ -291,49 +197,21 @@ export default function MyProposalsPage() {
                 ) : (
                     <div>
                         {/* Заголовок */}
-                        <div className="card-glass" style={{
-                            padding: 'var(--space-l)',
-                            marginBottom: '24px'
-                        }}>
-                            <h1 style={{
-                                fontSize: '24px',
-                                fontWeight: '700',
-                                color: 'var(--color-text-primary)',
-                                margin: '0 0 8px 0',
-                                textAlign: 'center'
-                            }}>
+                        <div className={`card-glass ${styles.headerCard}`}>
+                            <h1 className={styles.headerTitle}>
                                 Мои предложения
                             </h1>
-                            <p style={{
-                                fontSize: '16px',
-                                color: 'var(--color-text-secondary)',
-                                textAlign: 'center',
-                                margin: '0'
-                            }}>
+                            <p className={styles.headerSubtitle}>
                                 {items.length} {items.length === 1 ? 'книга' : items.length < 5 ? 'книги' : 'книг'}
                             </p>
                         </div>
 
                         {/* Список книг */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <div className={styles.candidateList}>
                             {items.map((candidate) => (
                                 <div 
                                     key={candidate.id}
-                                    className="card-glass"
-                                    style={{
-                                        padding: 'var(--space-m)',
-                                        transition: 'all 0.25s ease'
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
-                                        e.currentTarget.style.transform = 'translateY(-2px)';
-                                        e.currentTarget.style.borderColor = '#d1d5db';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
-                                        e.currentTarget.style.transform = 'translateY(0)';
-                                        e.currentTarget.style.borderColor = '#e5e7eb';
-                                    }}
+                                    className={`card-glass ${styles.candidateCard}`}
                                 >
                                     <BookCard
                                         title={candidate.Book?.titleNorm || 'Неизвестная книга'}
@@ -351,30 +229,7 @@ export default function MyProposalsPage() {
                                         <button
                                             onClick={() => remove(candidate.id, candidate.Book?.titleNorm || 'книгу')}
                                             disabled={deleting === candidate.id}
-                                            style={{
-                                                display: 'inline-flex',
-                                                alignItems: 'center',
-                                                gap: '8px',
-                                                padding: '8px 16px',
-                                                backgroundColor: deleting === candidate.id ? '#f3f4f6' : '#ef4444',
-                                                color: deleting === candidate.id ? 'var(--color-text-muted)' : 'white',
-                                                border: 'none',
-                                                borderRadius: '8px',
-                                                fontSize: '14px',
-                                                fontWeight: '500',
-                                                cursor: deleting === candidate.id ? 'not-allowed' : 'pointer',
-                                                transition: 'all 0.15s ease'
-                                            }}
-                                            onMouseEnter={(e) => {
-                                                if (deleting !== candidate.id) {
-                                                    e.currentTarget.style.backgroundColor = '#dc2626';
-                                                }
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                if (deleting !== candidate.id) {
-                                                    e.currentTarget.style.backgroundColor = '#ef4444';
-                                                }
-                                            }}
+                                            className={`${styles.deleteButton} ${deleting === candidate.id ? styles.deleteButtonDisabled : ''}`}
                                         >
                                             {deleting === candidate.id ? (
                                                 <>
@@ -406,35 +261,10 @@ export default function MyProposalsPage() {
                         </div>
 
                         {/* Кнопка добавить еще */}
-                        <div style={{
-                            marginTop: '24px',
-                            textAlign: 'center'
-                        }}>
+                        <div className={styles.addMoreSection}>
                             <Link 
                                 href="/search"
-                                style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    padding: '16px 24px',
-                                    backgroundColor: '#f26419',
-                                    color: 'white',
-                                    border: '2px dashed transparent',
-                                    borderRadius: '12px',
-                                    fontWeight: '500',
-                                    textDecoration: 'none',
-                                    transition: 'all 0.15s ease'
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor = 'transparent';
-                                    e.currentTarget.style.color = 'var(--color-accent-warm)';
-                                    e.currentTarget.style.borderColor = '#f26419';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#f26419';
-                                    e.currentTarget.style.color = 'white';
-                                    e.currentTarget.style.borderColor = 'transparent';
-                                }}
+                                className={styles.viewButton}
                             >
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                     <line x1="12" y1="5" x2="12" y2="19"/>
@@ -447,12 +277,7 @@ export default function MyProposalsPage() {
                 )}
             </div>
 
-            <style jsx>{`
-                @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                }
-            `}</style>
+
         </div>
     );
 }

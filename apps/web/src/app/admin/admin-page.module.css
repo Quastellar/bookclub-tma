@@ -1,0 +1,436 @@
+/* Admin Page CSS Module - Paper & Glass Design System */
+
+.container {
+  min-height: 100vh;
+  background: var(--color-bg-base);
+  padding-bottom: 80px;
+}
+
+/* Loading States */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2xl);
+  gap: var(--space-m);
+}
+
+.loadingSpinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e5e7eb;
+  border-top: 3px solid #f26419;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loadingText {
+  color: var(--color-text-muted);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error States */
+.errorContainer {
+  text-align: center;
+  padding: var(--space-2xl);
+}
+
+.errorIcon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.errorTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-error);
+  margin: 0 0 12px 0;
+}
+
+.errorText {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.errorMessage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-error);
+  font-weight: 500;
+}
+
+/* Access Denied */
+.accessDeniedContainer {
+  text-align: center;
+  padding: var(--space-2xl);
+}
+
+.accessDeniedIcon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.accessDeniedTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-error);
+  margin: 0 0 12px 0;
+}
+
+.accessDeniedText {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Current Iteration Section */
+.currentIterationSection {
+  text-align: center;
+  padding: 32px 20px;
+  color: var(--color-text-secondary);
+}
+
+.currentIterationIcon {
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.currentIterationTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 8px 0;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-s);
+}
+
+.currentIterationSubtitle {
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin: 0;
+}
+
+/* Iteration Info */
+.iterationInfo {
+  margin-top: var(--space-l);
+}
+
+.iterationHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  margin-bottom: var(--space-s);
+}
+
+.iterationTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+  flex: 1;
+}
+
+.iterationStatus {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statusOpen {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.statusClosed {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.statusPlanned {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.iterationDetails {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-s);
+}
+
+.iterationDetail {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+.detailLabel {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  min-width: 80px;
+}
+
+.detailValue {
+  color: var(--color-text-primary);
+}
+
+.iterationStats {
+  display: flex;
+  gap: var(--space-m);
+  margin-bottom: var(--space-s);
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.statValue {
+  background: var(--color-border-soft);
+  color: var(--color-text-primary);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.statLabel {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+/* Action Buttons */
+.actionButtons {
+  display: flex;
+  gap: var(--space-s);
+  margin-top: var(--space-m);
+}
+
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.openButton {
+  background: #10b981;
+  color: white;
+}
+
+.openButton:hover:not(:disabled) {
+  background: #059669;
+}
+
+.openButton:disabled {
+  background: #f3f4f6;
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.closeButton {
+  background: #ef4444;
+  color: white;
+}
+
+.closeButton:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.closeButton:disabled {
+  background: #f3f4f6;
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+/* Deadline Change Section */
+.deadlineSection {
+  margin-top: var(--space-l);
+}
+
+.deadlineTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 12px 0;
+}
+
+.deadlineForm {
+  display: flex;
+  gap: var(--space-s);
+  align-items: flex-end;
+}
+
+.deadlineInput {
+  flex: 1;
+}
+
+.deadlineLabel {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: 6px;
+}
+
+.deadlineInputField {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 6px;
+  font-size: 14px;
+  background: var(--color-bg-glass);
+  color: var(--color-text-primary);
+}
+
+.deadlineInputField:focus {
+  outline: none;
+  border-color: var(--color-accent-warm);
+  box-shadow: 0 0 0 3px rgba(240, 179, 90, 0.1);
+}
+
+.deadlineButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.deadlineButton:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.deadlineButton:disabled {
+  background: #f3f4f6;
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+/* Create New Iteration Section */
+.createIterationSection {
+  margin-top: var(--space-2xl);
+}
+
+.createIterationTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 16px 0;
+}
+
+.createIterationForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formLabel {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: 6px;
+}
+
+.formInput {
+  padding: 12px 16px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 8px;
+  font-size: 16px;
+  background: var(--color-bg-glass);
+  color: var(--color-text-primary);
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: var(--color-accent-warm);
+  box-shadow: 0 0 0 3px rgba(240, 179, 90, 0.1);
+}
+
+.createButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 24px;
+  background: #f26419;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.createButton:hover:not(:disabled) {
+  background: #e55a0f;
+}
+
+.createButton:disabled {
+  background: #f3f4f6;
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .actionButtons {
+    flex-direction: column;
+  }
+  
+  .deadlineForm {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .iterationStats {
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+  
+  .iterationDetail {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-xs);
+  }
+  
+  .detailLabel {
+    min-width: auto;
+  }
+}

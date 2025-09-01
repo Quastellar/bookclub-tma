@@ -32,7 +32,7 @@ export default function MyProposalsPage() {
     const { tg, isReady } = useTelegramTheme();
     const { state, updateCandidatesCache, isCacheValid } = useSharedState();
     const [items, setItems] = useState<CandidateDto[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true); // Начинаем с true
     const [error, setError] = useState<string | null>(null);
     const [me, setMe] = useState<import('@/lib/auth').TmaUser | null>(null);
     const [isClient, setIsClient] = useState(false);
@@ -50,8 +50,9 @@ export default function MyProposalsPage() {
                     return added?.id === currentUser?.id || (added?.tgUserId && added?.tgUserId === currentUser?.tgUserId);
                 });
                 setItems(mine);
+                setLoading(false); // Важно: убираем loading для кэшированных данных
+                return;
             }
-            return;
         }
 
         setLoading(true);
@@ -64,6 +65,7 @@ export default function MyProposalsPage() {
             if (!res.ok) {
                 if (res.status === 404) {
                     setItems([]);
+                    setLoading(false);
                     return;
                 }
                 throw new Error(await res.text());
@@ -77,6 +79,7 @@ export default function MyProposalsPage() {
             const currentUser = typeof window !== 'undefined' ? getUser() : null;
             if (!currentUser) {
                 setItems([]);
+                setLoading(false);
                 return;
             }
             
@@ -92,14 +95,12 @@ export default function MyProposalsPage() {
         } finally {
             setLoading(false);
         }
-    }, [isCacheValid, state.candidatesCache.data, updateCandidatesCache]); // Убираем зависимость от me
+    }, [isCacheValid, state.candidatesCache.data, updateCandidatesCache]);
 
     useEffect(() => {
-        if (initialized) return; // Предотвращаем повторную инициализацию
-        
         setIsClient(true);
         
-        // Простая инициализация без циклов
+        // Простая инициализация пользователя
         const initUser = async () => {
             try {
                 const authData = await tmaLogin();
@@ -115,14 +116,14 @@ export default function MyProposalsPage() {
         };
         
         initUser();
-    }, [initialized]); // Зависимость от initialized
+    }, []); // Только при монтировании
 
-    // Отдельный useEffect для загрузки данных когда компонент готов
+    // Загружаем данные когда компонент готов
     useEffect(() => {
         if (isClient && initialized) {
             load();
         }
-    }, [isClient, initialized, load]); // load только когда все готово
+    }, [isClient, initialized, load]);
 
     const remove = async (id: string, title: string) => {
         const confirmed = window.confirm(`Удалить книгу "${title}"?`);
@@ -193,10 +194,7 @@ export default function MyProposalsPage() {
                          </button>
                     </div>
                 ) : items.length === 0 ? (
-                    <div className="card-glass" style={{
-                        textAlign: 'center',
-                        padding: 'var(--space-2xl)',
-                    }}>
+                                         <div className={`card-glass ${styles.emptyState}`}>
                         <div className={styles.emptyIcon}>📚</div>
                         <h3 className={styles.emptyTitle}>Пока нет предложений</h3>
                         <p className={styles.emptyText}>
@@ -238,31 +236,18 @@ export default function MyProposalsPage() {
                                         coverUrl={candidate.Book?.coverUrl}
                                     />
                                     
-                                    <div style={{
-                                        marginTop: '16px',
-                                        paddingTop: '16px',
-                                        borderTop: '1px solid #f3f4f6',
-                                        display: 'flex',
-                                        justifyContent: 'flex-end'
-                                    }}>
+                                                                         <div className={styles.deleteButtonContainer}>
                                         <button
                                             onClick={() => remove(candidate.id, candidate.Book?.titleNorm || 'книгу')}
                                             disabled={deleting === candidate.id}
                                             className={`${styles.deleteButton} ${deleting === candidate.id ? styles.deleteButtonDisabled : ''}`}
                                         >
-                                            {deleting === candidate.id ? (
-                                                <>
-                                                    <div style={{
-                                                        width: '14px',
-                                                        height: '14px',
-                                                        border: '2px solid #6b7280',
-                                                        borderTop: '2px solid transparent',
-                                                        borderRadius: '50%',
-                                                        animation: 'spin 1s linear infinite'
-                                                    }} />
-                                                    Удаление...
-                                                </>
-                                            ) : (
+                                                                                         {deleting === candidate.id ? (
+                                                 <>
+                                                     <div className={styles.deleteSpinner} />
+                                                     Удаление...
+                                                 </>
+                                             ) : (
                                                 <>
                                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                                         <polyline points="3,6 5,6 21,6"/>

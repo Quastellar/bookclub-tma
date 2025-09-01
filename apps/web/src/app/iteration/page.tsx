@@ -8,6 +8,7 @@ import { useTelegramTheme } from '../_providers/TelegramThemeProvider';
 import { useSharedState } from '../_providers/SharedStateProvider';
 import { GlassHeader } from '../_components/GlassHeader';
 import BookCard from '../_components/BookCard';
+import styles from './iteration-page.module.css';
 
 const API = process.env.NEXT_PUBLIC_API_URL!;
 
@@ -265,178 +266,106 @@ export default function IterationPage() {
 
         const config = statusConfig[iter.status];
 
-        return (
-            <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--space-s)',
-                padding: 'var(--space-s) var(--space-m)',
-                background: config.bgColor,
-                borderRadius: 'var(--radius-button)',
-                border: `1px solid ${config.color}`,
-                marginBottom: 'var(--space-l)',
-            }}>
-                <span style={{ fontSize: '1.2em' }}>{config.emoji}</span>
-                <span style={{
-                    fontSize: 'var(--font-size-body)',
-                    fontWeight: 'var(--font-weight-medium)',
-                    color: config.color,
-                }}>
-                    {config.text}
-                </span>
-                
-                {iter.meetingDate && (
-                    <>
-                        <span style={{ color: 'var(--color-text-muted)' }}>•</span>
-                        <span style={{
-                            fontSize: 'var(--font-size-body)',
-                            color: 'var(--color-text-secondary)',
-                        }}>
-                            {new Date(iter.meetingDate).toLocaleDateString('ru-RU', { timeZone: 'UTC' })}
-                        </span>
-                    </>
-                )}
-            </div>
-        );
+                 return (
+             <div className={styles.iterationStatus} data-status={iter.status}>
+                 <span className={styles.statusEmoji}>{config.emoji}</span>
+                 <span className={styles.statusText}>
+                     {config.text}
+                 </span>
+                 
+                 {iter.meetingDate && (
+                     <>
+                         <span className={styles.statusSeparator}>•</span>
+                         <span className={styles.meetingDate}>
+                             {new Date(iter.meetingDate).toLocaleDateString('ru-RU', { timeZone: 'UTC' })}
+                         </span>
+                     </>
+                 )}
+             </div>
+         );
     };
 
-    const renderThankYou = () => (
-        <div 
-            style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                background: 'rgba(247, 243, 234, 0.95)',
-                backdropFilter: 'blur(24px)',
-                zIndex: 1000,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 'var(--space-l)',
-                animation: 'fadeIn var(--duration-slow) var(--ease-out)',
-            }}
-        >
-            <div style={{
-                textAlign: 'center',
-                animation: 'scaleIn var(--duration-normal) var(--ease-out-back)',
-            }}>
-                <div style={{ 
-                    fontSize: '4rem', 
-                    marginBottom: 'var(--space-l)',
-                    animation: 'spring var(--duration-slow) var(--ease-out-back)',
-                }}>
-                    ✨
-                </div>
-                <h2 style={{
-                    fontSize: 'var(--font-size-title)',
-                    fontWeight: 'var(--font-weight-bold)',
-                    color: 'var(--color-text-primary)',
-                    margin: '0 0 var(--space-s) 0',
-                }}>
-                    Спасибо за голос!
-                </h2>
-                <p style={{
-                    fontSize: 'var(--font-size-body)',
-                    color: 'var(--color-text-secondary)',
-                    margin: 0,
-                }}>
-                    Ваш выбор учтён
-                </p>
-            </div>
-        </div>
-    );
+         const renderThankYou = () => (
+         <div className={styles.thankYouOverlay}>
+             <div className={styles.thankYouContent}>
+                 <div className={styles.thankYouIcon}>
+                     ✨
+                 </div>
+                 <h2 className={styles.thankYouTitle}>
+                     Спасибо за голос!
+                 </h2>
+                 <p className={styles.thankYouText}>
+                     Ваш выбор учтён
+                 </p>
+             </div>
+         </div>
+     );
 
-    if (!isClient) {
-        return (
-            <div style={{ minHeight: '100vh', background: 'var(--color-bg-base)' }}>
-                <div className="skeleton" style={{ height: '100px', margin: 'var(--space-m)' }} />
-            </div>
-        );
-    }
+         if (!isClient) {
+         return (
+             <div className={styles.pageContainer}>
+                 <div className={`skeleton ${styles.skeletonHeader}`} />
+             </div>
+         );
+     }
 
-    if (loading) {
-        return (
-            <div style={{ minHeight: '100vh', background: 'var(--color-bg-base)' }}>
-                <GlassHeader title="Голосование" />
-                <div className="container">
-                    <div className="skeleton" style={{ height: '60px', marginBottom: 'var(--space-l)' }} />
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-m)' }}>
-                        {Array.from({ length: 3 }).map((_, i) => (
-                            <div key={i} className="skeleton" style={{ height: '150px' }} />
-                        ))}
-                    </div>
-                </div>
-            </div>
-        );
-    }
+         if (loading) {
+         return (
+             <div className={styles.pageContainer}>
+                 <GlassHeader title="Голосование" />
+                 <div className="container">
+                     <div className={`skeleton ${styles.skeletonStatus}`} />
+                     <div className={styles.skeletonList}>
+                         {Array.from({ length: 3 }).map((_, i) => (
+                             <div key={i} className={`skeleton ${styles.skeletonCard}`} />
+                         ))}
+                     </div>
+                 </div>
+             </div>
+         );
+     }
 
-    if (error) {
-        return (
-            <div style={{ minHeight: '100vh', background: 'var(--color-bg-base)' }}>
-                <GlassHeader title="Голосование" />
-                <div className="container">
-                    <div style={{
-                        textAlign: 'center',
-                        padding: 'var(--space-2xl)',
-                        background: 'var(--color-error-bg)',
-                        borderRadius: 'var(--radius-large)',
-                        border: '1px solid var(--color-error)',
-                    }}>
-                        <div style={{ fontSize: '3rem', marginBottom: 'var(--space-m)' }}>⚠️</div>
-                        <h3 style={{ 
-                            color: 'var(--color-error)', 
-                            marginBottom: 'var(--space-s)' 
-                        }}>
-                            Ошибка загрузки
-                        </h3>
-                        <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-l)' }}>
-                            {error}
-                        </p>
-                        <button className="btn btn-primary" onClick={() => loadIteration()}>
-                            Попробовать снова
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-    }
+         if (error) {
+         return (
+             <div className={styles.pageContainer}>
+                 <GlassHeader title="Голосование" />
+                 <div className="container">
+                     <div className={styles.errorContainer}>
+                         <div className={styles.errorIcon}>⚠️</div>
+                         <h3 className={styles.errorTitle}>
+                             Ошибка загрузки
+                         </h3>
+                         <p className={styles.errorText}>
+                             {error}
+                         </p>
+                         <button className="btn btn-primary" onClick={() => loadIteration()}>
+                             Попробовать снова
+                         </button>
+                     </div>
+                 </div>
+             </div>
+         );
+     }
 
-    if (!iter) {
-        return (
-            <div style={{ minHeight: '100vh', background: 'var(--color-bg-base)' }}>
-                <GlassHeader title="Голосование" />
-                <div className="container">
-                    <div style={{
-                        textAlign: 'center',
-                        padding: 'var(--space-2xl)',
-                        background: 'var(--card-gradient)',
-                        borderRadius: 'var(--radius-large)',
-                        border: '1px solid var(--color-border-subtle)',
-                    }}>
-                        <div style={{ fontSize: '4rem', marginBottom: 'var(--space-l)' }}>📚</div>
-                        <h3 style={{ 
-                            fontSize: 'var(--font-size-h1)',
-                            color: 'var(--color-text-primary)', 
-                            marginBottom: 'var(--space-s)' 
-                        }}>
-                            Нет активной итерации
-                        </h3>
-                        <p style={{ 
-                            color: 'var(--color-text-secondary)', 
-                            marginBottom: 'var(--space-l)',
-                            lineHeight: 'var(--line-height-relaxed)',
-                        }}>
-                            В настоящее время нет открытых итераций для голосования. 
-                            Следите за анонсами в канале!
-                        </p>
-                    </div>
-                </div>
-            </div>
-        );
-    }
+         if (!iter) {
+         return (
+             <div className={styles.pageContainer}>
+                 <GlassHeader title="Голосование" />
+                 <div className="container">
+                     <div className={styles.emptyState}>
+                         <div className={styles.emptyIcon}>📚</div>
+                         <h3 className={styles.emptyTitle}>
+                             Нет активной итерации
+                         </h3>
+                         <p className={styles.emptyText}>
+                             В настоящее время нет открытых итераций для голосования. 
+                             Следите за анонсами в канале!
+                         </p>
+                     </div>
+                 </div>
+             </div>
+         );
+     }
 
     // Получаем ID текущего пользователя
     const currentUser = isClient ? getUser() : null;
@@ -448,12 +377,8 @@ export default function IterationPage() {
     );
     const totalVotes = Object.values(iter.voteCounts || {}).reduce((sum, count) => sum + count, 0);
 
-    return (
-        <div style={{
-            minHeight: '100vh',
-            background: 'var(--color-bg-base)',
-            paddingBottom: '100px',
-        }}>
+         return (
+         <div className={styles.pageContainer}>
             {showThankYou && renderThankYou()}
             
             <GlassHeader 
@@ -464,43 +389,20 @@ export default function IterationPage() {
             <div className="container">
                 {renderIterationStatus()}
 
-                {/* Voting Instructions */}
-                {iter.status === 'OPEN' && (
-                    <div style={{
-                        padding: 'var(--space-m)',
-                        background: 'linear-gradient(135deg, rgba(126,200,165,0.1), rgba(240,179,90,0.05))',
-                        borderRadius: 'var(--radius-card)',
-                        border: '1px solid rgba(126,200,165,0.2)',
-                        marginBottom: 'var(--space-l)',
-                    }}>
-                        <h3 style={{
-                            fontSize: 'var(--font-size-h2)',
-                            fontWeight: 'var(--font-weight-semibold)',
-                            color: 'var(--color-text-primary)',
-                            margin: '0 0 var(--space-xs) 0',
-                        }}>
-                            🗳️ Выберите книгу для чтения
-                        </h3>
-                        <p style={{
-                            fontSize: 'var(--font-size-body)',
-                            color: 'var(--color-text-secondary)',
-                            margin: 0,
-                            lineHeight: 'var(--line-height-relaxed)',
-                        }}>
-                            Нажмите на карточку книги, которую хотите прочитать, и подтвердите выбор
-                        </p>
-                    </div>
-                )}
+                                 {/* Voting Instructions */}
+                 {iter.status === 'OPEN' && (
+                     <div className={styles.votingInstructions}>
+                         <h3 className={styles.votingTitle}>
+                             🗳️ Выберите книгу для чтения
+                         </h3>
+                         <p className={styles.votingText}>
+                             Нажмите на карточку книги, которую хотите прочитать, и подтвердите выбор
+                         </p>
+                     </div>
+                 )}
 
                 {/* Candidates List */}
-                <div 
-                    className="stagger-children"
-                    style={{ 
-                        display: 'flex', 
-                        flexDirection: 'column', 
-                        gap: 'var(--space-m)' 
-                    }}
-                >
+                                 <div className={`stagger-children ${styles.candidatesList}`}>
                     {candidates.map((candidate, index) => {
                         const isSelected = selectedCandidateIds.has(candidate.id);
                         const isMyVote = iter.myVoteCandidateId === candidate.id;
@@ -509,13 +411,11 @@ export default function IterationPage() {
                         const isWinner = iter.status === 'CLOSED' && iter.winnerCandidateId === candidate.id;
 
                         return (
-                            <div
-                                key={candidate.id}
-                                style={{
-                                    position: 'relative',
-                                    animationDelay: `${index * 30}ms`,
-                                }}
-                            >
+                                                         <div
+                                 key={candidate.id}
+                                 className={styles.candidateItem}
+                                 style={{ animationDelay: `${index * 30}ms` }}
+                             >
                                 <BookCard
                                     title={candidate.Book?.titleNorm || 'Неизвестная книга'}
                                     authors={candidate.Book?.authorsNorm || ['Неизвестный автор']}
@@ -541,78 +441,42 @@ export default function IterationPage() {
                                         ...(isMyVote ? ['Ваш голос'] : []),
                                         ...(isWinner ? ['🏆 Победитель'] : []),
                                     ]}
-                                    footer={
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-xs)' }}>
-                                            {/* Vote progress bar */}
-                                            {(iter.status === 'CLOSED' || voteCount > 0) && (
-                                                <div style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'space-between',
-                                                    marginBottom: 'var(--space-xs)',
-                                                }}>
-                                                    <span style={{
-                                                        fontSize: 'var(--font-size-caption)',
-                                                        color: 'var(--color-text-secondary)',
-                                                    }}>
-                                                        {voteCount} {voteCount === 1 ? 'голос' : voteCount < 5 ? 'голоса' : 'голосов'}
-                                                    </span>
-                                                    <span style={{
-                                                        fontSize: 'var(--font-size-caption)',
-                                                        fontWeight: 'var(--font-weight-semibold)',
-                                                        color: 'var(--color-accent-warm)',
-                                                    }}>
-                                                        {percentage}%
-                                                    </span>
-                                                </div>
-                                            )}
-                                            
-                                            {(iter.status === 'CLOSED' || voteCount > 0) && (
-                                                <div style={{
-                                                    height: '6px',
-                                                    background: 'var(--color-bg-layer)',
-                                                    borderRadius: '3px',
-                                                    overflow: 'hidden',
-                                                    position: 'relative',
-                                                }}>
-                                                    <div style={{
-                                                        height: '100%',
-                                                        width: `${percentage}%`,
-                                                        background: isWinner 
-                                                            ? 'linear-gradient(90deg, var(--color-accent-warm), var(--color-accent-fresh))'
-                                                            : 'var(--color-accent-warm)',
-                                                        borderRadius: '3px',
-                                                        transition: 'width var(--duration-slow) var(--ease-out)',
-                                                    }} />
-                                                </div>
-                                            )}
+                                                                         footer={
+                                         <div className={styles.cardFooter}>
+                                             {/* Vote progress bar */}
+                                             {(iter.status === 'CLOSED' || voteCount > 0) && (
+                                                 <div className={styles.voteProgress}>
+                                                     <span className={styles.voteCount}>
+                                                         {voteCount} {voteCount === 1 ? 'голос' : voteCount < 5 ? 'голоса' : 'голосов'}
+                                                     </span>
+                                                     <span className={styles.votePercentage}>
+                                                         {percentage}%
+                                                     </span>
+                                                 </div>
+                                             )}
+                                             
+                                             {(iter.status === 'CLOSED' || voteCount > 0) && (
+                                                 <div className={styles.progressBar}>
+                                                     <div 
+                                                         className={`${styles.progressFill} ${isWinner ? styles.winnerProgress : ''}`}
+                                                         style={{ width: `${percentage}%` }}
+                                                     />
+                                                 </div>
+                                             )}
 
-                                            {/* Added by info */}
-                                            {candidate.AddedBy && (
-                                                <div style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: 'var(--space-xs)',
-                                                    paddingTop: 'var(--space-xs)',
-                                                    borderTop: '1px solid var(--color-border-soft)',
-                                                }}>
-                                                    <span style={{
-                                                        fontSize: 'var(--font-size-caption)',
-                                                        color: 'var(--color-text-muted)',
-                                                    }}>
-                                                        Предложил:
-                                                    </span>
-                                                    <span style={{
-                                                        fontSize: 'var(--font-size-caption)',
-                                                        color: 'var(--color-text-secondary)',
-                                                        fontWeight: 'var(--font-weight-medium)',
-                                                    }}>
-                                                        {candidate.AddedBy.name || candidate.AddedBy.username || 'Аноним'}
-                                                    </span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    }
+                                             {/* Added by info */}
+                                             {candidate.AddedBy && (
+                                                 <div className={styles.addedByInfo}>
+                                                     <span className={styles.addedByLabel}>
+                                                         Предложил:
+                                                     </span>
+                                                     <span className={styles.addedByName}>
+                                                         {candidate.AddedBy.name || candidate.AddedBy.username || 'Аноним'}
+                                                     </span>
+                                                 </div>
+                                             )}
+                                         </div>
+                                     }
                                 />
                             </div>
                         );

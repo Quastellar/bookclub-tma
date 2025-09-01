@@ -1,0 +1,305 @@
+/* Iteration Page CSS Module - Paper & Glass Design System */
+
+.iterationStatus {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-s) var(--space-m);
+  border-radius: var(--radius-button);
+  margin-bottom: var(--space-l);
+  border: 1px solid;
+}
+
+.iterationStatus[data-status="PLANNED"] {
+  background: var(--color-warning-bg);
+  border-color: var(--color-warning);
+}
+
+.iterationStatus[data-status="OPEN"] {
+  background: var(--color-success-bg);
+  border-color: var(--color-success);
+}
+
+.iterationStatus[data-status="CLOSED"] {
+  background: var(--color-bg-layer);
+  border-color: var(--color-text-muted);
+}
+
+.statusEmoji {
+  font-size: 1.2em;
+}
+
+.statusText {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+}
+
+.iterationStatus[data-status="PLANNED"] .statusText {
+  color: var(--color-warning);
+}
+
+.iterationStatus[data-status="OPEN"] .statusText {
+  color: var(--color-success);
+}
+
+.iterationStatus[data-status="CLOSED"] .statusText {
+  color: var(--color-text-muted);
+}
+
+.statusSeparator {
+  color: var(--color-text-muted);
+}
+
+.meetingDate {
+  font-size: var(--font-size-body);
+  color: var(--color-text-secondary);
+}
+
+.votingInstructions {
+  padding: var(--space-m);
+  background: linear-gradient(135deg, rgba(126,200,165,0.1), rgba(240,179,90,0.05));
+  border-radius: var(--radius-card);
+  border: 1px solid rgba(126,200,165,0.2);
+  margin-bottom: var(--space-l);
+}
+
+.votingTitle {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-xs) 0;
+}
+
+.votingText {
+  font-size: var(--font-size-body);
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: var(--line-height-relaxed);
+}
+
+.cardFooter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.voteProgress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-xs);
+}
+
+.voteCount {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-secondary);
+}
+
+.votePercentage {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-accent-warm);
+}
+
+.progressBar {
+  height: 6px;
+  background: var(--color-bg-layer);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--color-accent-warm);
+  border-radius: 3px;
+  transition: width var(--duration-slow) var(--ease-out);
+}
+
+.winnerProgress {
+  background: linear-gradient(90deg, var(--color-accent-warm), var(--color-accent-fresh));
+}
+
+.addedByInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding-top: var(--space-xs);
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.addedByLabel {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+}
+
+.addedByName {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.thankYouOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(247, 243, 234, 0.95);
+  backdrop-filter: blur(24px);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-l);
+  animation: fadeIn var(--duration-slow) var(--ease-out);
+}
+
+.thankYouContent {
+  text-align: center;
+  animation: scaleIn var(--duration-normal) var(--ease-out-back);
+}
+
+.thankYouIcon {
+  font-size: 4rem;
+  margin-bottom: var(--space-l);
+  animation: spring var(--duration-slow) var(--ease-out-back);
+}
+
+.thankYouTitle {
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-s) 0;
+}
+
+.thankYouText {
+  font-size: var(--font-size-body);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes spring {
+  0% {
+    transform: scale(0.8) rotate(-10deg);
+  }
+  50% {
+    transform: scale(1.1) rotate(5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* Page Container */
+.pageContainer {
+  min-height: 100vh;
+  background: var(--color-bg-base);
+  padding-bottom: 100px;
+}
+
+/* Skeleton Styles */
+.skeletonStatus {
+  height: 60px;
+  margin-bottom: var(--space-l);
+}
+
+.skeletonList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+}
+
+.skeletonCard {
+  height: 150px;
+}
+
+.skeletonHeader {
+  height: 100px;
+  margin: var(--space-m);
+}
+
+/* Error Container */
+.errorContainer {
+  text-align: center;
+  padding: var(--space-2xl);
+  background: var(--color-error-bg);
+  border-radius: var(--radius-large);
+  border: 1px solid var(--color-error);
+}
+
+.errorIcon {
+  font-size: 3rem;
+  margin-bottom: var(--space-m);
+}
+
+.errorTitle {
+  color: var(--color-error);
+  margin-bottom: var(--space-s);
+  font-size: var(--font-size-h2);
+}
+
+.errorText {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-l);
+  font-size: var(--font-size-body);
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: var(--space-2xl);
+  background: var(--card-gradient);
+  border-radius: var(--radius-large);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.emptyIcon {
+  font-size: 4rem;
+  margin-bottom: var(--space-l);
+}
+
+.emptyTitle {
+  font-size: var(--font-size-h1);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-s);
+  font-weight: var(--font-weight-semibold);
+}
+
+.emptyText {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-l);
+  line-height: var(--line-height-relaxed);
+}
+
+/* Candidates List */
+.candidatesList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+}
+
+.candidateItem {
+  position: relative;
+}

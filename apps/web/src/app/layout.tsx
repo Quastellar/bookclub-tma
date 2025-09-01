@@ -4,6 +4,7 @@ import Nav from './_components/Nav'
 import ToastProvider from './_components/ToastProvider'
 import I18nProvider from './_i18n/I18nProvider'
 import { TelegramThemeProvider } from './_providers/TelegramThemeProvider'
+import { SharedStateProvider } from './_providers/SharedStateProvider'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -35,21 +36,23 @@ export default function RootLayout({
             <body>
                 <TelegramThemeProvider>
                     <I18nProvider>
-                        <ToastProvider>
-                            <div style={{
-                                minHeight: '100vh',
-                                background: 'var(--color-bg-base)',
-                                color: 'var(--color-text-primary)',
-                                fontFamily: 'var(--font-family-ui)',
-                                fontSize: 'var(--font-size-body)',
-                                lineHeight: 'var(--line-height-normal)',
-                                paddingBottom: '80px', // под нижнюю навигацию
-                                transition: 'background-color var(--duration-theme) var(--ease-in-out), color var(--duration-theme) var(--ease-in-out)',
-                            }}>
-                                {children}
-                            </div>
-                            <Nav />
-                        </ToastProvider>
+                        <SharedStateProvider>
+                            <ToastProvider>
+                                <div style={{
+                                    minHeight: '100vh',
+                                    background: 'var(--color-bg-base)',
+                                    color: 'var(--color-text-primary)',
+                                    fontFamily: 'var(--font-family-ui)',
+                                    fontSize: 'var(--font-size-body)',
+                                    lineHeight: 'var(--line-height-normal)',
+                                    paddingBottom: '80px', // под нижнюю навигацию
+                                    transition: 'background-color var(--duration-theme) var(--ease-in-out), color var(--duration-theme) var(--ease-in-out)',
+                                }}>
+                                    {children}
+                                </div>
+                                <Nav />
+                            </ToastProvider>
+                        </SharedStateProvider>
                     </I18nProvider>
                 </TelegramThemeProvider>
             </body>

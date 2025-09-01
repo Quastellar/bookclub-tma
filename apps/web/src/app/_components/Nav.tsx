@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { getUser } from '@/lib/auth';
+import styles from './Nav.module.css';
 
 const navItems = [
   {
@@ -111,7 +112,14 @@ export default function Nav() {
     setIsMenuOpen(false);
   }, [pathname]);
 
-  const isActive = (href: string) => pathname === href;
+  const isActive = (href: string) => {
+    // Точное совпадение для главной страницы
+    if (href === '/') {
+      return pathname === '/';
+    }
+    // Для остальных страниц проверяем, начинается ли pathname с href
+    return pathname.startsWith(href);
+  };
   const isAdmin = user?.roles?.includes('admin') ?? false;
   
   // Фильтруем пункты меню на основе прав пользователя
@@ -119,97 +127,26 @@ export default function Nav() {
 
   return (
     <div ref={menuRef}>
-      <nav style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1000,
-        background: 'var(--color-bg-glass)',
-        backdropFilter: 'blur(24px)',
-        borderTop: '1px solid var(--color-border-subtle)',
-        boxShadow: 'var(--shadow-soft)',
-        paddingBottom: 'env(safe-area-inset-bottom)'
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-around',
-          padding: '6px 4px',
-          maxWidth: '100%',
-          margin: '0 auto',
-          gap: '2px'
-        }}>
+      <nav className={styles.navContainer}>
+        <div className={styles.navContent}>
           {navItems.map((item) => {
             const active = isActive(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'flex-start',
-                  gap: '4px',
-                  padding: '10px 6px',
-                  minWidth: '60px',
-                  height: '58px',
-                  textDecoration: 'none',
-                  color: active ? 'var(--color-accent-warm)' : 'var(--color-text-muted)',
-                  transition: 'all 0.25s ease',
-                  borderRadius: '12px',
-                  position: 'relative',
-                  overflow: 'hidden'
-                }}
-                onMouseEnter={(e) => {
-                  if (!active) {
-                    e.currentTarget.style.color = 'var(--color-text-secondary)';
-                    e.currentTarget.style.background = 'var(--color-border-soft)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!active) {
-                    e.currentTarget.style.color = 'var(--color-text-muted)';
-                    e.currentTarget.style.background = 'transparent';
-                  }
-                }}
+                prefetch={true}
+                className={`${styles.navItem} ${active ? styles.active : ''}`}
               >
                 {active && (
-                  <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: '24px',
-                    height: '3px',
-                    background: 'var(--color-accent-warm)',
-                    borderRadius: '0 0 4px 4px'
-                  }} />
+                  <div className={styles.activeIndicator} />
                 )}
                 
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'transform 0.15s cubic-bezier(0.68, -0.55, 0.265, 1.55)'
-                }}>
+                <div className={styles.iconContainer}>
                   {item.icon}
                 </div>
                 
-                <span style={{
-                  fontSize: '10px',
-                  fontWeight: '600',
-                  lineHeight: '1.2',
-                  textAlign: 'center',
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
-                }}>
+                <span className={styles.navLabel}>
                   {item.label}
                 </span>
               </Link>
@@ -220,58 +157,15 @@ export default function Nav() {
           {visibleMenuItems.length > 0 && (
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'flex-start',
-                gap: '4px',
-                padding: '10px 6px',
-                minWidth: '60px',
-                height: '58px',
-                background: 'transparent',
-                border: 'none',
-                color: isMenuOpen ? 'var(--color-accent-warm)' : 'var(--color-text-muted)',
-                transition: 'all 0.25s ease',
-                borderRadius: '12px',
-                position: 'relative',
-                overflow: 'hidden',
-                cursor: 'pointer',
-              }}
-              onMouseEnter={(e) => {
-                if (!isMenuOpen) {
-                  e.currentTarget.style.color = 'var(--color-text-secondary)';
-                  e.currentTarget.style.background = 'var(--color-border-soft)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isMenuOpen) {
-                  e.currentTarget.style.color = 'var(--color-text-muted)';
-                  e.currentTarget.style.background = 'transparent';
-                }
-              }}
+              className={`${styles.burgerButton} ${isMenuOpen ? styles.active : ''}`}
               aria-label="Меню"
               aria-expanded={isMenuOpen}
             >
               {isMenuOpen && (
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: '24px',
-                  height: '3px',
-                  background: 'var(--color-accent-warm)',
-                  borderRadius: '0 0 4px 4px'
-                }} />
+                <div className={styles.activeIndicator} />
               )}
               
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'transform 0.15s cubic-bezier(0.68, -0.55, 0.265, 1.55)'
-              }}>
+              <div className={styles.iconContainer}>
                 <svg 
                   width="22" 
                   height="22" 
@@ -279,10 +173,7 @@ export default function Nav() {
                   fill="none" 
                   stroke="currentColor" 
                   strokeWidth="2"
-                  style={{
-                    transform: isMenuOpen ? 'rotate(90deg)' : 'rotate(0deg)',
-                    transition: 'transform 0.25s ease'
-                  }}
+                  className={styles.burgerIcon}
                 >
                   <line x1="3" y1="6" x2="21" y2="6"/>
                   <line x1="3" y1="12" x2="21" y2="12"/>
@@ -290,19 +181,7 @@ export default function Nav() {
                 </svg>
               </div>
               
-              <span style={{
-                fontSize: '10px',
-                fontWeight: '600',
-                lineHeight: '1.2',
-                textAlign: 'center',
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
-              }}>
+              <span className={styles.navLabel}>
                 Еще
               </span>
             </button>
@@ -312,58 +191,17 @@ export default function Nav() {
 
       {/* Выпадающее меню */}
       {isMenuOpen && visibleMenuItems.length > 0 && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: '80px', // Над нижней навигацией
-            left: '50%',
-            transform: 'translateX(-50%)',
-            minWidth: '200px',
-            background: 'var(--color-bg-glass)',
-            backdropFilter: 'blur(24px)',
-            borderRadius: 'var(--radius-card)',
-            border: '1px solid var(--color-border-subtle)',
-            boxShadow: 'var(--shadow-soft)',
-            padding: 'var(--space-xs)',
-            zIndex: 1001,
-            animation: 'slideInUp 0.2s ease-out',
-          }}
-        >
+        <div className={styles.dropdownMenu}>
           {visibleMenuItems.map((item) => {
             const active = pathname === item.href;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 'var(--space-s)',
-                  padding: 'var(--space-s)',
-                  borderRadius: 'var(--radius-button)',
-                  textDecoration: 'none',
-                  color: active ? 'var(--color-accent-warm)' : 'var(--color-text-primary)',
-                  background: active ? 'rgba(240, 179, 90, 0.1)' : 'transparent',
-                  transition: 'all var(--duration-fast) var(--ease-out)',
-                  fontSize: 'var(--font-size-body)',
-                  fontWeight: active ? '600' : '500',
-                }}
-                onMouseEnter={(e) => {
-                  if (!active) {
-                    e.currentTarget.style.background = 'var(--color-border-soft)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!active) {
-                    e.currentTarget.style.background = 'transparent';
-                  }
-                }}
+                prefetch={true}
+                className={`${styles.dropdownItem} ${active ? styles.active : ''}`}
               >
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center',
-                  opacity: active ? 1 : 0.7 
-                }}>
+                <div className={styles.dropdownIcon}>
                   {item.icon}
                 </div>
                 <span>{item.label}</span>
@@ -373,19 +211,7 @@ export default function Nav() {
         </div>
       )}
 
-      {/* CSS для анимации */}
-      <style jsx>{`
-        @keyframes slideInUp {
-          from {
-            opacity: 0;
-            transform: translateX(-50%) translateY(10px) scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0) scale(1);
-          }
-        }
-      `}</style>
+
     </div>
   );
 }

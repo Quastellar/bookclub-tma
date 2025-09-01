@@ -7,6 +7,7 @@ import { apiFetch } from '@/lib/api';
 import { hapticError, hapticSuccess } from '@/lib/tg';
 import { useTelegramTheme } from '../_providers/TelegramThemeProvider';
 import { GlassHeader } from '../_components/GlassHeader';
+import styles from './admin-page.module.css';
 
 const API = process.env.NEXT_PUBLIC_API_URL!;
 
@@ -200,63 +201,25 @@ export default function AdminPage() {
 
     if (!isClient) {
         return (
-            <div style={{
-                minHeight: '100vh',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '16px',
-                background: 'var(--color-bg-base)'
-            }}>
-                <div style={{
-                    width: '32px',
-                    height: '32px',
-                    border: '3px solid #e5e7eb',
-                    borderTop: '3px solid #f26419',
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite'
-                }} />
-                <p style={{ color: 'var(--color-text-muted)' }}>Загрузка...</p>
-                <style jsx>{`
-                    @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                    }
-                `}</style>
+            <div className={styles.pageContainer}>
+                <div className={styles.loadingContainer}>
+                    <div className={styles.loadingSpinner} />
+                    <p className={styles.loadingText}>Загрузка...</p>
+                </div>
             </div>
         );
     }
 
     if (!isAdmin) {
         return (
-            <div style={{
-                minHeight: '100vh',
-                background: 'var(--color-bg-base)',
-                paddingBottom: '80px'
-            }}>
-                <GlassHeader title="Администрирование" subtitle="Управление итерациями книжного клуба" showBack />
+            <div className={styles.pageContainer}>
+                <GlassHeader title="Администрирование" subtitle="Управление итерациями книжного клуба" />
                 
                 <div className="container">
-                    <div className="card-glass" style={{
-                        textAlign: 'center',
-                        padding: 'var(--space-2xl)',
-                        border: '1px solid var(--color-error)',
-                        background: 'var(--color-error-bg)',
-                    }}>
-                        <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🔒</div>
-                        <h3 style={{
-                            fontSize: '20px',
-                            fontWeight: '600',
-                            color: 'var(--color-error)',
-                            margin: '0 0 12px 0'
-                        }}>Доступ запрещён</h3>
-                        <p style={{
-                            fontSize: '16px',
-                            color: 'var(--color-text-secondary)',
-                            lineHeight: '1.6',
-                            margin: '0'
-                        }}>
+                    <div className={styles.errorContainer}>
+                        <div className={styles.errorIcon}>🔒</div>
+                        <h3 className={styles.errorTitle}>Доступ запрещён</h3>
+                        <p className={styles.errorText}>
                             Требуются права администратора
                         </p>
                     </div>
@@ -266,132 +229,55 @@ export default function AdminPage() {
     }
 
     return (
-        <div style={{
-            minHeight: '100vh',
-            background: 'var(--color-bg-base)',
-            paddingBottom: '80px'
-        }}>
-            <GlassHeader title="Администрирование" subtitle="Управление итерациями книжного клуба" showBack />
+        <div className={styles.pageContainer}>
+            <GlassHeader title="Администрирование" subtitle="Управление итерациями книжного клуба" />
             
             <div className="container">
                 {/* Ошибки */}
                 {error && (
-                    <div style={{
-                        padding: '16px',
-                        background: '#fee2e2',
-                        border: '1px solid #fecaca',
-                        borderRadius: '12px',
-                        marginBottom: '24px'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            color: 'var(--color-error)',
-                            fontWeight: '500'
-                        }}>
-                            ⚠️ {error}
-                        </div>
+                    <div className={styles.errorContainer}>
+                        <div className={styles.errorIcon}>⚠️</div>
+                        <h3 className={styles.errorTitle}>Ошибка</h3>
+                        <p className={styles.errorText}>{error}</p>
                     </div>
                 )}
 
                 {/* Заголовок */}
-                <div className="card-glass" style={{
-                    padding: 'var(--space-l)',
-                    marginBottom: '24px'
-                }}>
-                    <h1 style={{
-                        fontSize: '24px',
-                        fontWeight: '700',
-                        color: 'var(--color-text-primary)',
-                        margin: '0 0 8px 0',
-                        textAlign: 'center',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px'
-                    }}>
+                <div className={`card-glass ${styles.headerCard}`}>
+                    <h1 className={styles.headerTitle}>
                         ⚙️ Панель администратора
                     </h1>
-                    <p style={{
-                        fontSize: '16px',
-                        color: '#6b7280',
-                        textAlign: 'center',
-                        margin: '0'
-                    }}>
+                    <p className={styles.headerSubtitle}>
                         Управление итерациями книжного клуба
                     </p>
                 </div>
 
                 {/* Текущая итерация */}
-                <div className="card-glass" style={{
-                    padding: '24px',
-                    marginBottom: '24px'
-                }}>
-                    <h2 style={{
-                        fontSize: '20px',
-                        fontWeight: '600',
-                        color: 'var(--color-text-primary)',
-                        margin: '0 0 16px 0'
-                    }}>
+                <div className={`card-glass ${styles.currentIterationCard}`}>
+                    <h2 className={styles.currentIterationTitle}>
                         Текущая итерация
                     </h2>
 
                     {currentIter ? (
                         <div>
                             {/* Информация об итерации */}
-                            <div style={{
-                                padding: '16px',
-                                background: '#f8fafc',
-                                borderRadius: '12px',
-                                marginBottom: '20px'
-                            }}>
-                                <h3 style={{
-                                    fontSize: '18px',
-                                    fontWeight: '600',
-                                    color: 'var(--color-text-primary)',
-                                    margin: '0 0 12px 0'
-                                }}>
+                            <div className={styles.iterationInfo}>
+                                <h3 className={styles.currentIterationTitle}>
                                     {currentIter.name}
                                 </h3>
                                 
-                                <div style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '12px',
-                                    marginBottom: '8px'
-                                }}>
-                                    <span style={{ color: 'var(--color-text-secondary)', fontWeight: '500' }}>Статус:</span>
-                                    <div style={{
-                                        padding: '4px 8px',
-                                        borderRadius: '8px',
-                                        fontSize: '14px',
-                                        fontWeight: '500',
-                                        ...(currentIter.status === 'OPEN' ? {
-                                            background: '#d1fae5',
-                                            color: '#065f46'
-                                        } : currentIter.status === 'CLOSED' ? {
-                                            background: '#f3f4f6',
-                                            color: '#374151'
-                                        } : {
-                                            background: '#fef3c7',
-                                            color: '#92400e'
-                                        })
-                                    }}>
+                                <div className={styles.infoRow}>
+                                    <span className={styles.infoLabel}>Статус:</span>
+                                    <span className={`${styles.statusIndicator} ${styles.statusIndicator[currentIter.status.toLowerCase() as keyof typeof styles.statusIndicator]}`}>
                                         {currentIter.status === 'OPEN' ? '🟢 Открыта' : 
                                          currentIter.status === 'CLOSED' ? '⚫ Закрыта' : '🟡 Планируется'}
-                                    </div>
+                                    </span>
                                 </div>
 
                                 {currentIter.meetingDate && (
-                                    <div style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '12px',
-                                        marginBottom: '8px'
-                                    }}>
-                                        <span style={{ color: 'var(--color-text-secondary)', fontWeight: '500' }}>Дедлайн:</span>
-                                        <span style={{ color: 'var(--color-text-primary)' }}>
+                                    <div className={styles.infoRow}>
+                                        <span className={styles.infoLabel}>Дедлайн:</span>
+                                        <span className={styles.infoValue}>
                                             {new Date(currentIter.meetingDate).toLocaleString('ru-RU', {
                                                 timeZone: 'UTC',
                                                 year: 'numeric',
@@ -404,71 +290,25 @@ export default function AdminPage() {
                                     </div>
                                 )}
 
-                                <div style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '12px'
-                                }}>
-                                    <span style={{ color: 'var(--color-text-secondary)', fontWeight: '500' }}>Кандидатов:</span>
-                                    <div style={{
-                                        padding: '2px 8px',
-                                        borderRadius: '6px',
-                                        background: '#e5e7eb',
-                                        color: 'var(--color-text-primary)',
-                                        fontSize: '14px',
-                                        fontWeight: '500'
-                                    }}>
+                                <div className={styles.infoRow}>
+                                    <span className={styles.infoLabel}>Кандидатов:</span>
+                                    <span className={styles.infoValue}>
                                         {(currentIter.Candidates || []).length}
-                                    </div>
+                                    </span>
                                 </div>
                             </div>
 
                             {/* Действия */}
-                            <div style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '12px'
-                            }}>
+                            <div className={styles.actionButtons}>
                                 {currentIter.status === 'PLANNED' && (
                                     <button 
                                         onClick={() => openIteration(currentIter.id)}
                                         disabled={actionLoading === 'open'}
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            gap: '8px',
-                                            padding: '12px 20px',
-                                            background: actionLoading === 'open' ? '#f3f4f6' : '#10b981',
-                                            color: actionLoading === 'open' ? '#6b7280' : 'white',
-                                            border: 'none',
-                                            borderRadius: '8px',
-                                            fontSize: '16px',
-                                            fontWeight: '500',
-                                            cursor: actionLoading === 'open' ? 'not-allowed' : 'pointer',
-                                            transition: 'all 0.15s ease'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            if (actionLoading !== 'open') {
-                                                e.currentTarget.style.background = '#059669';
-                                            }
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            if (actionLoading !== 'open') {
-                                                e.currentTarget.style.background = '#10b981';
-                                            }
-                                        }}
+                                        className={`${styles.openButton} ${actionLoading === 'open' ? styles.openButtonDisabled : ''}`}
                                     >
                                         {actionLoading === 'open' ? (
                                             <>
-                                                <div style={{
-                                                    width: '16px',
-                                                    height: '16px',
-                                                    border: '2px solid #6b7280',
-                                                    borderTop: '2px solid transparent',
-                                                    borderRadius: '50%',
-                                                    animation: 'spin 1s linear infinite'
-                                                }} />
+                                                <div className={styles.spinner} />
                                                 Открываем...
                                             </>
                                         ) : (
@@ -483,42 +323,11 @@ export default function AdminPage() {
                                     <button 
                                         onClick={() => closeIteration(currentIter.id)}
                                         disabled={actionLoading === 'close'}
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            gap: '8px',
-                                            padding: '12px 20px',
-                                            background: actionLoading === 'close' ? '#f3f4f6' : '#ef4444',
-                                            color: actionLoading === 'close' ? '#6b7280' : 'white',
-                                            border: 'none',
-                                            borderRadius: '8px',
-                                            fontSize: '16px',
-                                            fontWeight: '500',
-                                            cursor: actionLoading === 'close' ? 'not-allowed' : 'pointer',
-                                            transition: 'all 0.15s ease'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            if (actionLoading !== 'close') {
-                                                e.currentTarget.style.background = '#dc2626';
-                                            }
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            if (actionLoading !== 'close') {
-                                                e.currentTarget.style.background = '#ef4444';
-                                            }
-                                        }}
+                                        className={`${styles.closeButton} ${actionLoading === 'close' ? styles.closeButtonDisabled : ''}`}
                                     >
                                         {actionLoading === 'close' ? (
                                             <>
-                                                <div style={{
-                                                    width: '16px',
-                                                    height: '16px',
-                                                    border: '2px solid #6b7280',
-                                                    borderTop: '2px solid transparent',
-                                                    borderRadius: '50%',
-                                                    animation: 'spin 1s linear infinite'
-                                                }} />
+                                                <div className={styles.spinner} />
                                                 Закрываем...
                                             </>
                                         ) : (
@@ -531,83 +340,30 @@ export default function AdminPage() {
 
                                 {/* Установка дедлайна */}
                                 {currentIter.status !== 'CLOSED' && (
-                                    <div style={{
-                                        padding: '16px',
-                                        background: '#f8fafc',
-                                        borderRadius: '12px',
-                                        marginTop: '8px'
-                                    }}>
-                                        <h4 style={{
-                                            fontSize: '16px',
-                                            fontWeight: '600',
-                                            color: 'var(--color-text-primary)',
-                                            margin: '0 0 12px 0'
-                                        }}>
+                                    <div className={styles.changeDeadlineCard}>
+                                        <h4 className={styles.changeDeadlineTitle}>
                                             Изменить дедлайн
                                         </h4>
-                                        <div style={{
-                                            display: 'flex',
-                                            gap: '8px',
-                                            alignItems: 'flex-end',
-                                            flexWrap: 'wrap'
-                                        }}>
-                                            <div style={{ flex: '1', minWidth: '200px' }}>
+                                                                                 <div className={styles.formContainer}>
+                                             <div style={{ flex: '1', minWidth: '200px' }}>
                                                 <input
                                                     type="datetime-local"
                                                     value={newDeadline}
                                                     onChange={e => setNewDeadline(e.target.value)}
-                                                    style={{
-                                                        width: '100%',
-                                                        padding: '12px',
-                                                        border: '1px solid #d1d5db',
-                                                        borderRadius: '8px',
-                                                        fontSize: '16px',
-                                                        background: 'var(--color-bg-base)',
-                                                        color: 'var(--color-text-primary)'
-                                                    }}
+                                                    className={styles.dateInput}
                                                 />
                                             </div>
                                             <button 
                                                 onClick={() => setDeadline(currentIter.id)}
                                                 disabled={actionLoading === 'deadline' || !newDeadline}
-                                                style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '8px',
-                                                    padding: '12px 16px',
-                                                    background: actionLoading === 'deadline' || !newDeadline ? '#f3f4f6' : '#3b82f6',
-                                                    color: actionLoading === 'deadline' || !newDeadline ? '#6b7280' : 'white',
-                                                    border: 'none',
-                                                    borderRadius: '8px',
-                                                    fontSize: '14px',
-                                                    fontWeight: '500',
-                                                    cursor: actionLoading === 'deadline' || !newDeadline ? 'not-allowed' : 'pointer',
-                                                    transition: 'all 0.15s ease'
-                                                }}
-                                                onMouseEnter={(e) => {
-                                                    if (actionLoading !== 'deadline' && newDeadline) {
-                                                        e.currentTarget.style.background = '#2563eb';
-                                                    }
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    if (actionLoading !== 'deadline' && newDeadline) {
-                                                        e.currentTarget.style.background = '#3b82f6';
-                                                    }
-                                                }}
+                                                className={`${styles.setButton} ${actionLoading === 'deadline' || !newDeadline ? styles.setButtonDisabled : ''}`}
                                             >
-                                                {actionLoading === 'deadline' ? (
-                                                    <>
-                                                        <div style={{
-                                                            width: '14px',
-                                                            height: '14px',
-                                                            border: '2px solid #6b7280',
-                                                            borderTop: '2px solid transparent',
-                                                            borderRadius: '50%',
-                                                            animation: 'spin 1s linear infinite'
-                                                        }} />
-                                                        Устанавливаем...
-                                                    </>
-                                                ) : (
+                                                                                                 {actionLoading === 'deadline' ? (
+                                                     <>
+                                                         <div className={styles.smallSpinner} />
+                                                         Устанавливаем...
+                                                     </>
+                                                 ) : (
                                                     <>
                                                         ⏰ Установить
                                                     </>
@@ -619,45 +375,24 @@ export default function AdminPage() {
                             </div>
                         </div>
                     ) : (
-                        <div style={{
-                            textAlign: 'center',
-                            padding: '32px 20px',
-                            color: 'var(--color-text-muted)'
-                        }}>
-                            <div style={{ fontSize: '2rem', marginBottom: '12px' }}>📋</div>
-                            <p style={{
-                                fontSize: '16px',
-                                fontWeight: '500',
-                                margin: '0'
-                            }}>
-                                Нет активной итерации
-                            </p>
-                        </div>
+                                                 <div className={styles.emptyState}>
+                             <div className={styles.emptyIcon}>📋</div>
+                             <p className={styles.emptyText}>
+                                 Нет активной итерации
+                             </p>
+                         </div>
                     )}
                 </div>
 
                 {/* Создание новой итерации */}
-                <div className="card-glass" style={{
-                    padding: '24px'
-                }}>
-                    <h2 style={{
-                        fontSize: '20px',
-                        fontWeight: '600',
-                        color: 'var(--color-text-primary)',
-                        margin: '0 0 16px 0'
-                    }}>
+                <div className={`card-glass ${styles.createIterationCard}`}>
+                    <h2 className={styles.createIterationTitle}>
                         Создать новую итерацию
                     </h2>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                        <div>
-                            <label style={{
-                                display: 'block',
-                                fontSize: '14px',
-                                fontWeight: '500',
-                                color: 'var(--color-text-primary)',
-                                marginBottom: '6px'
-                            }}>
+                                         <div className={styles.formContainer}>
+                        <div className={styles.formGroup}>
+                            <label className={styles.formLabel}>
                                 Название итерации
                             </label>
                             <input
@@ -665,104 +400,33 @@ export default function AdminPage() {
                                 placeholder="Например: Ноябрь 2024"
                                 value={newIterName}
                                 onChange={e => setNewIterName(e.target.value)}
-                                style={{
-                                    width: '100%',
-                                    padding: '12px',
-                                    border: '1px solid #d1d5db',
-                                    borderRadius: '8px',
-                                    fontSize: '16px',
-                                    background: 'var(--color-bg-base)',
-                                    color: 'var(--color-text-primary)',
-                                    transition: 'border-color 0.15s ease'
-                                }}
-                                onFocus={(e) => {
-                                    e.target.style.borderColor = '#f26419';
-                                    e.target.style.boxShadow = '0 0 0 3px rgba(242, 100, 25, 0.1)';
-                                }}
-                                onBlur={(e) => {
-                                    e.target.style.borderColor = '#d1d5db';
-                                    e.target.style.boxShadow = 'none';
-                                }}
+                                className={styles.formInput}
                             />
                         </div>
                         
-                        <div>
-                            <label style={{
-                                display: 'block',
-                                fontSize: '14px',
-                                fontWeight: '500',
-                                color: 'var(--color-text-primary)',
-                                marginBottom: '6px'
-                            }}>
+                        <div className={styles.formGroup}>
+                            <label className={styles.formLabel}>
                                 Дедлайн (необязательно)
                             </label>
                             <input
                                 type="datetime-local"
                                 value={newDeadline}
                                 onChange={e => setNewDeadline(e.target.value)}
-                                style={{
-                                    width: '100%',
-                                    padding: '12px',
-                                    border: '1px solid #d1d5db',
-                                    borderRadius: '8px',
-                                    fontSize: '16px',
-                                    background: 'var(--color-bg-base)',
-                                    color: 'var(--color-text-primary)',
-                                    transition: 'border-color 0.15s ease'
-                                }}
-                                onFocus={(e) => {
-                                    e.target.style.borderColor = '#f26419';
-                                    e.target.style.boxShadow = '0 0 0 3px rgba(242, 100, 25, 0.1)';
-                                }}
-                                onBlur={(e) => {
-                                    e.target.style.borderColor = '#d1d5db';
-                                    e.target.style.boxShadow = 'none';
-                                }}
+                                className={styles.formInput}
                             />
                         </div>
                         
                         <button 
                             onClick={createIteration}
                             disabled={loading || !newIterName.trim()}
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '8px',
-                                padding: '16px 24px',
-                                background: loading || !newIterName.trim() ? '#f3f4f6' : '#f26419',
-                                color: loading || !newIterName.trim() ? '#6b7280' : 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                fontSize: '16px',
-                                fontWeight: '600',
-                                cursor: loading || !newIterName.trim() ? 'not-allowed' : 'pointer',
-                                transition: 'all 0.15s ease'
-                            }}
-                            onMouseEnter={(e) => {
-                                if (!loading && newIterName.trim()) {
-                                    e.currentTarget.style.background = '#e34a0f';
-                                }
-                            }}
-                            onMouseLeave={(e) => {
-                                if (!loading && newIterName.trim()) {
-                                    e.currentTarget.style.background = '#f26419';
-                                }
-                            }}
+                            className={`${styles.createButton} ${loading || !newIterName.trim() ? styles.createButtonDisabled : ''}`}
                         >
-                            {loading ? (
-                                <>
-                                    <div style={{
-                                        width: '16px',
-                                        height: '16px',
-                                        border: '2px solid #6b7280',
-                                        borderTop: '2px solid transparent',
-                                        borderRadius: '50%',
-                                        animation: 'spin 1s linear infinite'
-                                    }} />
-                                    Создание...
-                                </>
-                            ) : (
+                                                         {loading ? (
+                                 <>
+                                     <div className={styles.spinner} />
+                                     Создание...
+                                 </>
+                             ) : (
                                 <>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                         <line x1="12" y1="5" x2="12" y2="19"/>
@@ -776,12 +440,7 @@ export default function AdminPage() {
                 </div>
             </div>
 
-            <style jsx>{`
-                @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                }
-            `}</style>
+            
         </div>
     );
 }

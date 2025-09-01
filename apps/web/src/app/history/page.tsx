@@ -5,6 +5,7 @@ import BookCard from '../_components/BookCard';
 import { useI18n } from '../_i18n/I18nProvider';
 import { useTelegramTheme } from '../_providers/TelegramThemeProvider';
 import { GlassHeader } from '../_components/GlassHeader';
+import styles from './history-page.module.css';
 
 const API = process.env.NEXT_PUBLIC_API_URL!;
 
@@ -77,126 +78,51 @@ export default function HistoryPage() {
     };
 
     return (
-        <div style={{
-            minHeight: '100vh',
-            background: 'var(--color-bg-base)',
-            paddingBottom: '80px'
-        }}>
-            <GlassHeader title="История итераций" subtitle="Завершенные итерации книжного клуба" showBack />
+        <div className={styles.pageContainer}>
+            <GlassHeader title="История итераций" subtitle="Завершенные итерации книжного клуба" />
             
             <div className="container">
                 {loading ? (
-                    <div className="card-glass" style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: 'var(--space-2xl)',
-                        gap: 'var(--space-m)'
-                    }}>
-                        <div style={{
-                            width: '32px',
-                            height: '32px',
-                            border: '3px solid #e5e7eb',
-                            borderTop: '3px solid #f26419',
-                            borderRadius: '50%',
-                            animation: 'spin 1s linear infinite'
-                        }} />
-                        <p style={{ color: 'var(--color-text-muted)' }}>Загрузка истории...</p>
+                    <div className={`card-glass ${styles.loadingContainer}`}>
+                        <div className={styles.loadingSpinner} />
+                        <p className={styles.loadingText}>Загрузка истории...</p>
                     </div>
                 ) : error ? (
-                    <div className="card-glass" style={{
-                        textAlign: 'center',
-                        padding: 'var(--space-2xl)',
-                        border: '1px solid var(--color-error)',
-                        background: 'var(--color-error-bg)',
-                    }}>
-                        <div style={{ fontSize: '3rem', marginBottom: '16px' }}>⚠️</div>
-                        <h3 style={{
-                            fontSize: '20px',
-                            fontWeight: '600',
-                            color: '#dc2626',
-                            margin: '0 0 12px 0'
-                        }}>Ошибка загрузки</h3>
-                        <p style={{
-                            fontSize: '16px',
-                            color: 'var(--color-text-secondary)',
-                            lineHeight: '1.6',
-                            margin: '0 0 16px 0'
-                        }}>
+                    <div className={`card-glass ${styles.errorContainer}`}>
+                        <div className={styles.errorIcon}>⚠️</div>
+                        <h3 className={styles.errorTitle}>Ошибка загрузки</h3>
+                        <p className={styles.errorText}>
                             {error}
                         </p>
                         <button
                             onClick={retry}
-                            style={{
-                                padding: '12px 24px',
-                                backgroundColor: '#f26419',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '12px',
-                                fontWeight: '500',
-                                cursor: 'pointer',
-                                transition: 'all 0.15s ease'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = '#e34a0f';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.backgroundColor = '#f26419';
-                            }}
+                            className={styles.retryButton}
                         >
                             Попробовать снова
                         </button>
                     </div>
                 ) : items.length === 0 ? (
-                    <div className="card-glass" style={{
-                        textAlign: 'center',
-                        padding: 'var(--space-2xl)',
-                    }}>
-                        <div style={{ fontSize: '3rem', marginBottom: '16px' }}>📖</div>
-                        <h3 style={{
-                            fontSize: '20px',
-                            fontWeight: '600',
-                            color: 'var(--color-text-primary)',
-                            margin: '0 0 12px 0'
-                        }}>Пока нет истории</h3>
-                        <p style={{
-                            fontSize: '16px',
-                            color: 'var(--color-text-secondary)',
-                            lineHeight: '1.6',
-                            margin: '0'
-                        }}>
+                    <div className={`card-glass ${styles.emptyState}`}>
+                        <div className={styles.emptyIcon}>📖</div>
+                        <h3 className={styles.emptyTitle}>Пока нет истории</h3>
+                        <p className={styles.emptyText}>
                             Завершенные итерации книжного клуба появятся здесь
                         </p>
                     </div>
                 ) : (
                     <div>
                         {/* Заголовок */}
-                        <div className="card-glass" style={{
-                            padding: 'var(--space-l)',
-                            marginBottom: 'var(--space-l)'
-                        }}>
-                            <h1 style={{
-                                fontSize: '24px',
-                                fontWeight: '700',
-                                color: 'var(--color-text-primary)',
-                                margin: '0 0 8px 0',
-                                textAlign: 'center'
-                            }}>
+                        <div className={`card-glass ${styles.headerCard}`}>
+                            <h1 className={styles.headerTitle}>
                                 История клуба
                             </h1>
-                            <p style={{
-                                fontSize: '16px',
-                                color: 'var(--color-text-secondary)',
-                                textAlign: 'center',
-                                margin: '0'
-                            }}>
+                            <p className={styles.headerSubtitle}>
                                 {items.length} завершенная {items.length === 1 ? 'итерация' : items.length < 5 ? 'итерации' : 'итераций'}
                             </p>
                         </div>
 
                         {/* Список итераций */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                        <div className={styles.candidatesList}>
                             {items.map((iteration) => {
                                 const winnerId = iteration.winnerCandidateId;
                                 const winner = winnerId ? (iteration.Candidates || []).find((c) => c.id === winnerId) : null;
@@ -205,89 +131,32 @@ export default function HistoryPage() {
                                 return (
                                     <div 
                                         key={iteration.id}
-                                        className="card-glass"
-                                        style={{
-                                            overflow: 'hidden',
-                                            transition: 'all var(--duration-normal) var(--ease-out)'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
-                                            e.currentTarget.style.transform = 'translateY(-2px)';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
-                                            e.currentTarget.style.transform = 'translateY(0)';
-                                        }}
+                                        className={`card-glass ${styles.iterationCard}`}
                                     >
                                         {/* Заголовок итерации */}
-                                        <div style={{
-                                            padding: '20px 20px 16px 20px',
-                                            borderBottom: '1px solid #f3f4f6'
-                                        }}>
-                                            <div style={{
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'flex-start',
-                                                gap: '16px'
-                                            }}>
-                                                <div>
-                                                    <h3 style={{
-                                                        fontSize: '18px',
-                                                        fontWeight: '600',
-                                                        color: 'var(--color-text-primary)',
-                                                        margin: '0 0 4px 0'
-                                                    }}>
-                                                        {iteration.name}
-                                                    </h3>
-                                                    <p style={{
-                                                        fontSize: '14px',
-                                                        color: 'var(--color-text-secondary)',
-                                                        margin: '0'
-                                                    }}>
-                                                        Завершена: {formatDate(iteration.closedAt)}
-                                                    </p>
-                                                </div>
-                                                <div style={{
-                                                    padding: '4px 8px',
-                                                    borderRadius: '8px',
-                                                    background: '#f3f4f6',
-                                                    fontSize: '12px',
-                                                    fontWeight: '500',
-                                                    color: '#374151'
-                                                }}>
-                                                    ✅ Завершена
-                                                </div>
+                                        <div className={styles.iterationHeader}>
+                                            <div>
+                                                <h3 className={styles.iterationTitle}>
+                                                    {iteration.name}
+                                                </h3>
+                                                <p className={styles.detailValue}>
+                                                    Завершена: {formatDate(iteration.closedAt)}
+                                                </p>
+                                            </div>
+                                            <div className={styles.iterationStatus}>
+                                                ✅ Завершена
                                             </div>
                                         </div>
 
                                         {/* Победитель */}
-                                        <div style={{ padding: '20px' }}>
+                                        <div className={styles.candidateItem}>
                                             {winner ? (
                                                 <div>
-                                                    <div style={{
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '8px',
-                                                        marginBottom: '16px'
-                                                    }}>
-                                                        <div style={{
-                                                            padding: '4px 8px',
-                                                            borderRadius: '6px',
-                                                            background: '#fef3c7',
-                                                            color: '#92400e',
-                                                            fontSize: '12px',
-                                                            fontWeight: '500'
-                                                        }}>
+                                                    <div className={styles.candidateVotes}>
+                                                        <div className={styles.winnerBadge}>
                                                             🏆 Победитель
                                                         </div>
-                                                        <div style={{
-                                                            padding: '2px 6px',
-                                                            borderRadius: '4px',
-                                                            background: '#e5e7eb',
-                                                            color: '#374151',
-                                                            fontSize: '12px',
-                                                            fontWeight: '500'
-                                                        }}>
+                                                        <div className={styles.statValue}>
                                                             {votes} голосов
                                                         </div>
                                                     </div>
@@ -299,17 +168,9 @@ export default function HistoryPage() {
                                                     />
                                                 </div>
                                             ) : (
-                                                <div style={{
-                                                    textAlign: 'center',
-                                                    padding: '20px',
-                                                    color: '#6b7280'
-                                                }}>
-                                                    <div style={{ fontSize: '2rem', marginBottom: '8px' }}>🤷‍♂️</div>
-                                                    <p style={{
-                                                        fontSize: '16px',
-                                                        fontWeight: '500',
-                                                        margin: '0'
-                                                    }}>
+                                                <div className={styles.emptyState}>
+                                                    <div className={styles.emptyIcon}>🤷‍♂️</div>
+                                                    <p className={styles.emptyText}>
                                                         Победитель не определен
                                                     </p>
                                                 </div>
@@ -323,12 +184,7 @@ export default function HistoryPage() {
                 )}
             </div>
 
-            <style jsx>{`
-                @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                }
-            `}</style>
+
         </div>
     );
 }

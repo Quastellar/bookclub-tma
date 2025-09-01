@@ -171,7 +171,7 @@ export default function MyProposalsPage() {
 
     return (
         <div className={styles.container}>
-            <GlassHeader title="Мои предложения" subtitle="Книги, которые вы предложили для чтения" showBack />
+                         <GlassHeader title="Мои предложения" subtitle="Книги, которые вы предложили для чтения" />
             
             <div className="container">
                 {loading ? (

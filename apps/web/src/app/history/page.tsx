@@ -102,7 +102,7 @@ export default function HistoryPage() {
                             borderRadius: '50%',
                             animation: 'spin 1s linear infinite'
                         }} />
-                        <p style={{ color: '#6b7280' }}>Загрузка истории...</p>
+                        <p style={{ color: 'var(--color-text-muted)' }}>Загрузка истории...</p>
                     </div>
                 ) : error ? (
                     <div className="card-glass" style={{
@@ -120,7 +120,7 @@ export default function HistoryPage() {
                         }}>Ошибка загрузки</h3>
                         <p style={{
                             fontSize: '16px',
-                            color: '#6b7280',
+                            color: 'var(--color-text-secondary)',
                             lineHeight: '1.6',
                             margin: '0 0 16px 0'
                         }}>
@@ -157,12 +157,12 @@ export default function HistoryPage() {
                         <h3 style={{
                             fontSize: '20px',
                             fontWeight: '600',
-                            color: '#1f2937',
+                            color: 'var(--color-text-primary)',
                             margin: '0 0 12px 0'
                         }}>Пока нет истории</h3>
                         <p style={{
                             fontSize: '16px',
-                            color: '#6b7280',
+                            color: 'var(--color-text-secondary)',
                             lineHeight: '1.6',
                             margin: '0'
                         }}>
@@ -179,7 +179,7 @@ export default function HistoryPage() {
                             <h1 style={{
                                 fontSize: '24px',
                                 fontWeight: '700',
-                                color: '#1f2937',
+                                color: 'var(--color-text-primary)',
                                 margin: '0 0 8px 0',
                                 textAlign: 'center'
                             }}>
@@ -187,7 +187,7 @@ export default function HistoryPage() {
                             </h1>
                             <p style={{
                                 fontSize: '16px',
-                                color: '#6b7280',
+                                color: 'var(--color-text-secondary)',
                                 textAlign: 'center',
                                 margin: '0'
                             }}>
@@ -234,14 +234,14 @@ export default function HistoryPage() {
                                                     <h3 style={{
                                                         fontSize: '18px',
                                                         fontWeight: '600',
-                                                        color: '#1f2937',
+                                                        color: 'var(--color-text-primary)',
                                                         margin: '0 0 4px 0'
                                                     }}>
                                                         {iteration.name}
                                                     </h3>
                                                     <p style={{
                                                         fontSize: '14px',
-                                                        color: '#6b7280',
+                                                        color: 'var(--color-text-secondary)',
                                                         margin: '0'
                                                     }}>
                                                         Завершена: {formatDate(iteration.closedAt)}

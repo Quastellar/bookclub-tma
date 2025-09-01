@@ -156,7 +156,7 @@ export default function MyProposalsPage() {
                     borderRadius: '50%',
                     animation: 'spin 1s linear infinite'
                 }} />
-                <p style={{ color: '#6b7280' }}>Загрузка...</p>
+                <p style={{ color: 'var(--color-text-muted)' }}>Загрузка...</p>
                 <style jsx>{`
                     @keyframes spin {
                         0% { transform: rotate(0deg); }
@@ -193,7 +193,7 @@ export default function MyProposalsPage() {
                             borderRadius: '50%',
                             animation: 'spin 1s linear infinite'
                         }} />
-                        <p style={{ color: '#6b7280' }}>Загрузка ваших предложений...</p>
+                        <p style={{ color: 'var(--color-text-muted)' }}>Загрузка ваших предложений...</p>
                     </div>
                 ) : error ? (
                     <div className="card-glass" style={{
@@ -206,12 +206,12 @@ export default function MyProposalsPage() {
                         <h3 style={{
                             fontSize: '20px',
                             fontWeight: '600',
-                            color: '#dc2626',
+                            color: 'var(--color-error)',
                             margin: '0 0 12px 0'
                         }}>Ошибка загрузки</h3>
                         <p style={{
                             fontSize: '16px',
-                            color: '#6b7280',
+                            color: 'var(--color-text-secondary)',
                             lineHeight: '1.6',
                             margin: '0 0 16px 0'
                         }}>
@@ -248,12 +248,12 @@ export default function MyProposalsPage() {
                         <h3 style={{
                             fontSize: '20px',
                             fontWeight: '600',
-                            color: '#1f2937',
+                            color: 'var(--color-text-primary)',
                             margin: '0 0 12px 0'
                         }}>Пока нет предложений</h3>
                         <p style={{
                             fontSize: '16px',
-                            color: '#6b7280',
+                            color: 'var(--color-text-secondary)',
                             lineHeight: '1.6',
                             margin: '0 0 24px 0'
                         }}>
@@ -298,7 +298,7 @@ export default function MyProposalsPage() {
                             <h1 style={{
                                 fontSize: '24px',
                                 fontWeight: '700',
-                                color: '#1f2937',
+                                color: 'var(--color-text-primary)',
                                 margin: '0 0 8px 0',
                                 textAlign: 'center'
                             }}>
@@ -306,7 +306,7 @@ export default function MyProposalsPage() {
                             </h1>
                             <p style={{
                                 fontSize: '16px',
-                                color: '#6b7280',
+                                color: 'var(--color-text-secondary)',
                                 textAlign: 'center',
                                 margin: '0'
                             }}>
@@ -357,7 +357,7 @@ export default function MyProposalsPage() {
                                                 gap: '8px',
                                                 padding: '8px 16px',
                                                 backgroundColor: deleting === candidate.id ? '#f3f4f6' : '#ef4444',
-                                                color: deleting === candidate.id ? '#6b7280' : 'white',
+                                                color: deleting === candidate.id ? 'var(--color-text-muted)' : 'white',
                                                 border: 'none',
                                                 borderRadius: '8px',
                                                 fontSize: '14px',
@@ -427,7 +427,7 @@ export default function MyProposalsPage() {
                                 }}
                                 onMouseEnter={(e) => {
                                     e.currentTarget.style.backgroundColor = 'transparent';
-                                    e.currentTarget.style.color = '#f26419';
+                                    e.currentTarget.style.color = 'var(--color-accent-warm)';
                                     e.currentTarget.style.borderColor = '#f26419';
                                 }}
                                 onMouseLeave={(e) => {

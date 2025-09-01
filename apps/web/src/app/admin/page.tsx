@@ -217,7 +217,7 @@ export default function AdminPage() {
                     borderRadius: '50%',
                     animation: 'spin 1s linear infinite'
                 }} />
-                <p style={{ color: '#6b7280' }}>Загрузка...</p>
+                <p style={{ color: 'var(--color-text-muted)' }}>Загрузка...</p>
                 <style jsx>{`
                     @keyframes spin {
                         0% { transform: rotate(0deg); }
@@ -248,12 +248,12 @@ export default function AdminPage() {
                         <h3 style={{
                             fontSize: '20px',
                             fontWeight: '600',
-                            color: '#dc2626',
+                            color: 'var(--color-error)',
                             margin: '0 0 12px 0'
                         }}>Доступ запрещён</h3>
                         <p style={{
                             fontSize: '16px',
-                            color: '#6b7280',
+                            color: 'var(--color-text-secondary)',
                             lineHeight: '1.6',
                             margin: '0'
                         }}>
@@ -287,7 +287,7 @@ export default function AdminPage() {
                             display: 'flex',
                             alignItems: 'center',
                             gap: '8px',
-                            color: '#dc2626',
+                            color: 'var(--color-error)',
                             fontWeight: '500'
                         }}>
                             ⚠️ {error}
@@ -303,7 +303,7 @@ export default function AdminPage() {
                     <h1 style={{
                         fontSize: '24px',
                         fontWeight: '700',
-                        color: '#1f2937',
+                        color: 'var(--color-text-primary)',
                         margin: '0 0 8px 0',
                         textAlign: 'center',
                         display: 'flex',
@@ -331,7 +331,7 @@ export default function AdminPage() {
                     <h2 style={{
                         fontSize: '20px',
                         fontWeight: '600',
-                        color: '#1f2937',
+                        color: 'var(--color-text-primary)',
                         margin: '0 0 16px 0'
                     }}>
                         Текущая итерация
@@ -349,7 +349,7 @@ export default function AdminPage() {
                                 <h3 style={{
                                     fontSize: '18px',
                                     fontWeight: '600',
-                                    color: '#1f2937',
+                                    color: 'var(--color-text-primary)',
                                     margin: '0 0 12px 0'
                                 }}>
                                     {currentIter.name}
@@ -361,7 +361,7 @@ export default function AdminPage() {
                                     gap: '12px',
                                     marginBottom: '8px'
                                 }}>
-                                    <span style={{ color: '#6b7280', fontWeight: '500' }}>Статус:</span>
+                                    <span style={{ color: 'var(--color-text-secondary)', fontWeight: '500' }}>Статус:</span>
                                     <div style={{
                                         padding: '4px 8px',
                                         borderRadius: '8px',
@@ -390,8 +390,8 @@ export default function AdminPage() {
                                         gap: '12px',
                                         marginBottom: '8px'
                                     }}>
-                                        <span style={{ color: '#6b7280', fontWeight: '500' }}>Дедлайн:</span>
-                                        <span style={{ color: '#1f2937' }}>
+                                        <span style={{ color: 'var(--color-text-secondary)', fontWeight: '500' }}>Дедлайн:</span>
+                                        <span style={{ color: 'var(--color-text-primary)' }}>
                                             {new Date(currentIter.meetingDate).toLocaleString('ru-RU', {
                                                 timeZone: 'UTC',
                                                 year: 'numeric',
@@ -409,12 +409,12 @@ export default function AdminPage() {
                                     alignItems: 'center',
                                     gap: '12px'
                                 }}>
-                                    <span style={{ color: '#6b7280', fontWeight: '500' }}>Кандидатов:</span>
+                                    <span style={{ color: 'var(--color-text-secondary)', fontWeight: '500' }}>Кандидатов:</span>
                                     <div style={{
                                         padding: '2px 8px',
                                         borderRadius: '6px',
                                         background: '#e5e7eb',
-                                        color: '#374151',
+                                        color: 'var(--color-text-primary)',
                                         fontSize: '14px',
                                         fontWeight: '500'
                                     }}>
@@ -540,7 +540,7 @@ export default function AdminPage() {
                                         <h4 style={{
                                             fontSize: '16px',
                                             fontWeight: '600',
-                                            color: '#1f2937',
+                                            color: 'var(--color-text-primary)',
                                             margin: '0 0 12px 0'
                                         }}>
                                             Изменить дедлайн
@@ -622,7 +622,7 @@ export default function AdminPage() {
                         <div style={{
                             textAlign: 'center',
                             padding: '32px 20px',
-                            color: '#6b7280'
+                            color: 'var(--color-text-muted)'
                         }}>
                             <div style={{ fontSize: '2rem', marginBottom: '12px' }}>📋</div>
                             <p style={{
@@ -643,7 +643,7 @@ export default function AdminPage() {
                     <h2 style={{
                         fontSize: '20px',
                         fontWeight: '600',
-                        color: '#1f2937',
+                        color: 'var(--color-text-primary)',
                         margin: '0 0 16px 0'
                     }}>
                         Создать новую итерацию
@@ -655,7 +655,7 @@ export default function AdminPage() {
                                 display: 'block',
                                 fontSize: '14px',
                                 fontWeight: '500',
-                                color: '#374151',
+                                color: 'var(--color-text-primary)',
                                 marginBottom: '6px'
                             }}>
                                 Название итерации
@@ -691,7 +691,7 @@ export default function AdminPage() {
                                 display: 'block',
                                 fontSize: '14px',
                                 fontWeight: '500',
-                                color: '#374151',
+                                color: 'var(--color-text-primary)',
                                 marginBottom: '6px'
                             }}>
                                 Дедлайн (необязательно)

@@ -8,6 +8,7 @@ import { hapticError, hapticSuccess } from '@/lib/tg';
 import { useI18n } from '../_i18n/I18nProvider';
 import { apiFetch } from '@/lib/api';
 import { useTelegramTheme } from '../_providers/TelegramThemeProvider';
+import { useSharedState } from '../_providers/SharedStateProvider';
 import { GlassHeader } from '../_components/GlassHeader';
 import styles from './my-page.module.css';
 
@@ -29,6 +30,7 @@ type CandidateDto = {
 export default function MyProposalsPage() {
     const { t } = useI18n();
     const { tg, isReady } = useTelegramTheme();
+    const { state, updateCandidatesCache, isCacheValid } = useSharedState();
     const [items, setItems] = useState<CandidateDto[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -37,7 +39,21 @@ export default function MyProposalsPage() {
     const [deleting, setDeleting] = useState<string | null>(null);
     const [initialized, setInitialized] = useState(false);
 
-    const load = useCallback(async () => {
+    const load = useCallback(async (forceRefresh = false) => {
+        // Проверяем кэш (5 минут)
+        if (!forceRefresh && isCacheValid('candidatesCache', 5 * 60 * 1000) && state.candidatesCache.data) {
+            console.log('[MY] Using cached data');
+            const currentUser = typeof window !== 'undefined' ? getUser() : null;
+            if (currentUser) {
+                const mine = (state.candidatesCache.data as CandidateDto[]).filter((c: CandidateDto) => {
+                    const added = c?.AddedBy;
+                    return added?.id === currentUser?.id || (added?.tgUserId && added?.tgUserId === currentUser?.tgUserId);
+                });
+                setItems(mine);
+            }
+            return;
+        }
+
         setLoading(true);
         setError(null);
         try {
@@ -53,6 +69,9 @@ export default function MyProposalsPage() {
                 throw new Error(await res.text());
             }
             const data = await res.json();
+            
+            // Кэшируем все кандидаты
+            updateCandidatesCache(data?.Candidates || []);
             
             // Получаем текущего пользователя в момент выполнения
             const currentUser = typeof window !== 'undefined' ? getUser() : null;
@@ -73,7 +92,7 @@ export default function MyProposalsPage() {
         } finally {
             setLoading(false);
         }
-    }, []); // Убираем зависимость от me
+    }, [isCacheValid, state.candidatesCache.data, updateCandidatesCache]); // Убираем зависимость от me
 
     useEffect(() => {
         if (initialized) return; // Предотвращаем повторную инициализацию
@@ -126,8 +145,8 @@ export default function MyProposalsPage() {
             
             if (!res.ok) throw new Error(await res.text());
             
-            hapticSuccess();
-            await load();
+                         hapticSuccess();
+             await load(true); // Принудительно обновляем после удаления
         } catch (e) {
             hapticError();
             const msg = e instanceof Error ? e.message : String(e);
@@ -166,12 +185,12 @@ export default function MyProposalsPage() {
                         <p className={styles.errorText}>
                             {error}
                         </p>
-                        <button
-                            onClick={load}
-                            className={styles.viewButton}
-                        >
-                            Попробовать снова
-                        </button>
+                                                 <button
+                             onClick={() => load()}
+                             className={styles.viewButton}
+                         >
+                             Попробовать снова
+                         </button>
                     </div>
                 ) : items.length === 0 ? (
                     <div className="card-glass" style={{

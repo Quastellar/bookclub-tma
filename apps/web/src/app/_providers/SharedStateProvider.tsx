@@ -23,6 +23,12 @@ interface SharedState {
     lastFetched: number;
   };
   
+  // Кэш для поиска
+  searchCache: {
+    data: Record<string, Record<string, unknown>[]>;
+    lastFetched: number;
+  };
+  
   // Общие настройки
   settings: {
     theme: 'light' | 'dark';
@@ -35,6 +41,7 @@ interface SharedStateContextType {
   updateIterationsCache: (data: Record<string, unknown>, type: 'current' | 'history') => void;
   updateUserCache: (data: Record<string, unknown>) => void;
   updateCandidatesCache: (data: Record<string, unknown>[]) => void;
+  updateSearchCache: (key: string, data: Record<string, unknown>[]) => void;
   clearCache: () => void;
   isCacheValid: (type: keyof SharedState, maxAge: number) => boolean;
 }
@@ -47,6 +54,10 @@ const initialState: SharedState = {
     lastFetched: 0,
   },
   candidatesCache: {
+    lastFetched: 0,
+  },
+  searchCache: {
+    data: {},
     lastFetched: 0,
   },
   settings: {
@@ -94,6 +105,21 @@ export function SharedStateProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
+  // Обновляем кэш поиска
+  const updateSearchCache = useCallback((key: string, data: Record<string, unknown>[]) => {
+    setState(prev => ({
+      ...prev,
+      searchCache: {
+        ...prev.searchCache,
+        data: {
+          ...prev.searchCache.data,
+          [key]: data,
+        },
+        lastFetched: Date.now(),
+      },
+    }));
+  }, []);
+
   // Очищаем весь кэш
   const clearCache = useCallback(() => {
     setState(prev => ({
@@ -101,6 +127,7 @@ export function SharedStateProvider({ children }: { children: ReactNode }) {
       iterationsCache: { lastFetched: 0 },
       userCache: { lastFetched: 0 },
       candidatesCache: { lastFetched: 0 },
+      searchCache: { data: {}, lastFetched: 0 },
     }));
   }, []);
 
@@ -118,6 +145,7 @@ export function SharedStateProvider({ children }: { children: ReactNode }) {
     updateIterationsCache,
     updateUserCache,
     updateCandidatesCache,
+    updateSearchCache,
     clearCache,
     isCacheValid,
   };

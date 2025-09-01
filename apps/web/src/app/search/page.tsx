@@ -6,6 +6,7 @@ import { ensureAuth } from '@/lib/auth';
 import { useI18n } from '../_i18n/I18nProvider';
 import { apiFetch } from '@/lib/api';
 import { useTelegramTheme } from '../_providers/TelegramThemeProvider';
+import { useSharedState } from '../_providers/SharedStateProvider';
 import { GlassHeader } from '../_components/GlassHeader';
 import BookCard from '../_components/BookCard';
 
@@ -27,6 +28,7 @@ type SearchItem = {
 export default function SearchPage() {
     const { t } = useI18n();
     const { tg, isReady } = useTelegramTheme();
+    const { state, updateCandidatesCache, updateSearchCache, isCacheValid } = useSharedState();
     
     const [q, setQ] = useState('');
     const [items, setItems] = useState<SearchItem[]>([]);
@@ -53,6 +55,15 @@ export default function SearchPage() {
     const search = useCallback(async (query: string) => {
         if (!query.trim() || query.length < 2) return;
 
+        // Проверяем кэш для поисковых запросов (2 минуты)
+        const cacheKey = `search_${query.toLowerCase().trim()}`;
+        if (isCacheValid('searchCache', 2 * 60 * 1000) && state.searchCache.data?.[cacheKey]) {
+            console.log('[SEARCH] Using cached results for:', query);
+            setItems(state.searchCache.data[cacheKey] as SearchItem[]);
+            setHasSearched(true);
+            return;
+        }
+
         setLoading(true);
         setHasSearched(true);
 
@@ -69,7 +80,13 @@ export default function SearchPage() {
             const data = await response.json();
             console.log('[SEARCH] Response data:', data);
             
-            setItems(Array.isArray(data) ? data : []);
+            const searchResults = Array.isArray(data) ? data : [];
+            setItems(searchResults);
+            
+            // Кэшируем результаты поиска
+            if (searchResults.length > 0) {
+                updateSearchCache(cacheKey, searchResults);
+            }
         } catch (error) {
             console.error('[SEARCH] Error:', error);
             setItems([]);
@@ -81,7 +98,7 @@ export default function SearchPage() {
         } finally {
             setLoading(false);
         }
-    }, [tg]);
+    }, [tg, isCacheValid, state.searchCache.data, updateSearchCache]);
 
     // Дебаунсинг поиска
     useEffect(() => {

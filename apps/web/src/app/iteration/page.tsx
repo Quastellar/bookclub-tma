@@ -5,6 +5,7 @@ import { getUser, getToken, ensureAuth } from '@/lib/auth';
 import { useI18n } from '../_i18n/I18nProvider';
 import { apiFetch } from '@/lib/api';
 import { useTelegramTheme } from '../_providers/TelegramThemeProvider';
+import { useSharedState } from '../_providers/SharedStateProvider';
 import { GlassHeader } from '../_components/GlassHeader';
 import BookCard from '../_components/BookCard';
 
@@ -42,6 +43,7 @@ type IterationDto = {
 
 export default function IterationPage() {
     const { tg, isReady } = useTelegramTheme();
+    const { state, updateIterationsCache, isCacheValid } = useSharedState();
     
     const [iter, setIter] = useState<IterationDto | null>(null);
     const [loading, setLoading] = useState(true);
@@ -65,7 +67,18 @@ export default function IterationPage() {
     }, [isReady, tg, isClient]);
 
     // Загрузка данных итерации
-    const loadIteration = useCallback(async () => {
+    const loadIteration = useCallback(async (forceRefresh = false) => {
+        // Проверяем кэш (5 минут)
+        if (!forceRefresh && isCacheValid('iterationsCache', 5 * 60 * 1000) && state.iterationsCache.current) {
+            console.log('[ITERATION] Using cached data');
+            setIter(state.iterationsCache.current as IterationDto);
+            if (state.iterationsCache.current.myVoteCandidateId) {
+                setSelectedCandidateIds(new Set([state.iterationsCache.current.myVoteCandidateId as string]));
+            }
+            setLoading(false);
+            return;
+        }
+
         setLoading(true);
         setError(null);
         
@@ -86,6 +99,10 @@ export default function IterationPage() {
             
             const data = await res.json();
             setIter(data);
+            
+            // Кэшируем данные
+            updateIterationsCache(data, 'current');
+            
             // Если уже проголосовал, устанавливаем выбранную книгу
             if (data.myVoteCandidateId) {
                 setSelectedCandidateIds(new Set([data.myVoteCandidateId]));
@@ -97,7 +114,7 @@ export default function IterationPage() {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [isCacheValid, updateIterationsCache]);
 
     useEffect(() => {
         if (isClient) {
@@ -159,9 +176,9 @@ export default function IterationPage() {
             // Показать анимацию благодарности
             setShowThankYou(true);
             
-            // Перезагрузить данные
+            // Перезагрузить данные с принудительным обновлением
             setTimeout(() => {
-                loadIteration();
+                loadIteration(true);
                 setShowThankYou(false);
             }, 2000);
 
@@ -378,7 +395,7 @@ export default function IterationPage() {
                         <p style={{ color: 'var(--color-text-secondary)', marginBottom: 'var(--space-l)' }}>
                             {error}
                         </p>
-                        <button className="btn btn-primary" onClick={loadIteration}>
+                        <button className="btn btn-primary" onClick={() => loadIteration()}>
                             Попробовать снова
                         </button>
                     </div>

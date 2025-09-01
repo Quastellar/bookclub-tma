@@ -167,14 +167,14 @@ export default function HistoryPage() {
                                                         coverUrl={winner.Book?.coverUrl}
                                                     />
                                                 </div>
-                                            ) : (
-                                                <div className={styles.emptyState}>
-                                                    <div className={styles.emptyIcon}>🤷‍♂️</div>
-                                                    <p className={styles.emptyText}>
-                                                        Победитель не определен
-                                                    </p>
-                                                </div>
-                                            )}
+                                                                                         ) : (
+                                                 <div className={styles.emptyStateSmall}>
+                                                     <div className={styles.emptyIconSmall}>🤷‍♂️</div>
+                                                     <p className={styles.emptyTitleSmall}>
+                                                         Победитель не определен
+                                                     </p>
+                                                 </div>
+                                             )}
                                         </div>
                                     </div>
                                 );

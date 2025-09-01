@@ -13,14 +13,16 @@
 .headerTitle {
   font-size: var(--font-size-h1);
   color: var(--color-text-primary);
-  margin: 0 0 var(--space-xs) 0;
+  margin: 0 0 var(--space-s) 0;
   font-weight: var(--font-weight-bold);
+  text-align: center;
 }
 
 .headerSubtitle {
   color: var(--color-text-secondary);
   margin: 0;
   font-size: var(--font-size-body);
+  text-align: center;
 }
 
 .currentIterationCard {
@@ -32,6 +34,7 @@
   color: var(--color-text-primary);
   margin: 0 0 var(--space-m) 0;
   font-weight: var(--font-weight-semibold);
+  text-align: center;
 }
 
 .iterationInfo {
@@ -136,6 +139,7 @@
   color: var(--color-text-primary);
   margin: 0 0 var(--space-m) 0;
   font-weight: var(--font-weight-semibold);
+  text-align: center;
 }
 
 .dateInput {
@@ -238,6 +242,7 @@
   color: var(--color-text-primary);
   margin: 0 0 var(--space-m) 0;
   font-weight: var(--font-weight-semibold);
+  text-align: center;
 }
 
 .formGroup {

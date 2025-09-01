@@ -13,14 +13,16 @@
 .headerTitle {
   font-size: var(--font-size-h1);
   color: var(--color-text-primary);
-  margin: 0 0 var(--space-xs) 0;
+  margin: 0 0 var(--space-s) 0;
   font-weight: var(--font-weight-bold);
+  text-align: center;
 }
 
 .headerSubtitle {
   color: var(--color-text-secondary);
   margin: 0;
   font-size: var(--font-size-body);
+  text-align: center;
 }
 
 .iterationCard {
@@ -32,6 +34,8 @@
   align-items: center;
   gap: var(--space-s);
   margin-bottom: var(--space-s);
+  padding: var(--space-m) var(--space-m) var(--space-s) var(--space-m);
+  border-bottom: 1px solid var(--color-border-soft);
 }
 
 .iterationTitle {
@@ -130,7 +134,7 @@
 }
 
 .candidateItem {
-  padding: var(--space-s);
+  padding: var(--space-m);
   background: var(--color-bg-layer);
   border-radius: var(--radius-card);
   border: 1px solid var(--color-border-soft);
@@ -152,10 +156,11 @@
 .candidateVotes {
   display: flex;
   align-items: center;
-  gap: var(--space-xs);
+  gap: var(--space-s);
   color: var(--color-accent-warm);
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-medium);
+  margin-bottom: var(--space-m);
 }
 
 .winnerBadge {
@@ -236,9 +241,20 @@
   padding: var(--space-2xl);
 }
 
+.emptyStateSmall {
+  text-align: center;
+  padding: var(--space-m);
+  color: var(--color-text-muted);
+}
+
 .emptyIcon {
   font-size: 4rem;
   margin-bottom: var(--space-l);
+}
+
+.emptyIconSmall {
+  font-size: 2rem;
+  margin-bottom: var(--space-s);
 }
 
 .emptyTitle {
@@ -251,6 +267,19 @@
 .emptyText {
   color: var(--color-text-secondary);
   margin-bottom: var(--space-l);
+  line-height: var(--line-height-relaxed);
+}
+
+.emptyTitleSmall {
+  font-size: var(--font-size-body);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.emptyTextSmall {
+  color: var(--color-text-secondary);
+  margin: 0;
   line-height: var(--line-height-relaxed);
 }
 

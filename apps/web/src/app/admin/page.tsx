@@ -243,7 +243,7 @@ export default function AdminPage() {
                 )}
 
                 {/* Заголовок */}
-                <div className={`card-glass ${styles.headerCard}`}>
+                <div className={styles.headerCard}>
                     <h1 className={styles.headerTitle}>
                         ⚙️ Панель администратора
                     </h1>
@@ -253,7 +253,7 @@ export default function AdminPage() {
                 </div>
 
                 {/* Текущая итерация */}
-                <div className={`card-glass ${styles.currentIterationCard}`}>
+                <div className={styles.currentIterationCard}>
                     <h2 className={styles.currentIterationTitle}>
                         Текущая итерация
                     </h2>
@@ -278,7 +278,7 @@ export default function AdminPage() {
                                     <div className={styles.infoRow}>
                                         <span className={styles.infoLabel}>Дедлайн:</span>
                                         <span className={styles.infoValue}>
-                                            {new Date(currentIter.meetingDate).toLocaleString('ru-RU', {
+                                            📅 {new Date(currentIter.meetingDate).toLocaleString('ru-RU', {
                                                 timeZone: 'UTC',
                                                 year: 'numeric',
                                                 month: 'long',
@@ -293,7 +293,7 @@ export default function AdminPage() {
                                 <div className={styles.infoRow}>
                                     <span className={styles.infoLabel}>Кандидатов:</span>
                                     <span className={styles.infoValue}>
-                                        {(currentIter.Candidates || []).length}
+                                        👥 {(currentIter.Candidates || []).length}
                                     </span>
                                 </div>
                             </div>
@@ -332,7 +332,7 @@ export default function AdminPage() {
                                             </>
                                         ) : (
                                             <>
-                                                ⚫ Закрыть и объявить результаты
+                                                ✅ Закрыть и объявить результаты
                                             </>
                                         )}
                                     </button>
@@ -344,8 +344,8 @@ export default function AdminPage() {
                                         <h4 className={styles.changeDeadlineTitle}>
                                             Изменить дедлайн
                                         </h4>
-                                                                                 <div className={styles.formContainer}>
-                                             <div style={{ flex: '1', minWidth: '200px' }}>
+                                        <div className={styles.formContainer}>
+                                            <div style={{ flex: '1', minWidth: '200px' }}>
                                                 <input
                                                     type="datetime-local"
                                                     value={newDeadline}
@@ -358,12 +358,12 @@ export default function AdminPage() {
                                                 disabled={actionLoading === 'deadline' || !newDeadline}
                                                 className={`${styles.setButton} ${actionLoading === 'deadline' || !newDeadline ? styles.setButtonDisabled : ''}`}
                                             >
-                                                                                                 {actionLoading === 'deadline' ? (
-                                                     <>
-                                                         <div className={styles.smallSpinner} />
-                                                         Устанавливаем...
-                                                     </>
-                                                 ) : (
+                                                {actionLoading === 'deadline' ? (
+                                                    <>
+                                                        <div className={styles.smallSpinner} />
+                                                        Устанавливаем...
+                                                    </>
+                                                ) : (
                                                     <>
                                                         ⏰ Установить
                                                     </>
@@ -375,22 +375,22 @@ export default function AdminPage() {
                             </div>
                         </div>
                     ) : (
-                                                 <div className={styles.emptyState}>
-                             <div className={styles.emptyIcon}>📋</div>
-                             <p className={styles.emptyText}>
-                                 Нет активной итерации
-                             </p>
-                         </div>
+                        <div className={styles.emptyState}>
+                            <div className={styles.emptyIcon}>📋</div>
+                            <p className={styles.emptyText}>
+                                Нет активной итерации
+                            </p>
+                        </div>
                     )}
                 </div>
 
                 {/* Создание новой итерации */}
-                <div className={`card-glass ${styles.createIterationCard}`}>
+                <div className={styles.createIterationCard}>
                     <h2 className={styles.createIterationTitle}>
                         Создать новую итерацию
                     </h2>
 
-                                         <div className={styles.formContainer}>
+                    <div className={styles.formContainer}>
                         <div className={styles.formGroup}>
                             <label className={styles.formLabel}>
                                 Название итерации
@@ -421,26 +421,20 @@ export default function AdminPage() {
                             disabled={loading || !newIterName.trim()}
                             className={`${styles.createButton} ${loading || !newIterName.trim() ? styles.createButtonDisabled : ''}`}
                         >
-                                                         {loading ? (
-                                 <>
-                                     <div className={styles.spinner} />
-                                     Создание...
-                                 </>
-                             ) : (
+                            {loading ? (
                                 <>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <line x1="12" y1="5" x2="12" y2="19"/>
-                                        <line x1="5" y1="12" x2="19" y2="12"/>
-                                    </svg>
-                                    Создать итерацию
+                                    <div className={styles.spinner} />
+                                    Создание...
+                                </>
+                            ) : (
+                                <>
+                                    ➕ Создать итерацию
                                 </>
                             )}
                         </button>
                     </div>
                 </div>
             </div>
-
-            
         </div>
     );
 }
